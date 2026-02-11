@@ -130,8 +130,27 @@
                 <!-- Mis Pacientes (Médico) -->
                 <div id="mis-pacientes" class="view hidden">
                     <h2 class="text-3xl font-black text-gray-900 mb-6">Mis Pacientes</h2>
-                    <div id="pacientes-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <!-- Cards de pacientes -->
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                        <table class="w-full">
+                            <thead class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+                                <tr>
+                                    <th class="px-6 py-4 text-left text-sm font-black">Nombre</th>
+                                    <th class="px-6 py-4 text-left text-sm font-black">Cédula</th>
+                                    <th class="px-6 py-4 text-left text-sm font-black">Edad</th>
+                                    <th class="px-6 py-4 text-left text-sm font-black">Email</th>
+                                    <th class="px-6 py-4 text-center text-sm font-black">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pacientes-tbody" class="divide-y divide-gray-200">
+                                <tr class="hover:bg-gray-50 transition">
+                                    <td class="px-6 py-4 text-gray-900 font-bold">Cargando...</td>
+                                    <td class="px-6 py-4 text-gray-500">-</td>
+                                    <td class="px-6 py-4 text-gray-500">-</td>
+                                    <td class="px-6 py-4 text-gray-500">-</td>
+                                    <td class="px-6 py-4 text-center">-</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -143,19 +162,23 @@
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Seleccionar Paciente</label>
                                 <select id="select-paciente" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none">
-                                    <option>Cargando pacientes...</option>
+                                    <option value="">Selecciona un paciente...</option>
                                 </select>
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Diagnóstico (Código ICD-10)</label>
-                                <input type="text" id="diagnostico" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="ej: J06.9">
+                                <input type="text" id="diagnostico" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="ej: J06.9" required>
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Síntomas / Observaciones</label>
-                                <textarea id="sintomas" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none h-32" placeholder="Descripción detallada..."></textarea>
+                                <textarea id="sintomas" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none h-32" placeholder="Descripción detallada..." required></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Tratamiento Recomendado</label>
+                                <textarea id="tratamiento" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none h-24" placeholder="Describe el tratamiento..." required></textarea>
                             </div>
                             <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition">
-                                Guardar Consulta
+                                <i class="fa-solid fa-save mr-2"></i> Guardar Consulta
                             </button>
                         </form>
                     </div>
@@ -164,8 +187,197 @@
                 <!-- Mi Expediente (Paciente) -->
                 <div id="mi-expediente" class="view hidden">
                     <h2 class="text-3xl font-black text-gray-900 mb-6">Mi Expediente Clínico</h2>
-                    <div id="expediente-content" class="bg-white rounded-xl shadow-lg p-8">
-                        <!-- Contenido del expediente -->
+                    
+                    <!-- Grid 3 columnas -->
+                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                        
+                        <!-- COLUMNA IZQUIERDA: Datos Paciente + Signos Vitales -->
+                        <div class="lg:col-span-1 space-y-6">
+                            <!-- Tarjeta Paciente -->
+                            <div class="bg-white rounded-xl shadow-lg p-6">
+                                <div class="text-center mb-4">
+                                    <div class="w-20 h-20 mx-auto bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                                        <i class="fa-solid fa-user"></i>
+                                    </div>
+                                </div>
+                                <h3 id="exp-nombre" class="text-xl font-black text-gray-900 text-center">Juan García</h3>
+                                <p id="exp-edad" class="text-sm text-gray-500 text-center">32 años</p>
+                                <hr class="my-4">
+                                <div class="space-y-3 text-sm">
+                                    <div>
+                                        <p class="text-gray-400 font-bold">CÉDULA</p>
+                                        <p id="exp-cedula" class="text-gray-900 font-bold">1234567890</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-400 font-bold">EMAIL</p>
+                                        <p id="exp-email" class="text-gray-900 font-bold">patient@hospital.mx</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-400 font-bold">TELÉFONO</p>
+                                        <p id="exp-telefono" class="text-gray-900 font-bold">-</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Signos Vitales -->
+                            <div class="bg-white rounded-xl shadow-lg p-6">
+                                <h4 class="font-black text-gray-900 mb-4 flex items-center gap-2">
+                                    <i class="fa-solid fa-heart text-red-600"></i> Signos Vitales
+                                </h4>
+                                <div class="space-y-3">
+                                    <div class="bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-lg">
+                                        <p class="text-gray-500 text-xs font-bold">ALTURA</p>
+                                        <p id="exp-altura" class="text-2xl font-black text-purple-600">1.78 m</p>
+                                    </div>
+                                    <div class="bg-gradient-to-r from-blue-50 to-blue-100 p-3 rounded-lg">
+                                        <p class="text-gray-500 text-xs font-bold">PESO</p>
+                                        <p id="exp-peso" class="text-2xl font-black text-blue-600">76 kg</p>
+                                    </div>
+                                    <div class="bg-gradient-to-r from-green-50 to-green-100 p-3 rounded-lg">
+                                        <p class="text-gray-500 text-xs font-bold">BMI</p>
+                                        <p id="exp-bmi" class="text-2xl font-black text-green-600">23.99</p>
+                                    </div>
+                                    <div class="bg-gradient-to-r from-orange-50 to-orange-100 p-3 rounded-lg">
+                                        <p class="text-gray-500 text-xs font-bold">TEMPERATURA</p>
+                                        <p id="exp-temp" class="text-2xl font-black text-orange-600">36.5°C</p>
+                                    </div>
+                                </div>
+                                <button onclick="switchView('formulario-vitales')" class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg transition text-sm">
+                                    <i class="fa-solid fa-edit mr-2"></i> Actualizar
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- COLUMNA CENTRAL: Resumen + Antecedentes -->
+                        <div class="lg:col-span-2 space-y-6">
+                            <!-- Resumen -->
+                            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border-l-4 border-blue-600 p-6">
+                                <h4 class="font-black text-gray-900 mb-2 flex items-center gap-2">
+                                    <i class="fa-solid fa-file-medical text-blue-600"></i> Resumen Clínico
+                                </h4>
+                                <p id="exp-resumen" class="text-gray-700 text-sm leading-relaxed">
+                                    Paciente ha sido atendido en 3 ocasiones desde Octubre de 2023. Su última consulta fue el 14 de marzo de 2025 por motivo de dolor torácico. Actualmente inscrito en protocolo de nutrición y control de peso.
+                                </p>
+                            </div>
+
+                            <!-- Alergias -->
+                            <div class="bg-red-50 rounded-xl border border-red-200 p-6">
+                                <h4 class="font-black text-red-900 mb-3 flex items-center gap-2">
+                                    <i class="fa-solid fa-triangle-exclamation text-red-600"></i> ALERGIAS
+                                </h4>
+                                <div class="space-y-2">
+                                    <div class="bg-red-100 px-3 py-2 rounded-lg font-bold text-red-900">
+                                        <i class="fa-solid fa-ban mr-2"></i><span id="exp-alergias">Penicilina</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Antecedentes Patológicos -->
+                            <div class="bg-white rounded-xl shadow-lg p-6">
+                                <h4 class="font-black text-gray-900 mb-3 flex items-center gap-2">
+                                    <i class="fa-solid fa-stethoscope text-blue-600"></i> ANTECEDENTES PATOLÓGICOS
+                                </h4>
+                                <div class="space-y-2">
+                                    <div class="flex items-start gap-2">
+                                        <i class="fa-solid fa-check text-green-600 mt-1"></i>
+                                        <span class="text-gray-700 font-bold">Diabetes Tipo 2</span>
+                                    </div>
+                                    <div class="flex items-start gap-2">
+                                        <i class="fa-solid fa-check text-green-600 mt-1"></i>
+                                        <span class="text-gray-700 font-bold">Hipertensión Arterial</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Historial de Consultas -->
+                            <div class="bg-white rounded-xl shadow-lg p-6">
+                                <h4 class="font-black text-gray-900 mb-4">Historial de Consultas</h4>
+                                <div id="exp-consultas" class="space-y-3">
+                                    <div class="border-l-4 border-blue-600 pl-4 py-2">
+                                        <p class="font-bold text-gray-900">Consulta General</p>
+                                        <p class="text-sm text-gray-500">14 de marzo, 2025</p>
+                                        <p class="text-sm text-gray-700">Dolor torácico leve</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- COLUMNA DERECHA: Acciones Rápidas -->
+                        <div class="lg:col-span-1 space-y-6">
+                            <!-- Botones de Acción -->
+                            <div class="bg-white rounded-xl shadow-lg p-6 space-y-3">
+                                <h4 class="font-black text-gray-900 mb-4">Acciones</h4>
+                                <button onclick="switchView('formulario-vitales')" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-bold transition text-sm">
+                                    <i class="fa-solid fa-heart mr-2"></i> Signos Vitales
+                                </button>
+                            </div>
+
+                            <!-- Medicamentos Activos -->
+                            <div class="bg-white rounded-xl shadow-lg p-6">
+                                <h4 class="font-black text-gray-900 mb-3">
+                                    <i class="fa-solid fa-pills text-green-600 mr-2"></i> Medicamentos
+                                </h4>
+                                <div id="exp-medicamentos" class="space-y-2 text-sm">
+                                    <div class="flex justify-between items-center bg-green-50 p-2 rounded">
+                                        <span class="font-bold">Paracetamol</span>
+                                        <span class="text-green-600 text-xs font-bold">ACTIVO</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Próximas Citas -->
+                            <div class="bg-white rounded-xl shadow-lg p-6">
+                                <h4 class="font-black text-gray-900 mb-3">
+                                    <i class="fa-solid fa-calendar text-blue-600 mr-2"></i> Próximas Citas
+                                </h4>
+                                <div id="exp-citas" class="space-y-2 text-sm">
+                                    <div class="border-l-4 border-blue-600 pl-3 py-2">
+                                        <p class="font-bold text-gray-900">Seguimiento</p>
+                                        <p class="text-gray-500">25 Jul, 4:30pm</p>
+                                        <p class="text-blue-600 text-xs font-bold">Nutrición</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulario Signos Vitales -->
+                <div id="formulario-vitales" class="view hidden">
+                    <h2 class="text-3xl font-black text-gray-900 mb-6">Registrar Signos Vitales</h2>
+                    <div class="bg-white rounded-xl shadow-lg p-8 max-w-2xl">
+                        <form id="vitales-form" class="space-y-6">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Altura (m)</label>
+                                    <input type="number" id="altura" step="0.01" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="1.78">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Peso (kg)</label>
+                                    <input type="number" id="peso" step="0.1" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="76">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Temperatura (°C)</label>
+                                <input type="number" id="temperatura" step="0.1" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="36.5">
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Presión Sistólica</label>
+                                    <input type="number" id="presion-sistolica" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="120">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Presión Diastólica</label>
+                                    <input type="number" id="presion-diastolica" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="80">
+                                </div>
+                            </div>
+                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition">
+                                Guardar Signos Vitales
+                            </button>
+                            <button type="button" onclick="switchView('mi-expediente')" class="w-full bg-gray-300 hover:bg-gray-400 text-gray-900 font-bold py-3 rounded-lg transition">
+                                Cancelar
+                            </button>
+                        </form>
                     </div>
                 </div>
 
@@ -228,21 +440,12 @@
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
                 currentUser = userCredential.user;
                 currentRole = role;
-                
-                // Set role in local session (Note: Custom claims require Cloud Functions for full implementation)
                 showDashboard(role, email);
             } catch (error) {
                 console.error('Error login:', error);
-                
                 let errorMsg = 'Email o contraseña incorrectos';
-                if (error.code === 'auth/user-not-found') {
-                    errorMsg = 'Usuario no registrado';
-                } else if (error.code === 'auth/invalid-email') {
-                    errorMsg = 'Email inválido';
-                } else if (error.code === 'auth/too-many-requests') {
-                    errorMsg = 'Demasiados intentos. Intenta más tarde';
-                }
-                
+                if (error.code === 'auth/user-not-found') errorMsg = 'Usuario no registrado';
+                else if (error.code === 'auth/invalid-email') errorMsg = 'Email inválido';
                 alert(errorMsg);
             } finally {
                 loginBtn.disabled = false;
@@ -258,20 +461,17 @@
             document.getElementById('user-name').innerText = email.split('@')[0];
             document.getElementById('user-role').innerText = role.charAt(0).toUpperCase() + role.slice(1);
 
-            // Set custom claims for role-based security
             try {
-                const idTokenResult = await currentUser.getIdTokenResult(true);
+                await currentUser.getIdTokenResult(true);
                 console.log('✅ Token actualizado con role:', role);
             } catch (error) {
                 console.error('⚠️ Error actualizando token:', error);
             }
 
-            // Show corresponding menu
             document.getElementById('medico-menu').classList.toggle('hidden', role !== 'medico');
             document.getElementById('paciente-menu').classList.toggle('hidden', role !== 'paciente');
             document.getElementById('admin-menu').classList.toggle('hidden', role !== 'admin');
 
-            // Show default view
             if (role === 'medico') {
                 switchView('mis-pacientes');
                 loadMedicoPatients();
@@ -282,7 +482,6 @@
             }
             else {
                 switchView('pacientes');
-                loadAllPatients();
             }
         }
         
@@ -293,103 +492,194 @@
                     .where('assignedDoctor', '==', currentUser.uid)
                     .get();
                 
+                const tbody = document.getElementById('pacientes-tbody');
+                
+                if (snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">No tienes pacientes asignados</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = snapshot.docs.map(doc => {
+                    const p = doc.data();
+                    const fechaNac = new Date(p.fechaNacimiento);
+                    const edad = new Date().getFullYear() - fechaNac.getFullYear();
+                    
+                    return `
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="px-6 py-4 text-gray-900 font-bold">${p.nombre} ${p.apellido}</td>
+                            <td class="px-6 py-4 text-gray-700">${p.cedula}</td>
+                            <td class="px-6 py-4 text-gray-700">${edad} años</td>
+                            <td class="px-6 py-4 text-gray-700">${p.email}</td>
+                            <td class="px-6 py-4 text-center">
+                                <button onclick="viewPatientRecord('${doc.id}')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs font-bold transition">
+                                    Ver Expediente
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+                
                 console.log(`✅ Pacientes cargados: ${snapshot.size}`);
-                // TODO: Renderizar tabla de pacientes
+                loadPatientOptions();
             } catch (error) {
                 console.error('Error cargando pacientes:', error);
             }
         }
         
+        // Cargar opciones de pacientes en select
+        async function loadPatientOptions() {
+            try {
+                const snapshot = await db.collection('patients')
+                    .where('assignedDoctor', '==', currentUser.uid)
+                    .get();
+                
+                const select = document.getElementById('select-paciente');
+                select.innerHTML = '<option value="">Selecciona un paciente...</option>';
+                
+                snapshot.docs.forEach(doc => {
+                    const p = doc.data();
+                    const option = document.createElement('option');
+                    option.value = doc.id;
+                    option.textContent = `${p.nombre} ${p.apellido}`;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error cargando opciones:', error);
+            }
+        }
+        
+        // Ver expediente de paciente desde tabla
+        function viewPatientRecord(patientId) {
+            loadPatientRecordById(patientId);
+            switchView('mi-expediente');
+        }
+        
         // Cargar expediente del paciente
         async function loadPatientRecord() {
+            await loadPatientRecordById(currentUser.uid);
+        }
+        
+        async function loadPatientRecordById(patientId) {
             try {
-                const doc = await db.collection('patients').doc(currentUser.uid).get();
+                const doc = await db.collection('patients').doc(patientId).get();
                 
-                if (doc.exists) {
-                    const data = doc.data();
-                    console.log('✅ Expediente cargado:', data.nombre);
-                    // TODO: Renderizar expediente completo
-                } else {
+                if (!doc.exists) {
                     console.log('⚠️ Expediente no encontrado');
+                    return;
                 }
+                
+                const p = doc.data();
+                const fechaNac = new Date(p.fechaNacimiento);
+                const edad = new Date().getFullYear() - fechaNac.getFullYear();
+                const altura = parseFloat(p.altura || 1.78);
+                const peso = parseFloat(p.peso || 76);
+                const bmi = (peso / (altura * altura)).toFixed(2);
+                
+                // Actualizar datos básicos
+                document.getElementById('exp-nombre').textContent = `${p.nombre} ${p.apellido}`;
+                document.getElementById('exp-edad').textContent = `${edad} años`;
+                document.getElementById('exp-cedula').textContent = p.cedula;
+                document.getElementById('exp-email').textContent = p.email;
+                document.getElementById('exp-telefono').textContent = p.telefono || '-';
+                
+                // Signos vitales
+                document.getElementById('exp-altura').textContent = `${altura} m`;
+                document.getElementById('exp-peso').textContent = `${peso} kg`;
+                document.getElementById('exp-bmi').textContent = bmi;
+                document.getElementById('exp-temp').textContent = `${p.temperatura || 36.5}°C`;
+                
+                // Alergias
+                document.getElementById('exp-alergias').textContent = p.alergias || 'Sin alergias registradas';
+                
+                // Cargar consultas
+                const consultasSnapshot = await db.collection('patients').doc(patientId)
+                    .collection('consultations').orderBy('createdAt', 'desc').get();
+                
+                const consultasDiv = document.getElementById('exp-consultas');
+                if (consultasSnapshot.empty) {
+                    consultasDiv.innerHTML = '<p class="text-gray-500">Sin consultas registradas</p>';
+                } else {
+                    consultasDiv.innerHTML = consultasSnapshot.docs.map(doc => {
+                        const c = doc.data();
+                        const fecha = c.createdAt?.toDate().toLocaleDateString('es-MX') || 'Sin fecha';
+                        return `
+                            <div class="border-l-4 border-blue-600 pl-4 py-2">
+                                <p class="font-bold text-gray-900">${c.diagnostico}</p>
+                                <p class="text-sm text-gray-500">${fecha}</p>
+                                <p class="text-sm text-gray-700">${c.sintomas}</p>
+                            </div>
+                        `;
+                    }).join('');
+                }
+                
+                console.log('✅ Expediente cargado:', p.nombre);
             } catch (error) {
                 console.error('Error cargando expediente:', error);
             }
         }
         
-        // Cargar todos los pacientes (Admin)
-        async function loadAllPatients() {
+        // Guardar signos vitales
+        document.getElementById('vitales-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
             try {
-                const snapshot = await db.collection('patients').get();
-                console.log(`✅ Total pacientes: ${snapshot.size}`);
-                // TODO: Renderizar tabla de pacientes
-            } catch (error) {
-                console.error('Error cargando pacientes:', error);
-            }
-        }
-        
-        // Guardar consulta
-        async function saveConsultation(patientId, consultationData) {
-            try {
-                const consultationRef = db.collection('patients').doc(patientId)
-                    .collection('consultations').doc();
+                const altura = document.getElementById('altura').value;
+                const peso = document.getElementById('peso').value;
+                const temperatura = document.getElementById('temperatura').value;
                 
-                await consultationRef.set({
-                    ...consultationData,
-                    doctorId: currentUser.uid,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                await db.collection('patients').doc(currentUser.uid).update({
+                    altura: parseFloat(altura),
+                    peso: parseFloat(peso),
+                    temperatura: parseFloat(temperatura),
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
-                console.log('✅ Consulta guardada');
-                return true;
+                alert('✅ Signos vitales guardados correctamente');
+                document.getElementById('vitales-form').reset();
+                switchView('mi-expediente');
+                loadPatientRecord();
+            } catch (error) {
+                console.error('Error guardando signos vitales:', error);
+                alert('Error al guardar signos vitales');
+            }
+        });
+        
+        // Guardar consulta
+        document.getElementById('consulta-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const patientId = document.getElementById('select-paciente').value;
+            if (!patientId) {
+                alert('Por favor selecciona un paciente');
+                return;
+            }
+            
+            try {
+                const btn = e.target.querySelector('button[type="submit"]');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Guardando...';
+                
+                await db.collection('patients').doc(patientId).collection('consultations').doc().set({
+                    diagnostico: document.getElementById('diagnostico').value,
+                    sintomas: document.getElementById('sintomas').value,
+                    tratamiento: document.getElementById('tratamiento').value,
+                    doctorId: currentUser.uid,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                alert('✅ Consulta guardada correctamente');
+                document.getElementById('consulta-form').reset();
+                switchView('mis-pacientes');
+                loadMedicoPatients();
             } catch (error) {
                 console.error('Error guardando consulta:', error);
                 alert('Error al guardar la consulta');
-                return false;
+            } finally {
+                const btn = document.getElementById('consulta-form').querySelector('button[type="submit"]');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-save mr-2"></i> Guardar Consulta';
             }
-        }
-        
-        // Guardar paciente (Admin)
-        async function savePatient(patientData) {
-            try {
-                const docRef = db.collection('patients').doc();
-                
-                await docRef.set({
-                    ...patientData,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    createdBy: currentUser.uid,
-                    status: 'active'
-                });
-                
-                console.log('✅ Paciente creado:', docRef.id);
-                return docRef.id;
-            } catch (error) {
-                console.error('Error guardando paciente:', error);
-                alert('Error al crear paciente');
-                return null;
-            }
-        }
-        
-        // Guardar prescripción
-        async function savePrescription(patientId, prescriptionData) {
-            try {
-                await db.collection('patients').doc(patientId)
-                    .collection('prescriptions').doc().set({
-                        ...prescriptionData,
-                        doctorId: currentUser.uid,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        status: 'active'
-                    });
-                
-                console.log('✅ Prescripción guardada');
-                return true;
-            } catch (error) {
-                console.error('Error guardando prescripción:', error);
-                alert('Error al guardar prescripción');
-                return false;
-            }
-        }
+        });
 
         // Switch View
         function switchView(view) {
@@ -404,6 +694,8 @@
             currentRole = null;
             document.getElementById('login-screen').classList.remove('hidden');
             document.getElementById('dashboard-screen').classList.add('hidden');
+            document.getElementById('login-email').value = '';
+            document.getElementById('login-password').value = '';
         });
 
         console.log('✅ MediCore iniciado correctamente');
