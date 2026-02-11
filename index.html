@@ -188,12 +188,12 @@
     <script>
         // Firebase Configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyAmpI2Q-QWK5lWAJJj4lyvQcFKisFPAVJg",
-            authDomain: "bridge-mkt.firebaseapp.com",
-            projectId: "bridge-mkt",
-            storageBucket: "bridge-mkt.firebasestorage.app",
-            messagingSenderId: "486490654127",
-            appId: "1:486490654127:web:2eba741cf467f8adc1db5a"
+            apiKey: "AIzaSyC1D-VFJhy2jWwx__Q67Dvdk0U6G5KUJZ4",
+            authDomain: "medicore-879e2.firebaseapp.com",
+            projectId: "medicore-879e2",
+            storageBucket: "medicore-879e2.firebasestorage.app",
+            messagingSenderId: "201528061875",
+            appId: "1:201528061875:web:2904b0c5d3a17cdd5025c6"
         };
 
         let auth, db;
@@ -205,10 +205,7 @@
         auth = firebase.auth();
         db = firebase.firestore();
 
-        // Sign in anonymously
-        auth.signInAnonymously()
-            .then(() => console.log('✅ Firebase inicializado'))
-            .catch(err => console.error('❌ Error Firebase:', err));
+        console.log('✅ Firebase inicializado');
 
         // Login Handler
         document.getElementById('login-btn').addEventListener('click', async (e) => {
