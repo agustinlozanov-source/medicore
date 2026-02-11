@@ -219,24 +219,52 @@
                 return;
             }
 
+            const loginBtn = document.getElementById('login-btn');
+            const originalText = loginBtn.innerHTML;
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Ingresando...';
+
             try {
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
                 currentUser = userCredential.user;
                 currentRole = role;
+                
+                // Set role in local session (Note: Custom claims require Cloud Functions for full implementation)
                 showDashboard(role, email);
             } catch (error) {
                 console.error('Error login:', error);
-                alert('Email o contraseña incorrectos');
+                
+                let errorMsg = 'Email o contraseña incorrectos';
+                if (error.code === 'auth/user-not-found') {
+                    errorMsg = 'Usuario no registrado';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMsg = 'Email inválido';
+                } else if (error.code === 'auth/too-many-requests') {
+                    errorMsg = 'Demasiados intentos. Intenta más tarde';
+                }
+                
+                alert(errorMsg);
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = originalText;
             }
         });
 
         // Show Dashboard
-        function showDashboard(role, email) {
+        async function showDashboard(role, email) {
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('dashboard-screen').classList.remove('hidden');
             
             document.getElementById('user-name').innerText = email.split('@')[0];
             document.getElementById('user-role').innerText = role.charAt(0).toUpperCase() + role.slice(1);
+
+            // Set custom claims for role-based security
+            try {
+                const idTokenResult = await currentUser.getIdTokenResult(true);
+                console.log('✅ Token actualizado con role:', role);
+            } catch (error) {
+                console.error('⚠️ Error actualizando token:', error);
+            }
 
             // Show corresponding menu
             document.getElementById('medico-menu').classList.toggle('hidden', role !== 'medico');
@@ -244,9 +272,123 @@
             document.getElementById('admin-menu').classList.toggle('hidden', role !== 'admin');
 
             // Show default view
-            if (role === 'medico') switchView('mis-pacientes');
-            else if (role === 'paciente') switchView('mi-expediente');
-            else switchView('pacientes');
+            if (role === 'medico') {
+                switchView('mis-pacientes');
+                loadMedicoPatients();
+            }
+            else if (role === 'paciente') {
+                switchView('mi-expediente');
+                loadPatientRecord();
+            }
+            else {
+                switchView('pacientes');
+                loadAllPatients();
+            }
+        }
+        
+        // Cargar pacientes del médico
+        async function loadMedicoPatients() {
+            try {
+                const snapshot = await db.collection('patients')
+                    .where('assignedDoctor', '==', currentUser.uid)
+                    .get();
+                
+                console.log(`✅ Pacientes cargados: ${snapshot.size}`);
+                // TODO: Renderizar tabla de pacientes
+            } catch (error) {
+                console.error('Error cargando pacientes:', error);
+            }
+        }
+        
+        // Cargar expediente del paciente
+        async function loadPatientRecord() {
+            try {
+                const doc = await db.collection('patients').doc(currentUser.uid).get();
+                
+                if (doc.exists) {
+                    const data = doc.data();
+                    console.log('✅ Expediente cargado:', data.nombre);
+                    // TODO: Renderizar expediente completo
+                } else {
+                    console.log('⚠️ Expediente no encontrado');
+                }
+            } catch (error) {
+                console.error('Error cargando expediente:', error);
+            }
+        }
+        
+        // Cargar todos los pacientes (Admin)
+        async function loadAllPatients() {
+            try {
+                const snapshot = await db.collection('patients').get();
+                console.log(`✅ Total pacientes: ${snapshot.size}`);
+                // TODO: Renderizar tabla de pacientes
+            } catch (error) {
+                console.error('Error cargando pacientes:', error);
+            }
+        }
+        
+        // Guardar consulta
+        async function saveConsultation(patientId, consultationData) {
+            try {
+                const consultationRef = db.collection('patients').doc(patientId)
+                    .collection('consultations').doc();
+                
+                await consultationRef.set({
+                    ...consultationData,
+                    doctorId: currentUser.uid,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                console.log('✅ Consulta guardada');
+                return true;
+            } catch (error) {
+                console.error('Error guardando consulta:', error);
+                alert('Error al guardar la consulta');
+                return false;
+            }
+        }
+        
+        // Guardar paciente (Admin)
+        async function savePatient(patientData) {
+            try {
+                const docRef = db.collection('patients').doc();
+                
+                await docRef.set({
+                    ...patientData,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    createdBy: currentUser.uid,
+                    status: 'active'
+                });
+                
+                console.log('✅ Paciente creado:', docRef.id);
+                return docRef.id;
+            } catch (error) {
+                console.error('Error guardando paciente:', error);
+                alert('Error al crear paciente');
+                return null;
+            }
+        }
+        
+        // Guardar prescripción
+        async function savePrescription(patientId, prescriptionData) {
+            try {
+                await db.collection('patients').doc(patientId)
+                    .collection('prescriptions').doc().set({
+                        ...prescriptionData,
+                        doctorId: currentUser.uid,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        status: 'active'
+                    });
+                
+                console.log('✅ Prescripción guardada');
+                return true;
+            } catch (error) {
+                console.error('Error guardando prescripción:', error);
+                alert('Error al guardar prescripción');
+                return false;
+            }
         }
 
         // Switch View

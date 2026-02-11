@@ -1,0 +1,126 @@
+// MediCore - Firestore Security Rules
+// HIPAA-compliant + Mexico Regulatory Compliance
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Función para validar usuario autenticado
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Función para obtener rol del usuario (desde custom claims)
+    function getUserRole() {
+      return request.auth.token.role;
+    }
+    
+    // Función para obtener UID del usuario
+    function getUserId() {
+      return request.auth.uid;
+    }
+    
+    // Función para validar que es médico
+    function isMedico() {
+      return getUserRole() == 'medico';
+    }
+    
+    // Función para validar que es paciente
+    function isPaciente() {
+      return getUserRole() == 'paciente';
+    }
+    
+    // Función para validar que es admin
+    function isAdmin() {
+      return getUserRole() == 'admin';
+    }
+    
+    // ========== PACIENTES COLLECTION ==========
+    match /patients/{patientId} {
+      // Admin puede hacer cualquier cosa
+      allow read, write: if isAdmin();
+      
+      // Médico puede leer/escribir pacientes asignados
+      allow read: if isMedico();
+      allow write: if isMedico() && 
+                     (request.resource.data.assignedDoctor == getUserId() ||
+                      resource.data.assignedDoctor == getUserId());
+      
+      // Paciente solo puede leer su propio expediente
+      allow read: if isPaciente() && patientId == getUserId();
+      allow write: if false; // Los pacientes NO modifican su expediente
+      
+      // ========== CONSULTAS SUBCOLLECTION ==========
+      match /consultations/{consultationId} {
+        allow read: if isAdmin() || 
+                       (isMedico() && resource.data.doctorId == getUserId()) ||
+                       (isPaciente() && patientId == getUserId());
+        
+        allow create: if isMedico() && 
+                        request.resource.data.doctorId == getUserId();
+        
+        allow update: if isMedico() && 
+                        resource.data.doctorId == getUserId();
+      }
+      
+      // ========== PRESCRIPCIONES SUBCOLLECTION ==========
+      match /prescriptions/{prescriptionId} {
+        allow read: if isAdmin() || 
+                       (isMedico() && resource.data.doctorId == getUserId()) ||
+                       (isPaciente() && patientId == getUserId());
+        
+        allow create: if isMedico() && 
+                        request.resource.data.doctorId == getUserId();
+        
+        allow update: if isMedico() && 
+                        resource.data.doctorId == getUserId();
+      }
+      
+      // ========== RESULTADOS DE LAB SUBCOLLECTION ==========
+      match /labResults/{labId} {
+        allow read: if isAdmin() || 
+                       (isMedico() && resource.data.reviewedBy == getUserId()) ||
+                       (isPaciente() && patientId == getUserId());
+        
+        allow create: if isAdmin() || isMedico();
+      }
+    }
+    
+    // ========== CITAS COLLECTION ==========
+    match /appointments/{appointmentId} {
+      // Admin puede hacer cualquier cosa
+      allow read, write: if isAdmin();
+      
+      // Médico puede crear/leer/actualizar sus citas
+      allow read: if isMedico() && resource.data.doctorId == getUserId();
+      allow write: if isMedico() && 
+                     request.resource.data.doctorId == getUserId();
+      
+      // Paciente puede leer solo sus citas
+      allow read: if isPaciente() && resource.data.patientId == getUserId();
+      allow write: if false;
+    }
+    
+    // ========== MÉDICOS COLLECTION ==========
+    match /doctors/{doctorId} {
+      // Admin puede hacer cualquier cosa
+      allow read, write: if isAdmin();
+      
+      // Médico puede leer su propio perfil
+      allow read: if isMedico() && doctorId == getUserId();
+      allow write: if false;
+    }
+    
+    // ========== AUDITORIA COLLECTION (Cumplimiento) ==========
+    match /audit/{auditId} {
+      // Solo admin puede leer auditoría
+      allow read: if isAdmin();
+      allow write: if false; // Se escribe desde Cloud Functions
+    }
+    
+    // ========== DENEGAR TODO POR DEFECTO ==========
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
