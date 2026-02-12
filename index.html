@@ -90,6 +90,9 @@
                         <button onclick="switchView('nueva-consulta')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-blue-600 transition flex items-center gap-3 text-sm font-bold">
                             <i class="fa-solid fa-stethoscope"></i> Nueva Consulta
                         </button>
+                        <button onclick="switchView('recetas')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-blue-600 transition flex items-center gap-3 text-sm font-bold">
+                            <i class="fa-solid fa-prescription-bottle"></i> Recetas
+                        </button>
                         <button onclick="switchView('prescripciones')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-blue-600 transition flex items-center gap-3 text-sm font-bold">
                             <i class="fa-solid fa-prescription-bottle"></i> Prescripciones
                         </button>
@@ -187,6 +190,97 @@
                                 <i class="fa-solid fa-save mr-2"></i> Guardar Consulta
                             </button>
                         </form>
+                    </div>
+                </div>
+
+                <!-- Recetas Electrónicas (Médico) -->
+                <div id="recetas" class="view hidden">
+                    <h2 class="text-3xl font-black text-gray-900 mb-6">Recetas Electrónicas</h2>
+                    <div class="bg-white rounded-xl shadow-lg p-8 max-w-4xl">
+                        <div class="grid grid-cols-2 gap-8">
+                            <!-- Lado Izquierdo: Crear Receta -->
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800 mb-4">📋 Nueva Receta</h3>
+                                <form id="receta-form" class="space-y-6">
+                                    <!-- Seleccionar Paciente -->
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">Paciente</label>
+                                        <select id="receta-paciente" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" required>
+                                            <option value="">Selecciona paciente...</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Búsqueda de Medicamentos -->
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">Buscar Medicamento</label>
+                                        <input type="text" id="buscar-medicamento" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Buscar medicamento...">
+                                        <div id="medicamentos-dropdown" class="hidden absolute bg-white border border-gray-300 rounded-lg mt-1 shadow-lg max-h-48 overflow-y-auto w-80 z-10"></div>
+                                    </div>
+
+                                    <!-- Tabla de Medicamentos -->
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">Medicamentos</label>
+                                        <div class="border rounded-lg overflow-hidden">
+                                            <table class="w-full text-sm">
+                                                <thead class="bg-gray-100">
+                                                    <tr>
+                                                        <th class="px-3 py-2 text-left font-bold">Medicamento</th>
+                                                        <th class="px-3 py-2 text-left font-bold">Dosis</th>
+                                                        <th class="px-3 py-2 text-left font-bold">Frecuencia</th>
+                                                        <th class="px-3 py-2 text-left font-bold">Días</th>
+                                                        <th class="px-3 py-2 text-center font-bold">Acción</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="medicamentos-tabla" class="divide-y">
+                                                    <!-- Se llena dinámicamente -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <!-- Instrucciones Médicas -->
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">Instrucciones Médicas</label>
+                                        <textarea id="instrucciones" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none h-32" placeholder="Ej: Sigue tomado el paracetamol después de los 7 días..."></textarea>
+                                    </div>
+
+                                    <!-- Botones -->
+                                    <div class="flex gap-3">
+                                        <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition">
+                                            <i class="fa-solid fa-save mr-2"></i> Guardar Receta
+                                        </button>
+                                        <button type="button" onclick="compartirReceta('email')" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition">
+                                            <i class="fa-solid fa-envelope mr-2"></i> Email
+                                        </button>
+                                        <button type="button" onclick="compartirReceta('whatsapp')" class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg transition">
+                                            <i class="fa-brands fa-whatsapp mr-2"></i> WhatsApp
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- Lado Derecho: Vista Previa de Receta -->
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800 mb-4">👁️ Vista Previa</h3>
+                                <div class="border border-gray-300 rounded-lg p-6 bg-gray-50 h-full overflow-y-auto max-h-96">
+                                    <div id="receta-preview" class="space-y-4 text-sm">
+                                        <div class="text-center border-b pb-4">
+                                            <h4 class="font-bold text-lg">RECETA MÉDICA</h4>
+                                            <p class="text-xs text-gray-600">Electrónica</p>
+                                        </div>
+                                        <div id="preview-paciente" class="text-gray-600">Selecciona un paciente...</div>
+                                        <div id="preview-medicamentos" class="border-t pt-2">
+                                            <p class="font-bold text-gray-800 mb-2">Medicamentos:</p>
+                                            <p class="text-gray-600 text-xs">Agrega medicamentos a la tabla...</p>
+                                        </div>
+                                        <div id="preview-instrucciones" class="border-t pt-2">
+                                            <p class="font-bold text-gray-800 mb-2">Instrucciones:</p>
+                                            <p class="text-gray-600 text-xs">Añade instrucciones médicas...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -773,10 +867,264 @@
             }
         });
 
+        // ==================== RECETAS ELECTRÓNICAS ====================
+        
+        // Variables globales para recetas
+        let medicamentosReceta = [];
+        let pacienteRecetaSeleccionado = null;
+        
+        // Medicamentos de ejemplo (en producción vendrían de una BD)
+        const medicamentosBD = [
+            { nombre: 'Paracetamol', dosis: '500mg', grupo: 'Analgésico' },
+            { nombre: 'Ibuprofeno', dosis: '400mg', grupo: 'Antiinflamatorio' },
+            { nombre: 'Amoxicilina', dosis: '500mg', grupo: 'Antibiótico' },
+            { nombre: 'Omeprazol', dosis: '20mg', grupo: 'Antiácido' },
+            { nombre: 'Metformina', dosis: '500mg', grupo: 'Antidiabético' },
+            { nombre: 'Loratadina', dosis: '10mg', grupo: 'Antihistamínico' },
+            { nombre: 'Ranitidina', dosis: '150mg', grupo: 'Antiácido' },
+            { nombre: 'Dipirona', dosis: '500mg', grupo: 'Analgésico' }
+        ];
+        
+        // Cargar pacientes en select de recetas
+        function cargarPacientesReceta() {
+            if (currentRole !== 'medico') return;
+            
+            db.collection('patients')
+                .where('assignedDoctor', '==', currentUser.uid)
+                .get()
+                .then(snapshot => {
+                    const select = document.getElementById('receta-paciente');
+                    select.innerHTML = '<option value="">Selecciona paciente...</option>';
+                    snapshot.forEach(doc => {
+                        const option = document.createElement('option');
+                        option.value = doc.id;
+                        option.textContent = doc.data().nombre || 'Sin nombre';
+                        select.appendChild(option);
+                    });
+                });
+        }
+        
+        // Búsqueda de medicamentos
+        let medicamentoTimeout;
+        document.getElementById('buscar-medicamento')?.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const dropdown = document.getElementById('medicamentos-dropdown');
+            
+            clearTimeout(medicamentoTimeout);
+            
+            if (query.length === 0) {
+                dropdown.classList.add('hidden');
+                return;
+            }
+            
+            medicamentoTimeout = setTimeout(() => {
+                const resultados = medicamentosBD.filter(m => 
+                    m.nombre.toLowerCase().includes(query)
+                );
+                
+                if (resultados.length === 0) {
+                    dropdown.innerHTML = '<div class="p-3 text-gray-500 text-xs">No hay resultados</div>';
+                    dropdown.classList.remove('hidden');
+                    return;
+                }
+                
+                dropdown.innerHTML = resultados.map(med => `
+                    <div class="p-3 border-b hover:bg-blue-50 cursor-pointer" onclick="agregarMedicamento('${med.nombre}', '${med.dosis}')">
+                        <div class="font-bold text-gray-900">${med.nombre}</div>
+                        <div class="text-xs text-gray-500">${med.dosis} - ${med.grupo}</div>
+                    </div>
+                `).join('');
+                dropdown.classList.remove('hidden');
+            }, 200);
+        });
+        
+        // Agregar medicamento a la tabla
+        function agregarMedicamento(nombre, dosis) {
+            const id = Date.now();
+            medicamentosReceta.push({ id, nombre, dosis, frecuencia: '', dias: '' });
+            document.getElementById('buscar-medicamento').value = '';
+            document.getElementById('medicamentos-dropdown').classList.add('hidden');
+            renderizarTabla();
+            actualizarPreview();
+        }
+        
+        // Renderizar tabla de medicamentos
+        function renderizarTabla() {
+            const tbody = document.getElementById('medicamentos-tabla');
+            tbody.innerHTML = medicamentosReceta.map(med => `
+                <tr>
+                    <td class="px-3 py-2">${med.nombre}</td>
+                    <td class="px-3 py-2">${med.dosis}</td>
+                    <td class="px-3 py-2">
+                        <input type="text" placeholder="c/8 hrs" value="${med.frecuencia}" 
+                               onchange="actualizarMedicamento(${med.id}, 'frecuencia', this.value)"
+                               class="w-full border border-gray-300 rounded px-2 py-1 text-xs">
+                    </td>
+                    <td class="px-3 py-2">
+                        <input type="number" placeholder="7" value="${med.dias}" 
+                               onchange="actualizarMedicamento(${med.id}, 'dias', this.value)"
+                               class="w-full border border-gray-300 rounded px-2 py-1 text-xs">
+                    </td>
+                    <td class="px-3 py-2 text-center">
+                        <button onclick="eliminarMedicamento(${med.id})" class="text-red-600 hover:text-red-900 text-sm font-bold">
+                            ✕
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // Actualizar medicamento
+        function actualizarMedicamento(id, campo, valor) {
+            const med = medicamentosReceta.find(m => m.id === id);
+            if (med) {
+                med[campo] = valor;
+                actualizarPreview();
+            }
+        }
+        
+        // Eliminar medicamento
+        function eliminarMedicamento(id) {
+            medicamentosReceta = medicamentosReceta.filter(m => m.id !== id);
+            renderizarTabla();
+            actualizarPreview();
+        }
+        
+        // Actualizar vista previa
+        function actualizarPreview() {
+            const pacienteSelect = document.getElementById('receta-paciente');
+            const pacienteId = pacienteSelect.value;
+            
+            if (pacienteId) {
+                db.collection('patients').doc(pacienteId).get().then(doc => {
+                    if (doc.exists) {
+                        const p = doc.data();
+                        document.getElementById('preview-paciente').innerHTML = `
+                            <p><strong>${p.nombre}</strong></p>
+                            <p class="text-xs text-gray-600">Cédula: ${p.cedula || 'N/A'}</p>
+                        `;
+                    }
+                });
+            }
+            
+            document.getElementById('preview-medicamentos').innerHTML = `
+                <p class="font-bold text-gray-800 mb-2">Medicamentos:</p>
+                ${medicamentosReceta.length === 0 ? 
+                    '<p class="text-gray-600 text-xs">Agrega medicamentos a la tabla...</p>' :
+                    medicamentosReceta.map(m => `
+                        <div class="text-xs mb-2 pb-2 border-b">
+                            <p class="font-semibold">${m.nombre} ${m.dosis}</p>
+                            <p class="text-gray-600">${m.frecuencia || '-'} × ${m.dias || '-'} días</p>
+                        </div>
+                    `).join('')
+                }
+            `;
+            
+            const instrucciones = document.getElementById('instrucciones')?.value || '';
+            document.getElementById('preview-instrucciones').innerHTML = `
+                <p class="font-bold text-gray-800 mb-2">Instrucciones:</p>
+                <p class="text-gray-600 text-xs">${instrucciones || 'Añade instrucciones médicas...'}</p>
+            `;
+        }
+        
+        // Actualizar preview cuando cambia el paciente
+        document.getElementById('receta-paciente')?.addEventListener('change', actualizarPreview);
+        
+        // Actualizar preview cuando cambian instrucciones
+        document.getElementById('instrucciones')?.addEventListener('input', actualizarPreview);
+        
+        // Guardar receta
+        document.getElementById('receta-form')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (medicamentosReceta.length === 0) {
+                alert('Agrega al menos un medicamento');
+                return;
+            }
+            
+            const pacienteId = document.getElementById('receta-paciente').value;
+            if (!pacienteId) {
+                alert('Selecciona un paciente');
+                return;
+            }
+            
+            try {
+                const btn = e.target.querySelector('button[type="submit"]');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Guardando...';
+                
+                await db.collection('patients').doc(pacienteId).collection('prescriptions').doc().set({
+                    medicamentos: medicamentosReceta.map(m => ({
+                        nombre: m.nombre,
+                        dosis: m.dosis,
+                        frecuencia: m.frecuencia,
+                        dias: parseInt(m.dias) || 0
+                    })),
+                    instrucciones: document.getElementById('instrucciones').value,
+                    doctorId: currentUser.uid,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                alert('✅ Receta guardada correctamente');
+                medicamentosReceta = [];
+                document.getElementById('receta-form').reset();
+                renderizarTabla();
+                actualizarPreview();
+            } catch (error) {
+                console.error('Error guardando receta:', error);
+                alert('Error al guardar la receta');
+            } finally {
+                const btn = document.getElementById('receta-form').querySelector('button[type="submit"]');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-save mr-2"></i> Guardar Receta';
+            }
+        });
+        
+        // Compartir receta
+        function compartirReceta(medio) {
+            const pacienteId = document.getElementById('receta-paciente').value;
+            if (!pacienteId) {
+                alert('Selecciona un paciente');
+                return;
+            }
+            
+            if (medicamentosReceta.length === 0) {
+                alert('La receta está vacía');
+                return;
+            }
+            
+            const mensaje = `
+RECETA MÉDICA ELECTRÓNICA
+========================
+${medicamentosReceta.map(m => `${m.nombre} ${m.dosis} - ${m.frecuencia} x ${m.dias} días`).join('\n')}
+            
+Instrucciones: ${document.getElementById('instrucciones').value || 'Ninguna'}
+            `.trim();
+            
+            if (medio === 'email') {
+                alert('📧 Envío por correo - Funcionalidad para integrar con servidor');
+            } else if (medio === 'whatsapp') {
+                const encodedMsg = encodeURIComponent(mensaje);
+                window.open(`https://wa.me/?text=${encodedMsg}`);
+            }
+        }
+        
+        // Cerrar dropdown al hacer click fuera
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#buscar-medicamento') && !e.target.closest('#medicamentos-dropdown')) {
+                document.getElementById('medicamentos-dropdown')?.classList.add('hidden');
+            }
+        });
+
         // Switch View
         function switchView(view) {
             document.querySelectorAll('.view').forEach(el => el.classList.add('hidden'));
             document.getElementById(view)?.classList.remove('hidden');
+            
+            // Cargar pacientes si abre recetas
+            if (view === 'recetas') {
+                cargarPacientesReceta();
+            }
         }
 
         // Logout
