@@ -140,7 +140,32 @@
             <main class="flex-1 p-8">
                 <!-- Mis Pacientes (Médico) -->
                 <div id="mis-pacientes" class="view hidden">
-                    <h2 class="text-3xl font-black text-gray-900 mb-6">Mis Pacientes</h2>
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-3xl font-black text-gray-900">Mis Pacientes</h2>
+                        <div class="relative inline-block group">
+                            <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-lg transition flex items-center gap-2 shadow-lg">
+                                <i class="fa-solid fa-plus mr-2"></i> Nuevo Paciente
+                                <i class="fa-solid fa-chevron-down ml-2"></i>
+                            </button>
+                            <div class="absolute right-0 mt-0 w-48 bg-white border border-gray-200 rounded-lg shadow-xl hidden group-hover:block z-10">
+                                <button onclick="abrirModalNuevoPaciente()" class="w-full text-left px-4 py-3 hover:bg-blue-50 font-bold text-gray-900 border-b border-gray-200 flex items-center gap-2">
+                                    <i class="fa-solid fa-user-plus text-blue-600"></i> Crear Paciente
+                                </button>
+                                <button onclick="abrirModalImportarExcel()" class="w-full text-left px-4 py-3 hover:bg-blue-50 font-bold text-gray-900 flex items-center gap-2 rounded-b-lg">
+                                    <i class="fa-solid fa-file-csv text-green-600"></i> Importar de Excel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Buscador de Pacientes -->
+                    <div class="mb-6">
+                        <div class="relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-4 top-4 text-gray-400"></i>
+                            <input type="text" id="buscar-pacientes" placeholder="Buscar por nombre, cédula o email..." class="w-full border border-gray-300 rounded-lg px-4 py-3 pl-12 focus:ring-2 focus:ring-blue-500 outline-none font-bold shadow-sm" onkeyup="filtrarPacientes()">
+                        </div>
+                    </div>
+
                     <div class="bg-white rounded-xl shadow-lg overflow-hidden">
                         <table class="w-full">
                             <thead class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
@@ -806,6 +831,116 @@
                                 <button onclick="cerrarModalNuevaCita()" class="px-6 py-2 border border-gray-300 rounded-lg font-bold hover:bg-gray-50 transition">Cancelar</button>
                                 <button onclick="guardarNuevaCita()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition">
                                     <i class="fa-solid fa-plus mr-2"></i> Crear Cita
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Nuevo Paciente -->
+                <div id="modal-nuevo-paciente" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+                    <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full">
+                        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 flex justify-between items-center rounded-t-xl">
+                            <h3 class="text-2xl font-black">Crear Nuevo Paciente</h3>
+                            <button onclick="cerrarModalNuevoPaciente()" class="text-white hover:bg-blue-700 rounded-lg p-2 transition">
+                                <i class="fa-solid fa-times text-xl"></i>
+                            </button>
+                        </div>
+                        <div class="p-8 space-y-6">
+                            <!-- Nombre -->
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Nombre Completo *</label>
+                                <input type="text" id="nuevo-nombre" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" placeholder="Juan García López">
+                            </div>
+
+                            <!-- Cédula y Edad -->
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Cédula *</label>
+                                    <input type="text" id="nuevo-cedula" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" placeholder="1234567890">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Edad *</label>
+                                    <input type="number" id="nuevo-edad" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" placeholder="45">
+                                </div>
+                            </div>
+
+                            <!-- Email y Teléfono -->
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Email *</label>
+                                    <input type="email" id="nuevo-email" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" placeholder="juan@ejemplo.com">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Teléfono</label>
+                                    <input type="tel" id="nuevo-telefono" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" placeholder="+52 123 456 7890">
+                                </div>
+                            </div>
+
+                            <!-- Dirección -->
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Dirección</label>
+                                <input type="text" id="nuevo-direccion" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" placeholder="Calle Principal 123">
+                            </div>
+
+                            <!-- Botones -->
+                            <div class="flex justify-end gap-3 border-t pt-6">
+                                <button onclick="cerrarModalNuevoPaciente()" class="px-6 py-2 border border-gray-300 rounded-lg font-bold hover:bg-gray-50 transition">Cancelar</button>
+                                <button onclick="guardarNuevoPaciente()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition">
+                                    <i class="fa-solid fa-plus mr-2"></i> Crear Paciente
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Importar Excel -->
+                <div id="modal-importar-excel" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+                    <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full">
+                        <div class="bg-gradient-to-r from-green-600 to-emerald-600 text-white p-6 flex justify-between items-center rounded-t-xl">
+                            <h3 class="text-2xl font-black">Importar Pacientes desde Excel</h3>
+                            <button onclick="cerrarModalImportarExcel()" class="text-white hover:bg-green-700 rounded-lg p-2 transition">
+                                <i class="fa-solid fa-times text-xl"></i>
+                            </button>
+                        </div>
+                        <div class="p-8 space-y-6">
+                            <!-- Instrucciones -->
+                            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                <h4 class="font-black text-green-900 mb-3 flex items-center gap-2">
+                                    <i class="fa-solid fa-circle-info text-green-600"></i> Instrucciones
+                                </h4>
+                                <ul class="text-sm text-gray-700 space-y-2 list-disc list-inside">
+                                    <li>Descarga la plantilla de ejemplo</li>
+                                    <li>Completa los datos de tus pacientes en el archivo CSV</li>
+                                    <li>Guarda el archivo como CSV (separado por comas)</li>
+                                    <li>Sube el archivo aquí para importar todos los pacientes</li>
+                                </ul>
+                            </div>
+
+                            <!-- Botón Descargar Plantilla -->
+                            <div>
+                                <button onclick="descargarPlantilla()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-download"></i> Descargar Plantilla de Ejemplo (CSV)
+                                </button>
+                            </div>
+
+                            <!-- Upload CSV -->
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Seleccionar archivo CSV *</label>
+                                <input type="file" id="csv-archivo" accept=".csv" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none font-bold">
+                            </div>
+
+                            <!-- Previsualizador -->
+                            <div id="csv-preview" class="hidden">
+                                <h4 class="font-black text-gray-900 mb-3">Vista Previa de Datos</h4>
+                                <div id="preview-tabla" class="overflow-x-auto border rounded-lg"></div>
+                            </div>
+
+                            <!-- Botones -->
+                            <div class="flex justify-end gap-3 border-t pt-6">
+                                <button onclick="cerrarModalImportarExcel()" class="px-6 py-2 border border-gray-300 rounded-lg font-bold hover:bg-gray-50 transition">Cancelar</button>
+                                <button onclick="importarDesdeCsv()" class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold transition">
+                                    <i class="fa-solid fa-upload mr-2"></i> Importar Pacientes
                                 </button>
                             </div>
                         </div>
@@ -1622,6 +1757,279 @@
                         select.appendChild(option);
                     });
                 });
+        }
+        
+        // ==================== MIS PACIENTES - BÚSQUEDA Y CREACIÓN ====================
+        
+        // Filtrar pacientes por búsqueda
+        function filtrarPacientes() {
+            const busqueda = document.getElementById('buscar-pacientes').value.toLowerCase();
+            const filas = document.querySelectorAll('#pacientes-tbody tr');
+            
+            filas.forEach(fila => {
+                const texto = fila.textContent.toLowerCase();
+                fila.style.display = texto.includes(busqueda) ? '' : 'none';
+            });
+        }
+        
+        // Abrir modal Nuevo Paciente
+        function abrirModalNuevoPaciente() {
+            document.getElementById('modal-nuevo-paciente').classList.remove('hidden');
+            limpiarFormularioNuevoPaciente();
+        }
+        
+        // Cerrar modal Nuevo Paciente
+        function cerrarModalNuevoPaciente() {
+            document.getElementById('modal-nuevo-paciente').classList.add('hidden');
+            limpiarFormularioNuevoPaciente();
+        }
+        
+        // Limpiar formulario Nuevo Paciente
+        function limpiarFormularioNuevoPaciente() {
+            document.getElementById('nuevo-nombre').value = '';
+            document.getElementById('nuevo-cedula').value = '';
+            document.getElementById('nuevo-edad').value = '';
+            document.getElementById('nuevo-email').value = '';
+            document.getElementById('nuevo-telefono').value = '';
+            document.getElementById('nuevo-direccion').value = '';
+        }
+        
+        // Guardar Nuevo Paciente
+        async function guardarNuevoPaciente() {
+            const nombre = document.getElementById('nuevo-nombre').value.trim();
+            const cedula = document.getElementById('nuevo-cedula').value.trim();
+            const edad = document.getElementById('nuevo-edad').value;
+            const email = document.getElementById('nuevo-email').value.trim();
+            const telefono = document.getElementById('nuevo-telefono').value.trim();
+            const direccion = document.getElementById('nuevo-direccion').value.trim();
+            
+            if (!nombre || !cedula || !edad || !email) {
+                alert('Por favor completa los campos requeridos (*)');
+                return;
+            }
+            
+            if (!email.includes('@')) {
+                alert('Por favor ingresa un email válido');
+                return;
+            }
+            
+            try {
+                const btn = event.target;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Guardando...';
+                
+                // Calcular fecha de nacimiento basado en edad
+                const fechaNac = new Date();
+                fechaNac.setFullYear(fechaNac.getFullYear() - parseInt(edad));
+                
+                await db.collection('patients').doc().set({
+                    nombre: nombre.split(' ')[0],
+                    apellido: nombre.includes(' ') ? nombre.split(' ').slice(1).join(' ') : '',
+                    cedula: cedula,
+                    edad: parseInt(edad),
+                    email: email,
+                    telefono: telefono,
+                    direccion: direccion,
+                    fechaNacimiento: fechaNac,
+                    assignedDoctor: currentUser.uid,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                    antecedentes: {
+                        alergias: [],
+                        patologicos: [],
+                        'no-patologicos': [],
+                        heredofamiliares: [],
+                        psiquiatricos: [],
+                        vacunas: []
+                    }
+                });
+                
+                alert('✅ Paciente creado correctamente');
+                cerrarModalNuevoPaciente();
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-plus mr-2"></i> Crear Paciente';
+                loadMedicoPatients();
+                
+            } catch (error) {
+                console.error('Error creando paciente:', error);
+                alert('Error al crear paciente: ' + error.message);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-plus mr-2"></i> Crear Paciente';
+            }
+        }
+        
+        // Abrir modal Importar Excel
+        function abrirModalImportarExcel() {
+            document.getElementById('modal-importar-excel').classList.remove('hidden');
+            document.getElementById('csv-archivo').value = '';
+            document.getElementById('csv-preview').classList.add('hidden');
+            
+            // Agregar listener para previsualizador
+            document.getElementById('csv-archivo').addEventListener('change', previsualizarCsv);
+        }
+        
+        // Cerrar modal Importar Excel
+        function cerrarModalImportarExcel() {
+            document.getElementById('modal-importar-excel').classList.add('hidden');
+            document.getElementById('csv-archivo').value = '';
+            document.getElementById('csv-preview').classList.add('hidden');
+        }
+        
+        // Previsualizador de CSV
+        function previsualizarCsv(event) {
+            const archivo = event.target.files[0];
+            if (!archivo) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const csv = e.target.result;
+                const lineas = csv.split('\\n').filter(l => l.trim());
+                
+                if (lineas.length < 2) {
+                    alert('El archivo CSV debe tener encabezados y al menos una fila de datos');
+                    return;
+                }
+                
+                const encabezados = lineas[0].split(',').map(h => h.trim());
+                const datos = lineas.slice(1, Math.min(6, lineas.length)).map(linea => 
+                    linea.split(',').map(d => d.trim())
+                );
+                
+                let html = '<table class="w-full border-collapse">';
+                html += '<thead class="bg-gray-200"><tr>' + encabezados.map(h => 
+                    `<th class="border border-gray-300 px-3 py-2 text-left font-bold text-xs">${h}</th>`
+                ).join('') + '</tr></thead>';
+                html += '<tbody>' + datos.map(fila => 
+                    '<tr>' + fila.map(d => 
+                        `<td class="border border-gray-300 px-3 py-2 text-xs">${d}</td>`
+                    ).join('') + '</tr>'
+                ).join('') + '</tbody></table>';
+                
+                document.getElementById('preview-tabla').innerHTML = html;
+                document.getElementById('csv-preview').classList.remove('hidden');
+            };
+            reader.readAsText(archivo);
+        }
+        
+        // Descargar plantilla de ejemplo
+        function descargarPlantilla() {
+            const plantilla = `nombre,cedula,edad,email,telefono,direccion
+Juan García López,1234567890,45,juan@hospital.mx,+52 123 456 7890,Calle Principal 123
+María López Rodríguez,9876543210,38,maria@hospital.mx,+52 987 654 3210,Avenida Secundaria 456
+Carlos Rodríguez González,5555555555,52,carlos@hospital.mx,+52 555 555 5555,Calle Tercera 789
+Ana Martínez Sánchez,4444444444,29,ana@hospital.mx,+52 444 444 4444,Avenida Cuarta 321
+Roberto Pérez López,3333333333,61,roberto@hospital.mx,+52 333 333 3333,Calle Quinta 654`;
+            
+            const blob = new Blob([plantilla], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'plantilla-pacientes.csv';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+        
+        // Importar pacientes desde CSV
+        async function importarDesdeCsv() {
+            const archivo = document.getElementById('csv-archivo').files[0];
+            if (!archivo) {
+                alert('Por favor selecciona un archivo CSV');
+                return;
+            }
+            
+            try {
+                const btn = event.target;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Importando...';
+                
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    const csv = e.target.result;
+                    const lineas = csv.split('\\n').filter(l => l.trim());
+                    
+                    if (lineas.length < 2) {
+                        alert('El archivo CSV debe tener encabezados y datos');
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa-solid fa-upload mr-2"></i> Importar Pacientes';
+                        return;
+                    }
+                    
+                    const encabezados = lineas[0].split(',').map(h => h.trim());
+                    const pacientes = [];
+                    
+                    // Parsear datos
+                    for (let i = 1; i < lineas.length; i++) {
+                        if (!lineas[i].trim()) continue;
+                        
+                        const valores = lineas[i].split(',').map(v => v.trim());
+                        const paciente = {};
+                        
+                        encabezados.forEach((enc, idx) => {
+                            paciente[enc.toLowerCase()] = valores[idx] || '';
+                        });
+                        
+                        if (paciente.nombre && paciente.cedula && paciente.email) {
+                            pacientes.push(paciente);
+                        }
+                    }
+                    
+                    if (pacientes.length === 0) {
+                        alert('No se encontraron pacientes válidos en el archivo');
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa-solid fa-upload mr-2"></i> Importar Pacientes';
+                        return;
+                    }
+                    
+                    // Guardar pacientes en lotes
+                    let guardados = 0;
+                    for (const p of pacientes) {
+                        try {
+                            const fechaNac = new Date();
+                            fechaNac.setFullYear(fechaNac.getFullYear() - (parseInt(p.edad) || 0));
+                            
+                            await db.collection('patients').doc().set({
+                                nombre: p.nombre.split(' ')[0],
+                                apellido: p.nombre.includes(' ') ? p.nombre.split(' ').slice(1).join(' ') : '',
+                                cedula: p.cedula,
+                                edad: parseInt(p.edad) || 0,
+                                email: p.email,
+                                telefono: p.telefono || '',
+                                direccion: p.direccion || '',
+                                fechaNacimiento: fechaNac,
+                                assignedDoctor: currentUser.uid,
+                                createdAt: new Date(),
+                                updatedAt: new Date(),
+                                antecedentes: {
+                                    alergias: [],
+                                    patologicos: [],
+                                    'no-patologicos': [],
+                                    heredofamiliares: [],
+                                    psiquiatricos: [],
+                                    vacunas: []
+                                }
+                            });
+                            guardados++;
+                        } catch (err) {
+                            console.error('Error guardando paciente:', p.nombre, err);
+                        }
+                    }
+                    
+                    alert(`✅ Se importaron ${guardados} pacientes correctamente`);
+                    cerrarModalImportarExcel();
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-upload mr-2"></i> Importar Pacientes';
+                    loadMedicoPatients();
+                };
+                
+                reader.readAsText(archivo);
+            } catch (error) {
+                console.error('Error importando CSV:', error);
+                alert('Error al importar CSV: ' + error.message);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-upload mr-2"></i> Importar Pacientes';
+            }
         }
         
         // ==================== RECETAS ELECTRÓNICAS ====================
