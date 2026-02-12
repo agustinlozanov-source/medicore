@@ -12,6 +12,9 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <!-- Chart.js para gráficas -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <!-- FullCalendar -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-50">
     
@@ -97,6 +100,9 @@
                         </button>
                         <button onclick="switchView('prescripciones')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-blue-600 transition flex items-center gap-3 text-sm font-bold">
                             <i class="fa-solid fa-prescription-bottle"></i> Prescripciones
+                        </button>
+                        <button onclick="switchView('agenda-operativa')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-blue-600 transition flex items-center gap-3 text-sm font-bold">
+                            <i class="fa-solid fa-calendar"></i> Agenda Operativa
                         </button>
                     </div>
 
@@ -358,6 +364,19 @@
                                 <i class="fa-solid fa-save mr-2"></i> Guardar Consulta Completa
                             </button>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Agenda Operativa (Médico) -->
+                <div id="agenda-operativa" class="view hidden">
+                    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-lg p-6 mb-6 flex justify-between items-center">
+                        <h2 class="text-4xl font-black">Agenda Operativa</h2>
+                        <button onclick="abrirModalNuevaCita()" class="bg-white text-blue-600 font-bold px-6 py-3 rounded-lg hover:bg-blue-50 transition">
+                            <i class="fa-solid fa-plus mr-2"></i> Nueva Cita
+                        </button>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div id="agenda-calendar" style="min-height: 600px;"></div>
                     </div>
                 </div>
 
@@ -723,6 +742,71 @@
                             <div class="flex justify-end gap-3 mt-8 border-t pt-4">
                                 <button onclick="cerrarModalAntecedentes()" class="px-6 py-2 border border-gray-300 rounded-lg font-bold hover:bg-gray-50 transition">Cancelar</button>
                                 <button onclick="guardarAntecedentes()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition">Guardar Cambios</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Nueva Cita -->
+                <div id="modal-nueva-cita" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+                    <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full">
+                        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 flex justify-between items-center rounded-t-xl">
+                            <h3 class="text-2xl font-black">Nueva Cita</h3>
+                            <button onclick="cerrarModalNuevaCita()" class="text-white hover:bg-blue-700 rounded-lg p-2 transition">
+                                <i class="fa-solid fa-times text-xl"></i>
+                            </button>
+                        </div>
+                        <div class="p-8 space-y-6">
+                            <!-- Seleccionar Paciente -->
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Paciente</label>
+                                <select id="cita-paciente" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold">
+                                    <option value="">Selecciona un paciente...</option>
+                                </select>
+                            </div>
+
+                            <!-- Fecha y Hora -->
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Fecha</label>
+                                    <input type="date" id="cita-fecha" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Hora</label>
+                                    <input type="time" id="cita-hora" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold">
+                                </div>
+                            </div>
+
+                            <!-- Duración y Tipo de Servicio -->
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Duración (minutos)</label>
+                                    <input type="number" id="cita-duracion" value="30" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Tipo de Servicio</label>
+                                    <select id="cita-tipo" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold">
+                                        <option value="consulta-general">Consulta General</option>
+                                        <option value="seguimiento">Seguimiento</option>
+                                        <option value="procedimiento">Procedimiento</option>
+                                        <option value="laboratorio">Laboratorio</option>
+                                        <option value="imagenologia">Imagenología</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Notas -->
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Notas</label>
+                                <textarea id="cita-notas" rows="3" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold resize-none" placeholder="Notas adicionales..."></textarea>
+                            </div>
+
+                            <!-- Botones -->
+                            <div class="flex justify-end gap-3 border-t pt-6">
+                                <button onclick="cerrarModalNuevaCita()" class="px-6 py-2 border border-gray-300 rounded-lg font-bold hover:bg-gray-50 transition">Cancelar</button>
+                                <button onclick="guardarNuevaCita()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition">
+                                    <i class="fa-solid fa-plus mr-2"></i> Crear Cita
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -1900,6 +1984,183 @@ Instrucciones: ${document.getElementById('instrucciones').value || 'Ninguna'}
             }
         }
 
+        // ==================== AGENDA OPERATIVA ====================
+        let agendaCalendar = null;
+
+        // Abrir modal Nueva Cita
+        function abrirModalNuevaCita() {
+            document.getElementById('modal-nueva-cita').classList.remove('hidden');
+            cargarPacientesAgenda();
+            
+            // Establecer fecha mínima a hoy
+            const hoy = new Date().toISOString().split('T')[0];
+            document.getElementById('cita-fecha').min = hoy;
+            document.getElementById('cita-fecha').value = hoy;
+        }
+
+        // Cerrar modal Nueva Cita
+        function cerrarModalNuevaCita() {
+            document.getElementById('modal-nueva-cita').classList.add('hidden');
+            document.getElementById('cita-paciente').value = '';
+            document.getElementById('cita-fecha').value = '';
+            document.getElementById('cita-hora').value = '';
+            document.getElementById('cita-duracion').value = '30';
+            document.getElementById('cita-tipo').value = 'consulta-general';
+            document.getElementById('cita-notas').value = '';
+        }
+
+        // Cargar pacientes en selector de Agenda
+        async function cargarPacientesAgenda() {
+            try {
+                const selectPaciente = document.getElementById('cita-paciente');
+                selectPaciente.innerHTML = '<option value="">Selecciona un paciente...</option>';
+                
+                const snapshot = await db.collection('patients').where('doctorId', '==', currentUser.uid).get();
+                snapshot.forEach(doc => {
+                    const paciente = doc.data();
+                    const option = document.createElement('option');
+                    option.value = doc.id;
+                    option.textContent = `${paciente.nombre} (${paciente.cedula})`;
+                    selectPaciente.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error cargando pacientes para agenda:', error);
+                alert('Error al cargar pacientes');
+            }
+        }
+
+        // Guardar nueva cita
+        async function guardarNuevaCita() {
+            if (!currentUser) {
+                alert('Error: usuario no identificado');
+                return;
+            }
+
+            const pacienteId = document.getElementById('cita-paciente').value;
+            const fecha = document.getElementById('cita-fecha').value;
+            const hora = document.getElementById('cita-hora').value;
+            const duracion = parseInt(document.getElementById('cita-duracion').value);
+            const tipo = document.getElementById('cita-tipo').value;
+            const notas = document.getElementById('cita-notas').value;
+
+            if (!pacienteId || !fecha || !hora) {
+                alert('Por favor completa todos los campos requeridos');
+                return;
+            }
+
+            try {
+                const btn = event.target;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Guardando...';
+
+                // Crear documento de cita
+                const fechaHora = new Date(`${fecha}T${hora}`);
+                
+                await db.collection('appointments').add({
+                    doctorId: currentUser.uid,
+                    pacienteId: pacienteId,
+                    fecha: fecha,
+                    hora: hora,
+                    fechaHora: fechaHora,
+                    duracion: duracion,
+                    tipo: tipo,
+                    notas: notas,
+                    estado: 'pendiente',
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                });
+
+                alert('✅ Cita creada correctamente');
+                cerrarModalNuevaCita();
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-plus mr-2"></i> Crear Cita';
+                
+                // Recargar calendario
+                if (agendaCalendar) {
+                    agendaCalendar.refetchEvents();
+                }
+            } catch (error) {
+                console.error('Error guardando cita:', error);
+                alert('Error al guardar cita');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-plus mr-2"></i> Crear Cita';
+            }
+        }
+
+        // Inicializar FullCalendar
+        function inicializarAgenda() {
+            const calendarEl = document.getElementById('agenda-calendar');
+            if (!calendarEl || agendaCalendar) return;
+
+            agendaCalendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'es',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                height: 'auto',
+                eventSources: [
+                    {
+                        id: 'appointments',
+                        events: async function(info, successCallback, failureCallback) {
+                            try {
+                                const snapshot = await db.collection('appointments')
+                                    .where('doctorId', '==', currentUser.uid)
+                                    .get();
+                                
+                                const events = [];
+                                snapshot.forEach(doc => {
+                                    const cita = doc.data();
+                                    const colores = {
+                                        'pendiente': '#9CA3AF',
+                                        'confirmada': '#3B82F6',
+                                        'en-consulta': '#EF4444',
+                                        'completada': '#10B981'
+                                    };
+                                    
+                                    events.push({
+                                        id: doc.id,
+                                        title: `${cita.tipo} - ${cita.pacienteId}`,
+                                        start: `${cita.fecha}T${cita.hora}`,
+                                        duration: `00:${cita.duracion < 60 ? cita.duracion : '00'}:00`,
+                                        backgroundColor: colores[cita.estado] || '#9CA3AF',
+                                        borderColor: colores[cita.estado] || '#9CA3AF',
+                                        extendedProps: {
+                                            pacienteId: cita.pacienteId,
+                                            estado: cita.estado,
+                                            tipo: cita.tipo,
+                                            duracion: cita.duracion,
+                                            notas: cita.notas
+                                        }
+                                    });
+                                });
+                                
+                                successCallback(events);
+                            } catch (error) {
+                                console.error('Error cargando eventos:', error);
+                                failureCallback(error);
+                            }
+                        }
+                    }
+                ],
+                eventClick: function(info) {
+                    const props = info.event.extendedProps;
+                    alert(`
+Cita: ${info.event.title}
+Paciente: ${props.pacienteId}
+Estado: ${props.estado}
+Tipo: ${props.tipo}
+Duración: ${props.duracion} min
+Notas: ${props.notas || 'Sin notas'}
+                    `);
+                }
+            });
+
+            agendaCalendar.render();
+        }
+
         // Switch View
         function switchView(view) {
             document.querySelectorAll('.view').forEach(el => el.classList.add('hidden'));
@@ -1910,6 +2171,8 @@ Instrucciones: ${document.getElementById('instrucciones').value || 'Ninguna'}
                 cargarPacientesReceta();
             } else if (view === 'nueva-consulta') {
                 cargarPacientesConsulta();
+            } else if (view === 'agenda-operativa') {
+                setTimeout(() => inicializarAgenda(), 100);
             }
         }
 
