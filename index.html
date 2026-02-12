@@ -162,7 +162,7 @@
                     <div class="mb-6">
                         <div class="relative">
                             <i class="fa-solid fa-magnifying-glass absolute left-4 top-4 text-gray-400"></i>
-                            <input type="text" id="buscar-pacientes" placeholder="Buscar por nombre, cédula o email..." class="w-full border border-gray-300 rounded-lg px-4 py-3 pl-12 focus:ring-2 focus:ring-blue-500 outline-none font-bold shadow-sm" onkeyup="filtrarPacientes()">
+                            <input type="text" id="buscar-pacientes" placeholder="Buscar por nombre, CURP o email..." class="w-full border border-gray-300 rounded-lg px-4 py-3 pl-12 focus:ring-2 focus:ring-blue-500 outline-none font-bold shadow-sm" oninput="filtrarPacientes()">
                         </div>
                     </div>
 
@@ -171,7 +171,7 @@
                             <thead class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
                                 <tr>
                                     <th class="px-6 py-4 text-left text-sm font-black">Nombre</th>
-                                    <th class="px-6 py-4 text-left text-sm font-black">Cédula</th>
+                                    <th class="px-6 py-4 text-left text-sm font-black">CURP</th>
                                     <th class="px-6 py-4 text-left text-sm font-black">Edad</th>
                                     <th class="px-6 py-4 text-left text-sm font-black">Email</th>
                                     <th class="px-6 py-4 text-center text-sm font-black">Acciones</th>
@@ -853,16 +853,22 @@
                                 <input type="text" id="nuevo-nombre" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" placeholder="Juan García López">
                             </div>
 
-                            <!-- Cédula y Edad -->
+                            <!-- CURP y Fecha de Nacimiento -->
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-bold text-gray-700 mb-2">Cédula *</label>
-                                    <input type="text" id="nuevo-cedula" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" placeholder="1234567890">
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">CURP (Centro Único de Registro de Población) *</label>
+                                    <input type="text" id="nuevo-curp" maxlength="18" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold uppercase" placeholder="GARLO850215HDFLNN01">
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-bold text-gray-700 mb-2">Edad *</label>
-                                    <input type="number" id="nuevo-edad" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" placeholder="45">
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Fecha de Nacimiento *</label>
+                                    <input type="date" id="nuevo-fecha-nac" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" onchange="calcularEdad()">
                                 </div>
+                            </div>
+
+                            <!-- Edad calculada automáticamente -->
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Edad (Calculada)</label>
+                                <input type="number" id="nuevo-edad" readonly class="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-100 font-bold text-gray-700" placeholder="0">
                             </div>
 
                             <!-- Email y Teléfono -->
@@ -872,15 +878,25 @@
                                     <input type="email" id="nuevo-email" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" placeholder="juan@ejemplo.com">
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-bold text-gray-700 mb-2">Teléfono</label>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Teléfono/Móvil</label>
                                     <input type="tel" id="nuevo-telefono" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" placeholder="+52 123 456 7890">
                                 </div>
                             </div>
 
+                            <!-- Sexo -->
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Sexo *</label>
+                                <select id="nuevo-sexo" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold">
+                                    <option value="">Selecciona...</option>
+                                    <option value="M">Masculino</option>
+                                    <option value="F">Femenino</option>
+                                </select>
+                            </div>
+
                             <!-- Dirección -->
                             <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Dirección</label>
-                                <input type="text" id="nuevo-direccion" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" placeholder="Calle Principal 123">
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Dirección Completa</label>
+                                <input type="text" id="nuevo-direccion" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" placeholder="Calle Principal 123, Apartamento 4B, Ciudad, Estado">
                             </div>
 
                             <!-- Botones -->
@@ -1112,7 +1128,7 @@
                     return `
                         <tr class="hover:bg-gray-50 transition">
                             <td class="px-6 py-4 text-gray-900 font-bold">${p.nombre} ${p.apellido}</td>
-                            <td class="px-6 py-4 text-gray-700">${p.cedula}</td>
+                            <td class="px-6 py-4 text-gray-700 text-xs font-mono">${p.curp || '-'}</td>
                             <td class="px-6 py-4 text-gray-700">${edad} años</td>
                             <td class="px-6 py-4 text-gray-700">${p.email}</td>
                             <td class="px-6 py-4 text-center">
@@ -1787,24 +1803,52 @@
         // Limpiar formulario Nuevo Paciente
         function limpiarFormularioNuevoPaciente() {
             document.getElementById('nuevo-nombre').value = '';
-            document.getElementById('nuevo-cedula').value = '';
+            document.getElementById('nuevo-curp').value = '';
+            document.getElementById('nuevo-fecha-nac').value = '';
             document.getElementById('nuevo-edad').value = '';
             document.getElementById('nuevo-email').value = '';
             document.getElementById('nuevo-telefono').value = '';
+            document.getElementById('nuevo-sexo').value = '';
             document.getElementById('nuevo-direccion').value = '';
+        }
+
+        // Calcular edad desde fecha de nacimiento
+        function calcularEdad() {
+            const fechaNac = document.getElementById('nuevo-fecha-nac').value;
+            if (!fechaNac) {
+                document.getElementById('nuevo-edad').value = '';
+                return;
+            }
+            
+            const hoy = new Date();
+            const nacimiento = new Date(fechaNac);
+            let edad = hoy.getFullYear() - nacimiento.getFullYear();
+            const mes = hoy.getMonth() - nacimiento.getMonth();
+            
+            if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
+                edad--;
+            }
+            
+            document.getElementById('nuevo-edad').value = edad;
         }
         
         // Guardar Nuevo Paciente
         async function guardarNuevoPaciente() {
             const nombre = document.getElementById('nuevo-nombre').value.trim();
-            const cedula = document.getElementById('nuevo-cedula').value.trim();
-            const edad = document.getElementById('nuevo-edad').value;
+            const curp = document.getElementById('nuevo-curp').value.trim().toUpperCase();
+            const fechaNac = document.getElementById('nuevo-fecha-nac').value;
             const email = document.getElementById('nuevo-email').value.trim();
             const telefono = document.getElementById('nuevo-telefono').value.trim();
+            const sexo = document.getElementById('nuevo-sexo').value;
             const direccion = document.getElementById('nuevo-direccion').value.trim();
             
-            if (!nombre || !cedula || !edad || !email) {
+            if (!nombre || !curp || !fechaNac || !email || !sexo) {
                 alert('Por favor completa los campos requeridos (*)');
+                return;
+            }
+            
+            if (curp.length !== 18) {
+                alert('El CURP debe tener 18 caracteres');
                 return;
             }
             
@@ -1818,19 +1862,19 @@
                 btn.disabled = true;
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Guardando...';
                 
-                // Calcular fecha de nacimiento basado en edad
-                const fechaNac = new Date();
-                fechaNac.setFullYear(fechaNac.getFullYear() - parseInt(edad));
+                const fechaNacimiento = new Date(fechaNac);
+                const edad = new Date().getFullYear() - fechaNacimiento.getFullYear();
                 
                 await db.collection('patients').doc().set({
                     nombre: nombre.split(' ')[0],
                     apellido: nombre.includes(' ') ? nombre.split(' ').slice(1).join(' ') : '',
-                    cedula: cedula,
-                    edad: parseInt(edad),
+                    curp: curp,
+                    sexo: sexo,
+                    edad: edad,
                     email: email,
                     telefono: telefono,
                     direccion: direccion,
-                    fechaNacimiento: fechaNac,
+                    fechaNacimiento: fechaNacimiento,
                     assignedDoctor: currentUser.uid,
                     createdAt: new Date(),
                     updatedAt: new Date(),
@@ -1913,12 +1957,12 @@
         
         // Descargar plantilla de ejemplo
         function descargarPlantilla() {
-            const plantilla = `nombre,cedula,edad,email,telefono,direccion
-Juan García López,1234567890,45,juan@hospital.mx,+52 123 456 7890,Calle Principal 123
-María López Rodríguez,9876543210,38,maria@hospital.mx,+52 987 654 3210,Avenida Secundaria 456
-Carlos Rodríguez González,5555555555,52,carlos@hospital.mx,+52 555 555 5555,Calle Tercera 789
-Ana Martínez Sánchez,4444444444,29,ana@hospital.mx,+52 444 444 4444,Avenida Cuarta 321
-Roberto Pérez López,3333333333,61,roberto@hospital.mx,+52 333 333 3333,Calle Quinta 654`;
+            const plantilla = `nombre,curp,fecha_nacimiento,sexo,email,telefono,direccion
+Juan García López,GARLO850215HDFLNN01,1985-02-15,M,juan@hospital.mx,+52 123 456 7890,Calle Principal 123
+María López Rodríguez,LOPM870512HDFRNR02,1987-05-12,F,maria@hospital.mx,+52 987 654 3210,Avenida Secundaria 456
+Carlos Rodríguez González,ROGC741203HDFNLS03,1974-12-03,M,carlos@hospital.mx,+52 555 555 5555,Calle Tercera 789
+Ana Martínez Sánchez,MASA950623HDFTNA04,1995-06-23,F,ana@hospital.mx,+52 444 444 4444,Avenida Cuarta 321
+Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 333 333 3333,Calle Quinta 654`;
             
             const blob = new Blob([plantilla], { type: 'text/csv' });
             const url = window.URL.createObjectURL(blob);
@@ -1970,7 +2014,7 @@ Roberto Pérez López,3333333333,61,roberto@hospital.mx,+52 333 333 3333,Calle Q
                             paciente[enc.toLowerCase()] = valores[idx] || '';
                         });
                         
-                        if (paciente.nombre && paciente.cedula && paciente.email) {
+                        if (paciente.nombre && paciente.curp && paciente.email && paciente.fecha_nacimiento) {
                             pacientes.push(paciente);
                         }
                     }
@@ -1986,14 +2030,15 @@ Roberto Pérez López,3333333333,61,roberto@hospital.mx,+52 333 333 3333,Calle Q
                     let guardados = 0;
                     for (const p of pacientes) {
                         try {
-                            const fechaNac = new Date();
-                            fechaNac.setFullYear(fechaNac.getFullYear() - (parseInt(p.edad) || 0));
+                            const fechaNac = new Date(p.fecha_nacimiento);
+                            const edad = new Date().getFullYear() - fechaNac.getFullYear();
                             
                             await db.collection('patients').doc().set({
                                 nombre: p.nombre.split(' ')[0],
                                 apellido: p.nombre.includes(' ') ? p.nombre.split(' ').slice(1).join(' ') : '',
-                                cedula: p.cedula,
-                                edad: parseInt(p.edad) || 0,
+                                curp: p.curp.toUpperCase(),
+                                sexo: p.sexo || '',
+                                edad: edad,
                                 email: p.email,
                                 telefono: p.telefono || '',
                                 direccion: p.direccion || '',
