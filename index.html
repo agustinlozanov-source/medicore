@@ -382,32 +382,33 @@
                                 </p>
                             </div>
 
-                            <!-- Alergias -->
+                            <!-- Alergias - DINÁMICO -->
                             <div class="bg-red-50 rounded-xl border border-red-200 p-6">
                                 <h4 class="font-black text-red-900 mb-3 flex items-center gap-2">
                                     <i class="fa-solid fa-triangle-exclamation text-red-600"></i> ALERGIAS
                                 </h4>
-                                <div class="space-y-2">
-                                    <div class="bg-red-100 px-3 py-2 rounded-lg font-bold text-red-900">
-                                        <i class="fa-solid fa-ban mr-2"></i><span id="exp-alergias">Penicilina</span>
-                                    </div>
+                                <div id="exp-alergias-list" class="space-y-2">
+                                    <p class="text-gray-500 text-sm italic">No hay alergias registradas</p>
                                 </div>
                             </div>
 
-                            <!-- Antecedentes Patológicos -->
-                            <div class="bg-white rounded-xl shadow-lg p-6">
-                                <h4 class="font-black text-gray-900 mb-3 flex items-center gap-2">
+                            <!-- Antecedentes Patológicos - DINÁMICO -->
+                            <div class="bg-blue-50 rounded-xl border border-blue-200 p-6">
+                                <h4 class="font-black text-blue-900 mb-3 flex items-center gap-2">
                                     <i class="fa-solid fa-stethoscope text-blue-600"></i> ANTECEDENTES PATOLÓGICOS
                                 </h4>
-                                <div class="space-y-2">
-                                    <div class="flex items-start gap-2">
-                                        <i class="fa-solid fa-check text-green-600 mt-1"></i>
-                                        <span class="text-gray-700 font-bold">Diabetes Tipo 2</span>
-                                    </div>
-                                    <div class="flex items-start gap-2">
-                                        <i class="fa-solid fa-check text-green-600 mt-1"></i>
-                                        <span class="text-gray-700 font-bold">Hipertensión Arterial</span>
-                                    </div>
+                                <div id="exp-patologicos-list" class="space-y-2">
+                                    <p class="text-gray-500 text-sm italic">No hay antecedentes patológicos</p>
+                                </div>
+                            </div>
+
+                            <!-- Antecedentes No Patológicos - DINÁMICO -->
+                            <div class="bg-green-50 rounded-xl border border-green-200 p-6">
+                                <h4 class="font-black text-green-900 mb-3 flex items-center gap-2">
+                                    <i class="fa-solid fa-leaf text-green-600"></i> ANTECEDENTES NO PATOLÓGICOS
+                                </h4>
+                                <div id="exp-no-patologicos-list" class="space-y-2">
+                                    <p class="text-gray-500 text-sm italic">No hay antecedentes</p>
                                 </div>
                             </div>
 
@@ -784,8 +785,12 @@
                 
                 // Actualizar datos básicos
                 document.getElementById('exp-nombre').textContent = `${p.nombre} ${p.apellido}`;
+                document.getElementById('exp-nombre-header').textContent = `${p.nombre} ${p.apellido}`;
                 document.getElementById('exp-edad').textContent = `${edad} años`;
+                document.getElementById('exp-edad-header').textContent = `${edad} años`;
+                document.getElementById('exp-genero-header').textContent = p.genero || 'No especificado';
                 document.getElementById('exp-cedula').textContent = p.cedula;
+                document.getElementById('exp-cedula-header').textContent = `CURP: ${p.curp || p.cedula || 'N/A'}`;
                 document.getElementById('exp-email').textContent = p.email;
                 document.getElementById('exp-telefono').textContent = p.telefono || '-';
                 
@@ -797,6 +802,48 @@
                 
                 // Alergias
                 document.getElementById('exp-alergias').textContent = p.alergias || 'Sin alergias registradas';
+                
+                // Antecedentes Dinámicos
+                const antecedentes = p.antecedentes || {
+                    alergias: [],
+                    patologicos: [],
+                    'no-patologicos': [],
+                    heredofamiliares: [],
+                    psiquiatricos: [],
+                    vacunas: []
+                };
+                
+                // Mostrar alergias
+                const alergiasList = document.getElementById('exp-alergias-list');
+                if (antecedentes.alergias && antecedentes.alergias.length > 0) {
+                    alergiasList.innerHTML = antecedentes.alergias.map(alergia => `
+                        <div class="bg-red-100 px-3 py-2 rounded-lg font-bold text-red-900">
+                            <i class="fa-solid fa-ban mr-2"></i>${alergia}
+                        </div>
+                    `).join('');
+                }
+                
+                // Mostrar patológicos
+                const patologicosList = document.getElementById('exp-patologicos-list');
+                if (antecedentes.patologicos && antecedentes.patologicos.length > 0) {
+                    patologicosList.innerHTML = antecedentes.patologicos.map(pat => `
+                        <div class="flex items-start gap-2">
+                            <i class="fa-solid fa-check text-blue-600 mt-1"></i>
+                            <span class="text-gray-800 font-bold">${pat}</span>
+                        </div>
+                    `).join('');
+                }
+                
+                // Mostrar no patológicos
+                const noPatologicosList = document.getElementById('exp-no-patologicos-list');
+                if (antecedentes['no-patologicos'] && antecedentes['no-patologicos'].length > 0) {
+                    noPatologicosList.innerHTML = antecedentes['no-patologicos'].map(nopat => `
+                        <div class="flex items-start gap-2">
+                            <i class="fa-solid fa-leaf text-green-600 mt-1"></i>
+                            <span class="text-gray-800 font-bold">${nopat}</span>
+                        </div>
+                    `).join('');
+                }
                 
                 // Cargar consultas
                 const consultasSnapshot = await db.collection('patients').doc(patientId)
