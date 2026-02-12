@@ -166,8 +166,14 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Diagnóstico (Código ICD-10)</label>
-                                <input type="text" id="diagnostico" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="ej: J06.9" required>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Diagnóstico (Código CIE-10)</label>
+                                <div class="relative">
+                                    <input type="text" id="diagnostico" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Escribe código o descripción..." required autocomplete="off">
+                                    <!-- Dropdown de resultados -->
+                                    <div id="cie10-dropdown" class="hidden absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg mt-1 shadow-lg max-h-64 overflow-y-auto z-10">
+                                        <!-- Resultados dinámicos -->
+                                    </div>
+                                </div>
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Síntomas / Observaciones</label>
@@ -641,6 +647,73 @@
             } catch (error) {
                 console.error('Error guardando signos vitales:', error);
                 alert('Error al guardar signos vitales');
+            }
+        });
+        
+        // AUTOCOMPLETE CIE-10
+        let cie10Timeout;
+        document.getElementById('diagnostico').addEventListener('input', async (e) => {
+            const searchQuery = e.target.value.trim().toLowerCase();
+            const dropdown = document.getElementById('cie10-dropdown');
+            
+            // Limpiar timeout anterior
+            clearTimeout(cie10Timeout);
+            
+            // Si está vacío, ocultar dropdown
+            if (searchQuery.length === 0) {
+                dropdown.classList.add('hidden');
+                return;
+            }
+            
+            // Mostrar "Buscando..." y realizar búsqueda con debounce
+            dropdown.innerHTML = '<div class="p-3 text-gray-500 text-sm">🔍 Buscando...</div>';
+            dropdown.classList.remove('hidden');
+            
+            cie10Timeout = setTimeout(async () => {
+                try {
+                    // Buscar en Firestore (searchText contiene clave y descripción en minúsculas)
+                    const results = await db.collection('cie10')
+                        .where('searchText', '>=', searchQuery)
+                        .where('searchText', '<', searchQuery + '\uf8ff')
+                        .limit(10)
+                        .get();
+                    
+                    if (results.empty) {
+                        dropdown.innerHTML = '<div class="p-3 text-gray-500 text-sm">⚠️ No se encontraron resultados</div>';
+                        return;
+                    }
+                    
+                    // Renderizar resultados
+                    let html = '';
+                    results.forEach(doc => {
+                        const data = doc.data();
+                        html += `
+                            <div class="p-3 border-b border-gray-200 hover:bg-blue-50 cursor-pointer transition"
+                                 onclick="selectCIE10('${data.clave}', '${data.descripcion.replace(/'/g, "\\'")}')">
+                                <div class="font-bold text-gray-900">${data.clave}</div>
+                                <div class="text-sm text-gray-600">${data.descripcion}</div>
+                                <div class="text-xs text-gray-500 mt-1">${data.grupo}</div>
+                            </div>
+                        `;
+                    });
+                    dropdown.innerHTML = html;
+                } catch (error) {
+                    console.error('Error buscando CIE-10:', error);
+                    dropdown.innerHTML = '<div class="p-3 text-red-500 text-sm">❌ Error en la búsqueda</div>';
+                }
+            }, 300); // Esperar 300ms antes de buscar (debounce)
+        });
+        
+        // Seleccionar resultado de CIE-10
+        function selectCIE10(clave, descripcion) {
+            document.getElementById('diagnostico').value = `${clave} - ${descripcion}`;
+            document.getElementById('cie10-dropdown').classList.add('hidden');
+        }
+        
+        // Cerrar dropdown al hacer click fuera
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#diagnostico') && !e.target.closest('#cie10-dropdown')) {
+                document.getElementById('cie10-dropdown').classList.add('hidden');
             }
         });
         
