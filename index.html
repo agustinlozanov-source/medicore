@@ -284,11 +284,33 @@
                     </div>
                 </div>
 
-                <!-- Mi Expediente (Paciente) -->
+                <!-- Mi Expediente (Paciente) - CENTRO DE OPERACIONES -->
                 <div id="mi-expediente" class="view hidden">
-                    <h2 class="text-3xl font-black text-gray-900 mb-6">Mi Expediente Clínico</h2>
-                    
-                    <!-- Grid 3 columnas -->
+                    <!-- Barra Superior: Datos Paciente + Acciones -->
+                    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-lg p-6 mb-6">
+                        <div class="flex justify-between items-start">
+                            <div class="flex items-center gap-4">
+                                <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-2xl">
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
+                                <div>
+                                    <h2 id="exp-nombre-header" class="text-4xl font-black">Juan García</h2>
+                                    <p id="exp-edad-header" class="text-blue-100 text-sm">32 años • <span id="exp-genero-header">Masculino</span></p>
+                                    <p id="exp-cedula-header" class="text-blue-100 text-xs font-mono mt-1">CURP: LOXA811017HNEZXG08</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-3">
+                                <button onclick="switchView('nueva-consulta')" class="bg-white text-blue-600 font-bold px-6 py-3 rounded-lg hover:bg-blue-50 transition flex items-center gap-2">
+                                    <i class="fa-solid fa-stethoscope"></i> Nueva Consulta
+                                </button>
+                                <button onclick="abrirModalAntecedentes()" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 py-3 rounded-lg transition flex items-center gap-2">
+                                    <i class="fa-solid fa-file-medical"></i> Antecedentes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Grid Principal: 3 Columnas -->
                     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
                         
                         <!-- COLUMNA IZQUIERDA: Datos Paciente + Signos Vitales -->
@@ -437,6 +459,91 @@
                                         <p class="text-blue-600 text-xs font-bold">Nutrición</p>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Antecedentes -->
+                <div id="modal-antecedentes" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+                    <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-96 overflow-y-auto">
+                        <div class="sticky top-0 bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 flex justify-between items-center">
+                            <h3 class="text-2xl font-black">Antecedentes Clínicos</h3>
+                            <button onclick="cerrarModalAntecedentes()" class="text-white hover:bg-blue-700 rounded-lg p-2 transition">
+                                <i class="fa-solid fa-times text-xl"></i>
+                            </button>
+                        </div>
+                        <div class="p-8">
+                            <div class="grid grid-cols-2 gap-8">
+                                <!-- Columna Izquierda -->
+                                <div class="space-y-4">
+                                    <!-- Alergias -->
+                                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                                        <h4 class="font-black text-red-900 mb-3 flex items-center gap-2">
+                                            <i class="fa-solid fa-triangle-exclamation text-red-600"></i> ALERGIAS
+                                        </h4>
+                                        <input type="text" id="input-alergias" class="w-full border border-red-300 rounded px-3 py-2 mb-2 text-sm" placeholder="Agregar alergia...">
+                                        <div id="lista-alergias" class="space-y-2"></div>
+                                        <button onclick="agregarAntecedente('alergias')" class="w-full mt-2 bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded text-sm">+ Agregar</button>
+                                    </div>
+
+                                    <!-- Antecedentes Patológicos -->
+                                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                        <h4 class="font-black text-blue-900 mb-3 flex items-center gap-2">
+                                            <i class="fa-solid fa-stethoscope text-blue-600"></i> PATOLÓGICOS
+                                        </h4>
+                                        <input type="text" id="input-patologicos" class="w-full border border-blue-300 rounded px-3 py-2 mb-2 text-sm" placeholder="Ej: Diabetes Tipo 2...">
+                                        <div id="lista-patologicos" class="space-y-2"></div>
+                                        <button onclick="agregarAntecedente('patologicos')" class="w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded text-sm">+ Agregar</button>
+                                    </div>
+
+                                    <!-- Antecedentes No Patológicos -->
+                                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                        <h4 class="font-black text-green-900 mb-3 flex items-center gap-2">
+                                            <i class="fa-solid fa-leaf text-green-600"></i> NO PATOLÓGICOS
+                                        </h4>
+                                        <input type="text" id="input-no-patologicos" class="w-full border border-green-300 rounded px-3 py-2 mb-2 text-sm" placeholder="Ej: Fumador, Consumo de alcohol...">
+                                        <div id="lista-no-patologicos" class="space-y-2"></div>
+                                        <button onclick="agregarAntecedente('no-patologicos')" class="w-full mt-2 bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded text-sm">+ Agregar</button>
+                                    </div>
+                                </div>
+
+                                <!-- Columna Derecha -->
+                                <div class="space-y-4">
+                                    <!-- Antecedentes Heredofamiliares -->
+                                    <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                                        <h4 class="font-black text-purple-900 mb-3 flex items-center gap-2">
+                                            <i class="fa-solid fa-sitemap text-purple-600"></i> HEREDOFAMILIARES
+                                        </h4>
+                                        <input type="text" id="input-heredofamiliares" class="w-full border border-purple-300 rounded px-3 py-2 mb-2 text-sm" placeholder="Ej: Diabetes en padre...">
+                                        <div id="lista-heredofamiliares" class="space-y-2"></div>
+                                        <button onclick="agregarAntecedente('heredofamiliares')" class="w-full mt-2 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded text-sm">+ Agregar</button>
+                                    </div>
+
+                                    <!-- Antecedentes Psiquiátricos -->
+                                    <div class="bg-pink-50 border border-pink-200 rounded-lg p-4">
+                                        <h4 class="font-black text-pink-900 mb-3 flex items-center gap-2">
+                                            <i class="fa-solid fa-brain text-pink-600"></i> PSIQUIÁTRICOS
+                                        </h4>
+                                        <input type="text" id="input-psiquiatricos" class="w-full border border-pink-300 rounded px-3 py-2 mb-2 text-sm" placeholder="Ej: Ansiedad, Depresión...">
+                                        <div id="lista-psiquiatricos" class="space-y-2"></div>
+                                        <button onclick="agregarAntecedente('psiquiatricos')" class="w-full mt-2 bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 rounded text-sm">+ Agregar</button>
+                                    </div>
+
+                                    <!-- Vacunas -->
+                                    <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                                        <h4 class="font-black text-orange-900 mb-3 flex items-center gap-2">
+                                            <i class="fa-solid fa-syringe text-orange-600"></i> VACUNAS
+                                        </h4>
+                                        <input type="text" id="input-vacunas" class="w-full border border-orange-300 rounded px-3 py-2 mb-2 text-sm" placeholder="Ej: COVID-19 (Feb 2026)...">
+                                        <div id="lista-vacunas" class="space-y-2"></div>
+                                        <button onclick="agregarAntecedente('vacunas')" class="w-full mt-2 bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 rounded text-sm">+ Agregar</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex justify-end gap-3 mt-8 border-t pt-4">
+                                <button onclick="cerrarModalAntecedentes()" class="px-6 py-2 border border-gray-300 rounded-lg font-bold hover:bg-gray-50 transition">Cancelar</button>
+                                <button onclick="guardarAntecedentes()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition">Guardar Cambios</button>
                             </div>
                         </div>
                     </div>
@@ -1115,6 +1222,117 @@ Instrucciones: ${document.getElementById('instrucciones').value || 'Ninguna'}
                 document.getElementById('medicamentos-dropdown')?.classList.add('hidden');
             }
         });
+
+        // ==================== ANTECEDENTES CLÍNICOS ====================
+        
+        let antecedentesTemp = {
+            alergias: [],
+            patologicos: [],
+            'no-patologicos': [],
+            heredofamiliares: [],
+            psiquiatricos: [],
+            vacunas: []
+        };
+
+        // Abrir modal
+        function abrirModalAntecedentes() {
+            document.getElementById('modal-antecedentes').classList.remove('hidden');
+            cargarAntecedentesFromFirestore();
+        }
+
+        // Cerrar modal
+        function cerrarModalAntecedentes() {
+            document.getElementById('modal-antecedentes').classList.add('hidden');
+        }
+
+        // Cargar antecedentes desde Firestore
+        async function cargarAntecedentesFromFirestore() {
+            if (!currentUser) return;
+            
+            try {
+                const doc = await db.collection('patients').doc(currentUser.uid).get();
+                if (doc.exists) {
+                    antecedentesTemp = doc.data().antecedentes || {
+                        alergias: [],
+                        patologicos: [],
+                        'no-patologicos': [],
+                        heredofamiliares: [],
+                        psiquiatricos: [],
+                        vacunas: []
+                    };
+                    renderAntecedentes();
+                }
+            } catch (error) {
+                console.error('Error cargando antecedentes:', error);
+            }
+        }
+
+        // Agregar antecedente
+        function agregarAntecedente(tipo) {
+            const input = document.getElementById(`input-${tipo}`);
+            const valor = input.value.trim();
+            
+            if (!valor) {
+                alert('Por favor ingresa un valor');
+                return;
+            }
+            
+            if (!antecedentesTemp[tipo]) {
+                antecedentesTemp[tipo] = [];
+            }
+            
+            antecedentesTemp[tipo].push(valor);
+            input.value = '';
+            renderAntecedentes();
+        }
+
+        // Eliminar antecedente
+        function eliminarAntecedente(tipo, index) {
+            antecedentesTemp[tipo].splice(index, 1);
+            renderAntecedentes();
+        }
+
+        // Renderizar antecedentes
+        function renderAntecedentes() {
+            const tipos = ['alergias', 'patologicos', 'no-patologicos', 'heredofamiliares', 'psiquiatricos', 'vacunas'];
+            
+            tipos.forEach(tipo => {
+                const lista = document.getElementById(`lista-${tipo}`);
+                if (!lista) return;
+                
+                lista.innerHTML = (antecedentesTemp[tipo] || []).map((item, idx) => `
+                    <div class="flex justify-between items-center bg-white p-2 rounded border text-sm">
+                        <span>${item}</span>
+                        <button onclick="eliminarAntecedente('${tipo}', ${idx})" class="text-red-600 hover:text-red-900 font-bold">✕</button>
+                    </div>
+                `).join('');
+            });
+        }
+
+        // Guardar antecedentes a Firestore
+        async function guardarAntecedentes() {
+            if (!currentUser) {
+                alert('Error: usuario no identificado');
+                return;
+            }
+            
+            try {
+                const btn = event.target;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Guardando...';
+                
+                await db.collection('patients').doc(currentUser.uid).update({
+                    antecedentes: antecedentesTemp
+                });
+                
+                alert('✅ Antecedentes guardados correctamente');
+                cerrarModalAntecedentes();
+                loadPatientRecord();
+            } catch (error) {
+                console.error('Error guardando antecedentes:', error);
+                alert('Error al guardar antecedentes');
+            }
+        }
 
         // Switch View
         function switchView(view) {
