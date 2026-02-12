@@ -10,6 +10,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <!-- Chart.js para gráficas -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-50">
     
@@ -433,6 +435,16 @@
                                 <button onclick="switchView('formulario-vitales')" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-bold transition text-sm">
                                     <i class="fa-solid fa-heart mr-2"></i> Signos Vitales
                                 </button>
+                            </div>
+
+                            <!-- Gráfica de Signos Vitales -->
+                            <div class="bg-white rounded-xl shadow-lg p-6">
+                                <h4 class="font-black text-gray-900 mb-4">
+                                    <i class="fa-solid fa-chart-line text-purple-600 mr-2"></i> Tendencias (7 días)
+                                </h4>
+                                <div class="relative h-64">
+                                    <canvas id="chart-signos-vitales"></canvas>
+                                </div>
                             </div>
 
                             <!-- Medicamentos Activos -->
@@ -867,9 +879,171 @@
                 }
                 
                 console.log('✅ Expediente cargado:', p.nombre);
+                
+                // Renderizar gráfica de signos vitales
+                setTimeout(() => {
+                    renderGraficaSignosVitales(p);
+                }, 500);
+                
             } catch (error) {
                 console.error('Error cargando expediente:', error);
             }
+        }
+        
+        // ==================== GRÁFICAS DE SIGNOS VITALES ====================
+        
+        let chartInstance = null;
+        
+        function renderGraficaSignosVitales(paciente) {
+            // Generar datos históricos (últimos 7 días)
+            const hoy = new Date();
+            const dias = [];
+            const dataPeso = [];
+            const dataPresion = [];
+            const dataTemp = [];
+            
+            for (let i = 6; i >= 0; i--) {
+                const fecha = new Date(hoy);
+                fecha.setDate(fecha.getDate() - i);
+                dias.push(fecha.toLocaleDateString('es-MX', { month: 'short', day: 'numeric' }));
+                
+                // Simular datos históricos (en producción vendrían de Firestore)
+                const pesoBase = parseFloat(paciente.peso || 76);
+                const presionBase = 120;
+                const tempBase = parseFloat(paciente.temperatura || 36.5);
+                
+                dataPeso.push(pesoBase + (Math.random() - 0.5) * 2);
+                dataPresion.push(presionBase + (Math.random() - 0.5) * 8);
+                dataTemp.push(tempBase + (Math.random() - 0.5) * 0.8);
+            }
+            
+            const ctx = document.getElementById('chart-signos-vitales');
+            if (!ctx) return;
+            
+            // Destruir gráfica anterior si existe
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+            
+            // Crear nueva gráfica
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dias,
+                    datasets: [
+                        {
+                            label: 'Peso (kg)',
+                            data: dataPeso,
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#3b82f6',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'PAS (mmHg)',
+                            data: dataPresion,
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#ef4444',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            yAxisID: 'y1'
+                        },
+                        {
+                            label: 'Temp (°C)',
+                            data: dataTemp,
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#f59e0b',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            yAxisID: 'y2'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: { size: 12, weight: 'bold' },
+                                padding: 15,
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            cornerRadius: 8,
+                            titleFont: { size: 13, weight: 'bold' },
+                            bodyFont: { size: 12 }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Peso (kg)',
+                                font: { size: 12, weight: 'bold' },
+                                color: '#3b82f6'
+                            },
+                            ticks: { color: '#3b82f6' },
+                            grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                            min: 70,
+                            max: 85
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'PAS (mmHg)',
+                                font: { size: 12, weight: 'bold' },
+                                color: '#ef4444'
+                            },
+                            ticks: { color: '#ef4444' },
+                            grid: { drawOnChartArea: false },
+                            min: 100,
+                            max: 140
+                        },
+                        y2: {
+                            type: 'linear',
+                            display: false,
+                            position: 'right',
+                            min: 35,
+                            max: 38
+                        },
+                        x: {
+                            grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                            ticks: { font: { size: 11 } }
+                        }
+                    }
+                }
+            });
         }
         
         // Guardar signos vitales
