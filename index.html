@@ -107,6 +107,12 @@
                         <button onclick="switchView('agenda-operativa')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-blue-600 transition flex items-center gap-3 text-sm font-bold">
                             <i class="fa-solid fa-calendar"></i> Agenda Operativa
                         </button>
+                        <button onclick="switchView('productos')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-blue-600 transition flex items-center gap-3 text-sm font-bold">
+                            <i class="fa-solid fa-box"></i> Catálogo de Servicios
+                        </button>
+                        <button onclick="switchView('cobros')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-blue-600 transition flex items-center gap-3 text-sm font-bold">
+                            <i class="fa-solid fa-cash-register"></i> Cobros
+                        </button>
                     </div>
 
                     <!-- Paciente Menu -->
@@ -540,6 +546,85 @@
                     </div>
                     <div class="bg-white rounded-xl shadow-lg p-6">
                         <div id="agenda-calendar" style="min-height: 600px;"></div>
+                    </div>
+                </div>
+
+                <!-- Catálogo de Servicios/Productos (Médico) -->
+                <div id="productos" class="view hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-3xl font-black text-gray-900">Catálogo de Servicios Médicos</h2>
+                        <button onclick="abrirModalNuevoProducto()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-lg transition flex items-center gap-2 shadow-lg">
+                            <i class="fa-solid fa-plus mr-2"></i> Nuevo Servicio
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                        <table class="w-full">
+                            <thead class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+                                <tr>
+                                    <th class="px-6 py-4 text-left text-sm font-black">Código</th>
+                                    <th class="px-6 py-4 text-left text-sm font-black">Servicio/Producto</th>
+                                    <th class="px-6 py-4 text-left text-sm font-black">Categoría</th>
+                                    <th class="px-6 py-4 text-right text-sm font-black">Precio</th>
+                                    <th class="px-6 py-4 text-center text-sm font-black">Estado</th>
+                                    <th class="px-6 py-4 text-center text-sm font-black">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productos-tbody" class="divide-y divide-gray-200">
+                                <tr class="hover:bg-gray-50 transition">
+                                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">Cargando servicios...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Sistema de Cobros (Médico) -->
+                <div id="cobros" class="view hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-3xl font-black text-gray-900">Sistema de Cobros</h2>
+                        <button onclick="abrirModalNuevoCobro()" class="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-lg transition flex items-center gap-2 shadow-lg">
+                            <i class="fa-solid fa-receipt mr-2"></i> Nuevo Cobro
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-4 gap-4 mb-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <p class="text-sm text-gray-600 font-bold">Total Cobrado (Hoy)</p>
+                            <p class="text-3xl font-black text-green-600" id="total-hoy">$0.00</p>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <p class="text-sm text-gray-600 font-bold">Total Cobrado (Mes)</p>
+                            <p class="text-3xl font-black text-blue-600" id="total-mes">$0.00</p>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <p class="text-sm text-gray-600 font-bold">Pendiente de Cobro</p>
+                            <p class="text-3xl font-black text-orange-600" id="total-pendiente">$0.00</p>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <p class="text-sm text-gray-600 font-bold">Transacciones</p>
+                            <p class="text-3xl font-black text-gray-900" id="total-transacciones">0</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                        <table class="w-full">
+                            <thead class="bg-gradient-to-r from-green-600 to-emerald-600 text-white">
+                                <tr>
+                                    <th class="px-6 py-4 text-left text-sm font-black">Paciente</th>
+                                    <th class="px-6 py-4 text-left text-sm font-black">Servicio</th>
+                                    <th class="px-6 py-4 text-right text-sm font-black">Monto</th>
+                                    <th class="px-6 py-4 text-center text-sm font-black">Estado</th>
+                                    <th class="px-6 py-4 text-center text-sm font-black">Fecha</th>
+                                    <th class="px-6 py-4 text-center text-sm font-black">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cobros-tbody" class="divide-y divide-gray-200">
+                                <tr class="hover:bg-gray-50 transition">
+                                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">Cargando cobros...</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -1095,6 +1180,132 @@
                                 <button onclick="cerrarModalImportarExcel()" class="px-6 py-2 border border-gray-300 rounded-lg font-bold hover:bg-gray-50 transition">Cancelar</button>
                                 <button onclick="importarDesdeCsv()" class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold transition">
                                     <i class="fa-solid fa-upload mr-2"></i> Importar Pacientes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Nuevo Producto -->
+                <div id="modal-nuevo-producto" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+                    <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full">
+                        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 flex justify-between items-center rounded-t-xl">
+                            <h3 class="text-2xl font-black">Crear Nuevo Servicio/Producto</h3>
+                            <button onclick="cerrarModalNuevoProducto()" class="text-white hover:bg-blue-700 rounded-lg p-2 transition">
+                                <i class="fa-solid fa-times text-xl"></i>
+                            </button>
+                        </div>
+                        <div class="p-8 space-y-6">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Código/SKU *</label>
+                                <input type="text" id="prod-codigo" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" placeholder="SRV-001">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Nombre del Servicio/Producto *</label>
+                                <input type="text" id="prod-nombre" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" placeholder="Consulta General">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Categoría *</label>
+                                    <select id="prod-categoria" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold">
+                                        <option value="">Selecciona...</option>
+                                        <option value="consulta">Consulta</option>
+                                        <option value="laboratorio">Laboratorio</option>
+                                        <option value="imagenologia">Imagenología</option>
+                                        <option value="procedimiento">Procedimiento</option>
+                                        <option value="medicinas">Medicinas</option>
+                                        <option value="otros">Otros</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Precio (MXN) *</label>
+                                    <input type="number" id="prod-precio" step="0.01" min="0" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" placeholder="500.00">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Descripción</label>
+                                <textarea id="prod-descripcion" rows="3" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold resize-none" placeholder="Descripción del servicio..."></textarea>
+                            </div>
+
+                            <div>
+                                <label class="flex items-center gap-3 cursor-pointer">
+                                    <input type="checkbox" id="prod-activo" checked class="w-5 h-5 text-blue-600 rounded">
+                                    <span class="text-sm font-bold text-gray-700">Activo (disponible para cobros)</span>
+                                </label>
+                            </div>
+
+                            <div class="flex justify-end gap-3 border-t pt-6">
+                                <button onclick="cerrarModalNuevoProducto()" class="px-6 py-2 border border-gray-300 rounded-lg font-bold hover:bg-gray-50 transition">Cancelar</button>
+                                <button onclick="guardarNuevoProducto()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition">
+                                    <i class="fa-solid fa-plus mr-2"></i> Crear Servicio
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Nuevo Cobro -->
+                <div id="modal-nuevo-cobro" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+                    <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full">
+                        <div class="bg-gradient-to-r from-green-600 to-emerald-600 text-white p-6 flex justify-between items-center rounded-t-xl">
+                            <h3 class="text-2xl font-black">Registrar Nuevo Cobro</h3>
+                            <button onclick="cerrarModalNuevoCobro()" class="text-white hover:bg-green-700 rounded-lg p-2 transition">
+                                <i class="fa-solid fa-times text-xl"></i>
+                            </button>
+                        </div>
+                        <div class="p-8 space-y-6">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Paciente *</label>
+                                <select id="cobro-paciente" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none font-bold">
+                                    <option value="">Selecciona un paciente...</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Servicio/Producto *</label>
+                                <select id="cobro-producto" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none font-bold" onchange="actualizarMontoCobro()">
+                                    <option value="">Selecciona un servicio...</option>
+                                </select>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Monto (MXN)</label>
+                                    <input type="number" id="cobro-monto" step="0.01" min="0" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none font-bold" placeholder="500.00">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Método de Pago *</label>
+                                    <select id="cobro-metodo" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none font-bold">
+                                        <option value="efectivo">Efectivo</option>
+                                        <option value="tarjeta-credito">Tarjeta de Crédito</option>
+                                        <option value="tarjeta-debito">Tarjeta de Débito</option>
+                                        <option value="transferencia">Transferencia Bancaria</option>
+                                        <option value="cheque">Cheque</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Estado del Pago *</label>
+                                <select id="cobro-estado" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none font-bold">
+                                    <option value="pagado">Pagado</option>
+                                    <option value="pendiente">Pendiente</option>
+                                    <option value="parcial">Pago Parcial</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Notas</label>
+                                <textarea id="cobro-notas" rows="2" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none font-bold resize-none" placeholder="Notas sobre el cobro..."></textarea>
+                            </div>
+
+                            <div class="flex justify-end gap-3 border-t pt-6">
+                                <button onclick="cerrarModalNuevoCobro()" class="px-6 py-2 border border-gray-300 rounded-lg font-bold hover:bg-gray-50 transition">Cancelar</button>
+                                <button onclick="guardarNuevoCobro()" class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold transition">
+                                    <i class="fa-solid fa-check mr-2"></i> Registrar Cobro
                                 </button>
                             </div>
                         </div>
@@ -2753,6 +2964,319 @@ Notas: ${props.notas || 'Sin notas'}
             agendaCalendar.render();
         }
 
+        // ==================== PRODUCTOS/SERVICIOS MÉDICOS ====================
+        
+        let productosCache = [];
+        
+        // Abrir modal Nuevo Producto
+        function abrirModalNuevoProducto() {
+            document.getElementById('modal-nuevo-producto').classList.remove('hidden');
+            limpiarFormularioProducto();
+        }
+        
+        // Cerrar modal Nuevo Producto
+        function cerrarModalNuevoProducto() {
+            document.getElementById('modal-nuevo-producto').classList.add('hidden');
+            limpiarFormularioProducto();
+        }
+        
+        // Limpiar formulario producto
+        function limpiarFormularioProducto() {
+            document.getElementById('prod-codigo').value = '';
+            document.getElementById('prod-nombre').value = '';
+            document.getElementById('prod-categoria').value = '';
+            document.getElementById('prod-precio').value = '';
+            document.getElementById('prod-descripcion').value = '';
+            document.getElementById('prod-activo').checked = true;
+        }
+        
+        // Guardar nuevo producto
+        async function guardarNuevoProducto() {
+            const codigo = document.getElementById('prod-codigo').value.trim();
+            const nombre = document.getElementById('prod-nombre').value.trim();
+            const categoria = document.getElementById('prod-categoria').value;
+            const precio = parseFloat(document.getElementById('prod-precio').value);
+            const descripcion = document.getElementById('prod-descripcion').value.trim();
+            const activo = document.getElementById('prod-activo').checked;
+            
+            if (!codigo || !nombre || !categoria || !precio) {
+                alert('Por favor completa los campos requeridos (*)');
+                return;
+            }
+            
+            try {
+                const btn = event.target;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Guardando...';
+                
+                await db.collection('servicios').doc().set({
+                    codigo: codigo,
+                    nombre: nombre,
+                    categoria: categoria,
+                    precio: precio,
+                    descripcion: descripcion,
+                    activo: activo,
+                    doctorId: currentUser.uid,
+                    createdAt: new Date(),
+                    updatedAt: new Date()
+                });
+                
+                alert('✅ Servicio creado correctamente');
+                cerrarModalNuevoProducto();
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-plus mr-2"></i> Crear Servicio';
+                cargarProductos();
+            } catch (error) {
+                console.error('Error creando servicio:', error);
+                alert('Error al crear servicio: ' + error.message);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-plus mr-2"></i> Crear Servicio';
+            }
+        }
+        
+        // Cargar productos
+        async function cargarProductos() {
+            try {
+                const snapshot = await db.collection('servicios')
+                    .where('doctorId', '==', currentUser.uid)
+                    .get();
+                
+                productosCache = [];
+                const tbody = document.getElementById('productos-tbody');
+                
+                if (snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">No hay servicios registrados</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = snapshot.docs.map(doc => {
+                    const p = doc.data();
+                    productosCache.push({id: doc.id, ...p});
+                    const estado = p.activo ? '<span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-bold">Activo</span>' : '<span class="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-xs font-bold">Inactivo</span>';
+                    
+                    return `
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="px-6 py-4 text-gray-900 font-bold text-sm">${p.codigo}</td>
+                            <td class="px-6 py-4 text-gray-900 font-bold">${p.nombre}</td>
+                            <td class="px-6 py-4 text-gray-700 text-sm">${p.categoria}</td>
+                            <td class="px-6 py-4 text-right text-gray-900 font-bold">$${p.precio.toFixed(2)}</td>
+                            <td class="px-6 py-4 text-center">${estado}</td>
+                            <td class="px-6 py-4 text-center space-x-2">
+                                <button onclick="editarProducto('${doc.id}')" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs font-bold transition">Editar</button>
+                                <button onclick="eliminarProducto('${doc.id}')" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs font-bold transition">Eliminar</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error cargando productos:', error);
+            }
+        }
+        
+        function editarProducto(id) {
+            alert('Funcionalidad de edición en desarrollo');
+        }
+        
+        function eliminarProducto(id) {
+            if (confirm('¿Está seguro de que desea eliminar este servicio?')) {
+                db.collection('servicios').doc(id).delete().then(() => {
+                    alert('✅ Servicio eliminado');
+                    cargarProductos();
+                }).catch(err => console.error('Error:', err));
+            }
+        }
+
+        // ==================== SISTEMA DE COBROS ====================
+        
+        // Abrir modal Nuevo Cobro
+        function abrirModalNuevoCobro() {
+            document.getElementById('modal-nuevo-cobro').classList.remove('hidden');
+            cargarPacientesCobro();
+            cargarProductosCobro();
+            limpiarFormularioCobro();
+        }
+        
+        // Cerrar modal Nuevo Cobro
+        function cerrarModalNuevoCobro() {
+            document.getElementById('modal-nuevo-cobro').classList.add('hidden');
+            limpiarFormularioCobro();
+        }
+        
+        // Limpiar formulario cobro
+        function limpiarFormularioCobro() {
+            document.getElementById('cobro-paciente').value = '';
+            document.getElementById('cobro-producto').value = '';
+            document.getElementById('cobro-monto').value = '';
+            document.getElementById('cobro-metodo').value = 'efectivo';
+            document.getElementById('cobro-estado').value = 'pagado';
+            document.getElementById('cobro-notas').value = '';
+        }
+        
+        // Cargar pacientes para cobro
+        async function cargarPacientesCobro() {
+            try {
+                const snapshot = await db.collection('patients')
+                    .where('assignedDoctor', '==', currentUser.uid)
+                    .get();
+                
+                const select = document.getElementById('cobro-paciente');
+                select.innerHTML = '<option value="">Selecciona un paciente...</option>';
+                
+                snapshot.docs.forEach(doc => {
+                    const p = doc.data();
+                    const option = document.createElement('option');
+                    option.value = doc.id;
+                    option.textContent = `${p.nombre} ${p.apellido}`;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error cargando pacientes:', error);
+            }
+        }
+        
+        // Cargar productos para cobro
+        async function cargarProductosCobro() {
+            try {
+                const snapshot = await db.collection('servicios')
+                    .where('doctorId', '==', currentUser.uid)
+                    .where('activo', '==', true)
+                    .get();
+                
+                const select = document.getElementById('cobro-producto');
+                select.innerHTML = '<option value="">Selecciona un servicio...</option>';
+                
+                snapshot.docs.forEach(doc => {
+                    const p = doc.data();
+                    const option = document.createElement('option');
+                    option.value = JSON.stringify({id: doc.id, nombre: p.nombre, precio: p.precio});
+                    option.textContent = `${p.nombre} - $${p.precio.toFixed(2)}`;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error cargando productos:', error);
+            }
+        }
+        
+        // Actualizar monto desde producto seleccionado
+        function actualizarMontoCobro() {
+            const prodJson = document.getElementById('cobro-producto').value;
+            if (!prodJson) return;
+            
+            try {
+                const prod = JSON.parse(prodJson);
+                document.getElementById('cobro-monto').value = prod.precio.toFixed(2);
+            } catch (e) {
+                console.error('Error parseando producto:', e);
+            }
+        }
+        
+        // Guardar nuevo cobro
+        async function guardarNuevoCobro() {
+            const pacienteId = document.getElementById('cobro-paciente').value;
+            const prodJson = document.getElementById('cobro-producto').value;
+            const monto = parseFloat(document.getElementById('cobro-monto').value);
+            const metodo = document.getElementById('cobro-metodo').value;
+            const estado = document.getElementById('cobro-estado').value;
+            const notas = document.getElementById('cobro-notas').value.trim();
+            
+            if (!pacienteId || !prodJson || !monto) {
+                alert('Por favor completa los campos requeridos (*)');
+                return;
+            }
+            
+            try {
+                const btn = event.target;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Registrando...';
+                
+                const prod = JSON.parse(prodJson);
+                
+                await db.collection('cobros').doc().set({
+                    doctorId: currentUser.uid,
+                    pacienteId: pacienteId,
+                    productoId: prod.id,
+                    producto: prod.nombre,
+                    monto: monto,
+                    metodo: metodo,
+                    estado: estado,
+                    notas: notas,
+                    fecha: new Date(),
+                    createdAt: new Date()
+                });
+                
+                alert('✅ Cobro registrado correctamente');
+                cerrarModalNuevoCobro();
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-check mr-2"></i> Registrar Cobro';
+                cargarCobros();
+            } catch (error) {
+                console.error('Error registrando cobro:', error);
+                alert('Error al registrar cobro: ' + error.message);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-check mr-2"></i> Registrar Cobro';
+            }
+        }
+        
+        // Cargar cobros
+        async function cargarCobros() {
+            try {
+                const snapshot = await db.collection('cobros')
+                    .where('doctorId', '==', currentUser.uid)
+                    .orderBy('fecha', 'desc')
+                    .get();
+                
+                const tbody = document.getElementById('cobros-tbody');
+                let totalHoy = 0, totalMes = 0, totalPendiente = 0;
+                const hoy = new Date().toDateString();
+                const mesActual = new Date().getMonth();
+                
+                if (snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">No hay cobros registrados</td></tr>';
+                } else {
+                    tbody.innerHTML = snapshot.docs.map(doc => {
+                        const c = doc.data();
+                        const fecha = new Date(c.fecha.toDate());
+                        const fechaStr = fecha.toLocaleDateString('es-MX');
+                        const esPagado = c.estado === 'pagado';
+                        
+                        if (esPagado) {
+                            if (fecha.toDateString() === hoy) totalHoy += c.monto;
+                            if (fecha.getMonth() === mesActual) totalMes += c.monto;
+                        } else {
+                            totalPendiente += c.monto;
+                        }
+                        
+                        const estadoBadge = c.estado === 'pagado' ? '<span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-bold">Pagado</span>' : c.estado === 'pendiente' ? '<span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-xs font-bold">Pendiente</span>' : '<span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-bold">Parcial</span>';
+                        
+                        return `
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="px-6 py-4 text-gray-900 font-bold text-sm">${c.pacienteId.substring(0, 8)}...</td>
+                                <td class="px-6 py-4 text-gray-700 text-sm">${c.producto}</td>
+                                <td class="px-6 py-4 text-right text-gray-900 font-bold">$${c.monto.toFixed(2)}</td>
+                                <td class="px-6 py-4 text-center">${estadoBadge}</td>
+                                <td class="px-6 py-4 text-center text-sm text-gray-600">${fechaStr}</td>
+                                <td class="px-6 py-4 text-center">
+                                    <button onclick="verDetalleCobro('${doc.id}')" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs font-bold transition">Ver</button>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+                
+                document.getElementById('total-hoy').textContent = '$' + totalHoy.toFixed(2);
+                document.getElementById('total-mes').textContent = '$' + totalMes.toFixed(2);
+                document.getElementById('total-pendiente').textContent = '$' + totalPendiente.toFixed(2);
+                document.getElementById('total-transacciones').textContent = snapshot.size;
+                
+            } catch (error) {
+                console.error('Error cargando cobros:', error);
+            }
+        }
+        
+        function verDetalleCobro(id) {
+            alert('Funcionalidad de detalle en desarrollo');
+        }
+
         // Switch View
         function switchView(view) {
             document.querySelectorAll('.view').forEach(el => el.classList.add('hidden'));
@@ -2767,6 +3291,10 @@ Notas: ${props.notas || 'Sin notas'}
                 setTimeout(() => inicializarAgenda(), 100);
             } else if (view === 'mi-cuenta') {
                 cargarPerfil();
+            } else if (view === 'productos') {
+                cargarProductos();
+            } else if (view === 'cobros') {
+                cargarCobros();
             }
         }
 
