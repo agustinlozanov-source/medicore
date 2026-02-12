@@ -671,22 +671,41 @@
             
             cie10Timeout = setTimeout(async () => {
                 try {
-                    // Buscar en Firestore (searchText contiene clave y descripción en minúsculas)
-                    const results = await db.collection('cie10')
-                        .where('searchText', '>=', searchQuery)
-                        .where('searchText', '<', searchQuery + '\uf8ff')
+                    let allResults = [];
+                    
+                    // Búsqueda 1: Por código (CLAVE)
+                    const claveResults = await db.collection('cie10')
+                        .where('clave', '>=', searchQuery.toUpperCase())
+                        .where('clave', '<', searchQuery.toUpperCase() + '\uf8ff')
                         .limit(10)
                         .get();
                     
-                    if (results.empty) {
+                    claveResults.forEach(doc => allResults.push(doc.data()));
+                    
+                    // Búsqueda 2: Por descripción (si no encontramos suficientes por código)
+                    if (allResults.length < 10) {
+                        const descResults = await db.collection('cie10')
+                            .where('descripcion', '>=', searchQuery.toUpperCase())
+                            .where('descripcion', '<', searchQuery.toUpperCase() + '\uf8ff')
+                            .limit(10 - allResults.length)
+                            .get();
+                        
+                        descResults.forEach(doc => {
+                            // Evitar duplicados
+                            if (!allResults.find(r => r.clave === doc.data().clave)) {
+                                allResults.push(doc.data());
+                            }
+                        });
+                    }
+                    
+                    if (allResults.length === 0) {
                         dropdown.innerHTML = '<div class="p-3 text-gray-500 text-sm">⚠️ No se encontraron resultados</div>';
                         return;
                     }
                     
                     // Renderizar resultados
                     let html = '';
-                    results.forEach(doc => {
-                        const data = doc.data();
+                    allResults.slice(0, 10).forEach(data => {
                         html += `
                             <div class="p-3 border-b border-gray-200 hover:bg-blue-50 cursor-pointer transition"
                                  onclick="selectCIE10('${data.clave}', '${data.descripcion.replace(/'/g, "\\'")}')">
