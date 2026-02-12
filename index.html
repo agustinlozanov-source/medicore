@@ -74,6 +74,9 @@
                         <p class="font-semibold text-gray-900" id="user-name">Usuario</p>
                         <p class="text-sm text-gray-600" id="user-role">Rol</p>
                     </div>
+                    <button onclick="switchView('mi-cuenta')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition text-sm font-bold" id="btn-mi-cuenta" style="display:none;">
+                        <i class="fa-solid fa-user-circle mr-2"></i>Mi Cuenta
+                    </button>
                     <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition text-sm font-bold">
                         <i class="fa-solid fa-sign-out mr-2"></i>Salir
                     </button>
@@ -187,6 +190,141 @@
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+
+                <!-- Mi Cuenta (Médico) -->
+                <div id="mi-cuenta" class="view hidden">
+                    <h2 class="text-3xl font-black text-gray-900 mb-6">Mi Cuenta - Perfil Médico</h2>
+                    
+                    <div class="grid grid-cols-3 gap-6">
+                        <!-- Columna Izquierda: Datos Personales -->
+                        <div class="col-span-1 space-y-4">
+                            <div class="bg-white rounded-xl shadow-lg p-6">
+                                <h3 class="text-xl font-black text-gray-900 mb-6">Información Personal</h3>
+                                
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">Nombre Completo</label>
+                                        <input type="text" id="med-nombre" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" placeholder="Nombre del médico">
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">Cédula Profesional *</label>
+                                        <input type="text" id="med-cedula" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" placeholder="1234567">
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">RFC (Registro Federal de Contribuyentes) *</label>
+                                        <input type="text" id="med-rfc" maxlength="13" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold uppercase" placeholder="XXXX000000XXX">
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">Correo Electrónico</label>
+                                        <input type="email" id="med-email" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" placeholder="doctor@hospital.mx">
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">Teléfono</label>
+                                        <input type="tel" id="med-telefono" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" placeholder="+52 123 456 7890">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Columna Central: Especialidades y Competencias -->
+                        <div class="col-span-1 space-y-4">
+                            <div class="bg-white rounded-xl shadow-lg p-6">
+                                <h3 class="text-xl font-black text-gray-900 mb-6">Especialidades Médicas</h3>
+                                
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">Especialidad Primaria *</label>
+                                        <select id="med-especialidad-primaria" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold">
+                                            <option value="">Selecciona especialidad...</option>
+                                            <option value="medicina-general">Medicina General</option>
+                                            <option value="cardiologia">Cardiología</option>
+                                            <option value="pediatria">Pediatría</option>
+                                            <option value="ginecologia">Ginecología</option>
+                                            <option value="dermatologia">Dermatología</option>
+                                            <option value="neurologia">Neurología</option>
+                                            <option value="oftalmologia">Oftalmología</option>
+                                            <option value="otorrino">Otorrinolaringología</option>
+                                            <option value="ortopedia">Ortopedia</option>
+                                            <option value="psiquiatria">Psiquiatría</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">Especialidad Secundaria</label>
+                                        <select id="med-especialidad-secundaria" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold">
+                                            <option value="">Ninguna</option>
+                                            <option value="medicina-general">Medicina General</option>
+                                            <option value="cardiologia">Cardiología</option>
+                                            <option value="pediatria">Pediatría</option>
+                                            <option value="ginecologia">Ginecología</option>
+                                            <option value="dermatologia">Dermatología</option>
+                                            <option value="neurologia">Neurología</option>
+                                            <option value="oftalmologia">Oftalmología</option>
+                                            <option value="otorrino">Otorrinolaringología</option>
+                                            <option value="ortopedia">Ortopedia</option>
+                                            <option value="psiquiatria">Psiquiatría</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">Número de Cédula Especialista</label>
+                                        <input type="text" id="med-cedula-especialista" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" placeholder="1234567">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">Años de Experiencia</label>
+                                        <input type="number" id="med-anos-experiencia" min="0" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" placeholder="15">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Columna Derecha: Permisos y Configuración -->
+                        <div class="col-span-1 space-y-4">
+                            <div class="bg-white rounded-xl shadow-lg p-6">
+                                <h3 class="text-xl font-black text-gray-900 mb-6">Permisos y Configuración</h3>
+                                
+                                <div class="space-y-4">
+                                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                        <h4 class="font-bold text-blue-900 mb-3">Roles</h4>
+                                        <label class="flex items-center gap-3 mb-2 cursor-pointer">
+                                            <input type="checkbox" id="perm-consulta" checked disabled class="w-5 h-5 text-blue-600 rounded">
+                                            <span class="text-sm font-bold text-gray-700">Crear Consultas</span>
+                                        </label>
+                                        <label class="flex items-center gap-3 mb-2 cursor-pointer">
+                                            <input type="checkbox" id="perm-recetas" checked class="w-5 h-5 text-blue-600 rounded">
+                                            <span class="text-sm font-bold text-gray-700">Crear Recetas</span>
+                                        </label>
+                                        <label class="flex items-center gap-3 cursor-pointer">
+                                            <input type="checkbox" id="perm-laboratorio" class="w-5 h-5 text-blue-600 rounded">
+                                            <span class="text-sm font-bold text-gray-700">Solicitar Laboratorio</span>
+                                        </label>
+                                    </div>
+
+                                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                        <h4 class="font-bold text-green-900 mb-3">Configuración Clínica</h4>
+                                        <label class="flex items-center gap-3 mb-2 cursor-pointer">
+                                            <input type="checkbox" id="conf-agenda" checked class="w-5 h-5 text-green-600 rounded">
+                                            <span class="text-sm font-bold text-gray-700">Usar Agenda</span>
+                                        </label>
+                                        <label class="flex items-center gap-3 cursor-pointer">
+                                            <input type="checkbox" id="conf-cobros" checked class="w-5 h-5 text-green-600 rounded">
+                                            <span class="text-sm font-bold text-gray-700">Registrar Cobros</span>
+                                        </label>
+                                    </div>
+
+                                    <button onclick="guardarPerfil()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition mt-4">
+                                        <i class="fa-solid fa-save mr-2"></i> Guardar Cambios
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -1092,6 +1230,7 @@
             document.getElementById('medico-menu').classList.toggle('hidden', role !== 'medico');
             document.getElementById('paciente-menu').classList.toggle('hidden', role !== 'paciente');
             document.getElementById('admin-menu').classList.toggle('hidden', role !== 'admin');
+            document.getElementById('btn-mi-cuenta').style.display = role === 'medico' ? 'block' : 'none';
 
             if (role === 'medico') {
                 switchView('mis-pacientes');
@@ -2626,6 +2765,99 @@ Notas: ${props.notas || 'Sin notas'}
                 cargarPacientesConsulta();
             } else if (view === 'agenda-operativa') {
                 setTimeout(() => inicializarAgenda(), 100);
+            } else if (view === 'mi-cuenta') {
+                cargarPerfil();
+            }
+        }
+
+        // ==================== MI CUENTA ====================
+        
+        // Cargar perfil del médico
+        async function cargarPerfil() {
+            try {
+                const doc = await db.collection('doctors').doc(currentUser.uid).get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    document.getElementById('med-nombre').value = data.nombre || '';
+                    document.getElementById('med-cedula').value = data.cedulaProfesional || '';
+                    document.getElementById('med-rfc').value = data.rfc || '';
+                    document.getElementById('med-email').value = data.email || '';
+                    document.getElementById('med-telefono').value = data.telefono || '';
+                    document.getElementById('med-especialidad-primaria').value = data.especialidadPrimaria || '';
+                    document.getElementById('med-especialidad-secundaria').value = data.especialidadSecundaria || '';
+                    document.getElementById('med-cedula-especialista').value = data.cedulaEspecialista || '';
+                    document.getElementById('med-anos-experiencia').value = data.anosExperiencia || '';
+                    document.getElementById('perm-recetas').checked = data.permisos?.recetas !== false;
+                    document.getElementById('perm-laboratorio').checked = data.permisos?.laboratorio || false;
+                    document.getElementById('conf-agenda').checked = data.config?.agenda !== false;
+                    document.getElementById('conf-cobros').checked = data.config?.cobros !== false;
+                } else {
+                    // Si no existe, cargar datos del auth
+                    const user = await auth.currentUser;
+                    document.getElementById('med-email').value = user.email || '';
+                }
+            } catch (error) {
+                console.error('Error cargando perfil:', error);
+            }
+        }
+        
+        // Guardar perfil del médico
+        async function guardarPerfil() {
+            const nombre = document.getElementById('med-nombre').value.trim();
+            const cedula = document.getElementById('med-cedula').value.trim();
+            const rfc = document.getElementById('med-rfc').value.trim().toUpperCase();
+            const email = document.getElementById('med-email').value.trim();
+            const telefono = document.getElementById('med-telefono').value.trim();
+            const especialidadPrimaria = document.getElementById('med-especialidad-primaria').value;
+            const especialidadSecundaria = document.getElementById('med-especialidad-secundaria').value;
+            const cedulaEspecialista = document.getElementById('med-cedula-especialista').value.trim();
+            const anosExperiencia = parseInt(document.getElementById('med-anos-experiencia').value) || 0;
+            
+            if (!nombre || !cedula || !rfc || !especialidadPrimaria) {
+                alert('Por favor completa los campos requeridos (*)');
+                return;
+            }
+            
+            if (rfc.length !== 13) {
+                alert('El RFC debe tener 13 caracteres');
+                return;
+            }
+            
+            try {
+                const btn = event.target;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Guardando...';
+                
+                await db.collection('doctors').doc(currentUser.uid).set({
+                    nombre: nombre,
+                    cedulaProfesional: cedula,
+                    rfc: rfc,
+                    email: email,
+                    telefono: telefono,
+                    especialidadPrimaria: especialidadPrimaria,
+                    especialidadSecundaria: especialidadSecundaria,
+                    cedulaEspecialista: cedulaEspecialista,
+                    anosExperiencia: anosExperiencia,
+                    permisos: {
+                        consulta: true,
+                        recetas: document.getElementById('perm-recetas').checked,
+                        laboratorio: document.getElementById('perm-laboratorio').checked
+                    },
+                    config: {
+                        agenda: document.getElementById('conf-agenda').checked,
+                        cobros: document.getElementById('conf-cobros').checked
+                    },
+                    updatedAt: new Date()
+                }, { merge: true });
+                
+                alert('✅ Perfil actualizado correctamente');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-save mr-2"></i> Guardar Cambios';
+            } catch (error) {
+                console.error('Error guardando perfil:', error);
+                alert('Error al guardar perfil: ' + error.message);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-save mr-2"></i> Guardar Cambios';
             }
         }
 
