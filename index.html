@@ -159,39 +159,205 @@
                     </div>
                 </div>
 
-                <!-- Nueva Consulta (Médico) -->
+                <!-- Nueva Consulta (Médico) - CON TABS -->
                 <div id="nueva-consulta" class="view hidden">
-                    <h2 class="text-3xl font-black text-gray-900 mb-6">Nueva Consulta</h2>
-                    <div class="bg-white rounded-xl shadow-lg p-8 max-w-2xl">
-                        <form id="consulta-form" class="space-y-6">
+                    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-lg p-6 mb-6">
+                        <div class="flex justify-between items-center">
                             <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Seleccionar Paciente</label>
-                                <select id="select-paciente" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none">
-                                    <option value="">Selecciona un paciente...</option>
-                                </select>
+                                <h2 class="text-4xl font-black">Nueva Consulta</h2>
+                                <p id="consulta-paciente-nombre" class="text-blue-100 mt-2">Selecciona un paciente</p>
                             </div>
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Diagnóstico (Código CIE-10)</label>
-                                <div class="relative">
-                                    <input type="text" id="diagnostico" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Escribe código o descripción..." required autocomplete="off">
-                                    <!-- Dropdown de resultados -->
-                                    <div id="cie10-dropdown" class="hidden absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg mt-1 shadow-lg max-h-64 overflow-y-auto z-10">
-                                        <!-- Resultados dinámicos -->
+                            <button onclick="switchView('mis-pacientes')" class="bg-white text-blue-600 font-bold px-6 py-3 rounded-lg hover:bg-blue-50 transition">
+                                <i class="fa-solid fa-arrow-left mr-2"></i> Volver
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                        <!-- Selector de Paciente -->
+                        <div class="border-b border-gray-200 p-6">
+                            <label class="block text-sm font-bold text-gray-700 mb-3">Seleccionar Paciente</label>
+                            <select id="select-paciente-consulta" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" onchange="actualizarNombrePaciente()">
+                                <option value="">Selecciona un paciente...</option>
+                            </select>
+                        </div>
+
+                        <!-- Tabs Navigation -->
+                        <div class="flex border-b border-gray-200 overflow-x-auto">
+                            <button onclick="cambiarTab('historial')" class="tab-btn active px-6 py-4 font-bold text-sm whitespace-nowrap border-b-2 border-blue-600 text-blue-600">
+                                <i class="fa-solid fa-history mr-2"></i> Historial
+                            </button>
+                            <button onclick="cambiarTab('notas')" class="tab-btn px-6 py-4 font-bold text-sm whitespace-nowrap border-b-2 border-transparent text-gray-600 hover:text-gray-900">
+                                <i class="fa-solid fa-pen mr-2"></i> Notas
+                            </button>
+                            <button onclick="cambiarTab('exploracion')" class="tab-btn px-6 py-4 font-bold text-sm whitespace-nowrap border-b-2 border-transparent text-gray-600 hover:text-gray-900">
+                                <i class="fa-solid fa-body mr-2"></i> Exploración
+                            </button>
+                            <button onclick="cambiarTab('odontograma')" class="tab-btn px-6 py-4 font-bold text-sm whitespace-nowrap border-b-2 border-transparent text-gray-600 hover:text-gray-900">
+                                <i class="fa-solid fa-tooth mr-2"></i> Odontograma
+                            </button>
+                            <button onclick="cambiarTab('examen')" class="tab-btn px-6 py-4 font-bold text-sm whitespace-nowrap border-b-2 border-transparent text-gray-600 hover:text-gray-900">
+                                <i class="fa-solid fa-stethoscope mr-2"></i> Examen
+                            </button>
+                            <button onclick="cambiarTab('diagnostico')" class="tab-btn px-6 py-4 font-bold text-sm whitespace-nowrap border-b-2 border-transparent text-gray-600 hover:text-gray-900">
+                                <i class="fa-solid fa-file-medical mr-2"></i> Diagnóstico
+                            </button>
+                            <button onclick="cambiarTab('cargos')" class="tab-btn px-6 py-4 font-bold text-sm whitespace-nowrap border-b-2 border-transparent text-gray-600 hover:text-gray-900">
+                                <i class="fa-solid fa-receipt mr-2"></i> Cargos
+                            </button>
+                        </div>
+
+                        <!-- Contenido de Tabs -->
+                        <div class="p-6">
+                            <!-- TAB: Historial -->
+                            <div id="tab-historial" class="tab-content">
+                                <h3 class="text-xl font-black text-gray-900 mb-4">Historial de Consultas</h3>
+                                <div id="historial-consultas" class="space-y-3">
+                                    <p class="text-gray-500 text-sm italic">Cargando historial...</p>
+                                </div>
+                            </div>
+
+                            <!-- TAB: Notas de Padecimiento -->
+                            <div id="tab-notas" class="tab-content hidden">
+                                <h3 class="text-xl font-black text-gray-900 mb-4">Notas de Padecimiento Actual</h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">Motivo de Consulta</label>
+                                        <input type="text" id="motivo-consulta" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: Dolor de cabeza, fiebre...">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">Notas Clínicas</label>
+                                        <textarea id="notas-clinicas" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none h-32" placeholder="Descripción detallada del padecimiento..."></textarea>
+                                    </div>
+                                    <div class="bg-blue-50 p-4 rounded-lg">
+                                        <p class="text-xs text-gray-600 font-bold">💡 Sugerencia: Usa formato claro y estructurado</p>
                                     </div>
                                 </div>
                             </div>
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Síntomas / Observaciones</label>
-                                <textarea id="sintomas" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none h-32" placeholder="Descripción detallada..." required></textarea>
+
+                            <!-- TAB: Exploración Topográfica -->
+                            <div id="tab-exploracion" class="tab-content hidden">
+                                <h3 class="text-xl font-black text-gray-900 mb-4">Exploración Topográfica</h3>
+                                <div class="grid grid-cols-2 gap-6">
+                                    <div>
+                                        <p class="text-sm font-bold text-gray-700 mb-3">Zona de exploración</p>
+                                        <select id="zona-exploracion" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                                            <option value="">Selecciona una zona...</option>
+                                            <option value="cabeza">Cabeza y Cuello</option>
+                                            <option value="torax">Tórax</option>
+                                            <option value="abdomen">Abdomen</option>
+                                            <option value="extremidades">Extremidades</option>
+                                            <option value="espalda">Espalda</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-gray-700 mb-3">Hallazgos</p>
+                                        <textarea id="hallazgos-exploracion" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none h-24" placeholder="Describe los hallazgos..."></textarea>
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Tratamiento Recomendado</label>
-                                <textarea id="tratamiento" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none h-24" placeholder="Describe el tratamiento..." required></textarea>
+
+                            <!-- TAB: Odontograma -->
+                            <div id="tab-odontograma" class="tab-content hidden">
+                                <h3 class="text-xl font-black text-gray-900 mb-4">Odontograma</h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">Tipo de Odontograma</label>
+                                        <div class="flex gap-3">
+                                            <label class="flex items-center">
+                                                <input type="radio" name="tipo-odonto" value="adulto" checked> Adulto
+                                            </label>
+                                            <label class="flex items-center">
+                                                <input type="radio" name="tipo-odonto" value="infantil"> Infantil
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">Diagnóstico Dental</label>
+                                        <input type="text" id="diagnostico-dental" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej: Caries en pieza 16...">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">Notas Odontológicas</label>
+                                        <textarea id="notas-odonto" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none h-24" placeholder="Hallazgos odontológicos..."></textarea>
+                                    </div>
+                                </div>
                             </div>
-                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition">
-                                <i class="fa-solid fa-save mr-2"></i> Guardar Consulta
+
+                            <!-- TAB: Examen Físico -->
+                            <div id="tab-examen" class="tab-content hidden">
+                                <h3 class="text-xl font-black text-gray-900 mb-4">Examen Físico Completo</h3>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 mb-1">Frecuencia Cardíaca</label>
+                                        <input type="number" id="fc" class="w-full border border-gray-300 rounded px-3 py-2 text-sm" placeholder="bpm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 mb-1">Frecuencia Respiratoria</label>
+                                        <input type="number" id="fr" class="w-full border border-gray-300 rounded px-3 py-2 text-sm" placeholder="r/min">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 mb-1">Saturación O2</label>
+                                        <input type="number" id="spo2" class="w-full border border-gray-300 rounded px-3 py-2 text-sm" placeholder="%">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 mb-1">Oxígeno Suplementario</label>
+                                        <input type="text" id="o2-suplementario" class="w-full border border-gray-300 rounded px-3 py-2 text-sm" placeholder="No / Sí (especificar)">
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Resumen del Examen</label>
+                                    <textarea id="resumen-examen" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none h-24" placeholder="Resumen de hallazgos..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- TAB: Diagnóstico y Tratamiento -->
+                            <div id="tab-diagnostico" class="tab-content hidden">
+                                <h3 class="text-xl font-black text-gray-900 mb-4">Diagnóstico y Plan de Tratamiento</h3>
+                                <form id="diagnostico-form" class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">Diagnóstico Principal (CIE-10)</label>
+                                        <div class="relative">
+                                            <input type="text" id="diagnostico-principal" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Escribe código o descripción..." autocomplete="off">
+                                            <div id="cie10-dropdown-consulta" class="hidden absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg mt-1 shadow-lg max-h-64 overflow-y-auto z-10"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">Plan de Tratamiento</label>
+                                        <textarea id="plan-tratamiento" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none h-24" placeholder="Describe el plan terapéutico..."></textarea>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- TAB: Cargos -->
+                            <div id="tab-cargos" class="tab-content hidden">
+                                <h3 class="text-xl font-black text-gray-900 mb-4">Cargos de la Consulta</h3>
+                                <div class="space-y-4">
+                                    <div class="bg-blue-50 p-4 rounded-lg">
+                                        <p class="text-sm font-bold text-gray-800">Busca servicios para agregar cargos</p>
+                                    </div>
+                                    <input type="text" id="buscar-cargo" class="w-full border border-gray-300 rounded-lg px-4 py-3" placeholder="Buscar servicio...">
+                                    <div id="cargos-lista" class="space-y-2 border rounded-lg p-4 bg-gray-50 max-h-48 overflow-y-auto">
+                                        <p class="text-gray-500 text-sm italic">Sin cargos agregados</p>
+                                    </div>
+                                    <div class="border-t pt-4">
+                                        <div class="flex justify-between items-center text-lg font-bold">
+                                            <span>Total:</span>
+                                            <span id="total-cargos" class="text-blue-600">$0.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botones de Acción -->
+                        <div class="border-t border-gray-200 p-6 flex gap-3 justify-end">
+                            <button onclick="switchView('mis-pacientes')" class="px-6 py-3 border border-gray-300 rounded-lg font-bold hover:bg-gray-50 transition">
+                                Cancelar
                             </button>
-                        </form>
+                            <button onclick="guardarConsultaCompleta()" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition">
+                                <i class="fa-solid fa-save mr-2"></i> Guardar Consulta Completa
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -1072,84 +1238,93 @@
             }
         });
         
-        // AUTOCOMPLETE CIE-10
+        // AUTOCOMPLETE CIE-10 (Compatible con ambas interfaces)
         let cie10Timeout;
-        document.getElementById('diagnostico').addEventListener('input', async (e) => {
-            const searchQuery = e.target.value.trim().toLowerCase();
-            const dropdown = document.getElementById('cie10-dropdown');
+        
+        function setupCIE10Autocomplete(inputId, dropdownId) {
+            const inputElement = document.getElementById(inputId);
+            if (!inputElement) return;
             
-            // Limpiar timeout anterior
-            clearTimeout(cie10Timeout);
-            
-            // Si está vacío, ocultar dropdown
-            if (searchQuery.length === 0) {
-                dropdown.classList.add('hidden');
-                return;
-            }
-            
-            // Mostrar "Buscando..." y realizar búsqueda con debounce
-            dropdown.innerHTML = '<div class="p-3 text-gray-500 text-sm">🔍 Buscando...</div>';
-            dropdown.classList.remove('hidden');
-            
-            cie10Timeout = setTimeout(async () => {
-                try {
-                    let allResults = [];
-                    
-                    // Búsqueda 1: Por código (CLAVE)
-                    const claveResults = await db.collection('cie10')
-                        .where('clave', '>=', searchQuery.toUpperCase())
-                        .where('clave', '<', searchQuery.toUpperCase() + '\uf8ff')
-                        .limit(10)
-                        .get();
-                    
-                    claveResults.forEach(doc => allResults.push(doc.data()));
-                    
-                    // Búsqueda 2: Por descripción (si no encontramos suficientes por código)
-                    if (allResults.length < 10) {
-                        const descResults = await db.collection('cie10')
-                            .where('descripcion', '>=', searchQuery.toUpperCase())
-                            .where('descripcion', '<', searchQuery.toUpperCase() + '\uf8ff')
-                            .limit(10 - allResults.length)
+            inputElement.addEventListener('input', async (e) => {
+                const searchQuery = e.target.value.trim().toLowerCase();
+                const dropdown = document.getElementById(dropdownId);
+                
+                clearTimeout(cie10Timeout);
+                
+                if (searchQuery.length === 0) {
+                    dropdown.classList.add('hidden');
+                    return;
+                }
+                
+                dropdown.innerHTML = '<div class="p-3 text-gray-500 text-sm">🔍 Buscando...</div>';
+                dropdown.classList.remove('hidden');
+                
+                cie10Timeout = setTimeout(async () => {
+                    try {
+                        let allResults = [];
+                        
+                        const claveResults = await db.collection('cie10')
+                            .where('clave', '>=', searchQuery.toUpperCase())
+                            .where('clave', '<', searchQuery.toUpperCase() + '\uf8ff')
+                            .limit(10)
                             .get();
                         
-                        descResults.forEach(doc => {
-                            // Evitar duplicados
-                            if (!allResults.find(r => r.clave === doc.data().clave)) {
-                                allResults.push(doc.data());
-                            }
+                        claveResults.forEach(doc => allResults.push(doc.data()));
+                        
+                        if (allResults.length < 10) {
+                            const descResults = await db.collection('cie10')
+                                .where('descripcion', '>=', searchQuery.toUpperCase())
+                                .where('descripcion', '<', searchQuery.toUpperCase() + '\uf8ff')
+                                .limit(10 - allResults.length)
+                                .get();
+                            
+                            descResults.forEach(doc => {
+                                if (!allResults.find(r => r.clave === doc.data().clave)) {
+                                    allResults.push(doc.data());
+                                }
+                            });
+                        }
+                        
+                        if (allResults.length === 0) {
+                            dropdown.innerHTML = '<div class="p-3 text-gray-500 text-sm">⚠️ No se encontraron resultados</div>';
+                            return;
+                        }
+                        
+                        let html = '';
+                        allResults.slice(0, 10).forEach(data => {
+                            html += `
+                                <div class="p-3 border-b border-gray-200 hover:bg-blue-50 cursor-pointer transition"
+                                     onclick="selectCIE10('${inputId}', '${data.clave}', '${data.descripcion.replace(/'/g, "\\'")}')">
+                                    <div class="font-bold text-gray-900">${data.clave}</div>
+                                    <div class="text-sm text-gray-600">${data.descripcion}</div>
+                                    <div class="text-xs text-gray-500 mt-1">${data.grupo}</div>
+                                </div>
+                            `;
                         });
+                        dropdown.innerHTML = html;
+                    } catch (error) {
+                        console.error('Error buscando CIE-10:', error);
+                        dropdown.innerHTML = '<div class="p-3 text-red-500 text-sm">❌ Error en la búsqueda</div>';
                     }
-                    
-                    if (allResults.length === 0) {
-                        dropdown.innerHTML = '<div class="p-3 text-gray-500 text-sm">⚠️ No se encontraron resultados</div>';
-                        return;
-                    }
-                    
-                    // Renderizar resultados
-                    let html = '';
-                    allResults.slice(0, 10).forEach(data => {
-                        html += `
-                            <div class="p-3 border-b border-gray-200 hover:bg-blue-50 cursor-pointer transition"
-                                 onclick="selectCIE10('${data.clave}', '${data.descripcion.replace(/'/g, "\\'")}')">
-                                <div class="font-bold text-gray-900">${data.clave}</div>
-                                <div class="text-sm text-gray-600">${data.descripcion}</div>
-                                <div class="text-xs text-gray-500 mt-1">${data.grupo}</div>
-                            </div>
-                        `;
-                    });
-                    dropdown.innerHTML = html;
-                } catch (error) {
-                    console.error('Error buscando CIE-10:', error);
-                    dropdown.innerHTML = '<div class="p-3 text-red-500 text-sm">❌ Error en la búsqueda</div>';
-                }
-            }, 300); // Esperar 300ms antes de buscar (debounce)
-        });
+                }, 300);
+            });
+        }
         
         // Seleccionar resultado de CIE-10
-        function selectCIE10(clave, descripcion) {
-            document.getElementById('diagnostico').value = `${clave} - ${descripcion}`;
-            document.getElementById('cie10-dropdown').classList.add('hidden');
+        function selectCIE10(inputId, clave, descripcion) {
+            document.getElementById(inputId).value = `${clave} - ${descripcion}`;
+            
+            // Ocultar dropdown
+            const dropdownId = inputId === 'diagnostico-principal' ? 'cie10-dropdown-consulta' : 'cie10-dropdown';
+            const dropdown = document.getElementById(dropdownId);
+            if (dropdown) {
+                dropdown.classList.add('hidden');
+            }
         }
+        
+        // Configurar autocomplete para ambos campos
+        setupCIE10Autocomplete('diagnostico-principal', 'cie10-dropdown-consulta');
+        setupCIE10Autocomplete('diagnostico', 'cie10-dropdown');
         
         // Cerrar dropdown al hacer click fuera
         document.addEventListener('click', (e) => {
@@ -1159,42 +1334,212 @@
         });
         
         // Guardar consulta
-        document.getElementById('consulta-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        // ==================== NUEVA CONSULTA CON TABS ====================
+        
+        let consultaActual = {
+            pacienteId: null,
+            historial: [],
+            notas: {},
+            exploracion: {},
+            odontograma: {},
+            examen: {},
+            diagnostico: {},
+            cargos: []
+        };
+        
+        // Cambiar tab
+        function cambiarTab(tabName) {
+            // Ocultar todos los tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
             
-            const patientId = document.getElementById('select-paciente').value;
-            if (!patientId) {
+            // Mostrar tab seleccionado
+            const tabElement = document.getElementById(`tab-${tabName}`);
+            if (tabElement) {
+                tabElement.classList.remove('hidden');
+            }
+            
+            // Actualizar botones
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('text-blue-600', 'border-blue-600');
+                btn.classList.add('text-gray-600', 'border-transparent');
+            });
+            
+            event.target.closest('.tab-btn').classList.add('text-blue-600', 'border-blue-600');
+            
+            // Cargar contenido si es historial
+            if (tabName === 'historial' && consultaActual.pacienteId) {
+                cargarHistorialConsultas(consultaActual.pacienteId);
+            }
+        }
+        
+        // Actualizar nombre del paciente en la cabecera
+        function actualizarNombrePaciente() {
+            const select = document.getElementById('select-paciente-consulta');
+            const pacienteId = select.value;
+            const nombreElement = document.getElementById('consulta-paciente-nombre');
+            
+            if (pacienteId) {
+                db.collection('patients').doc(pacienteId).get().then(doc => {
+                    if (doc.exists) {
+                        const p = doc.data();
+                        nombreElement.textContent = `${p.nombre} ${p.apellido} • ${p.cedula}`;
+                        consultaActual.pacienteId = pacienteId;
+                    }
+                });
+            } else {
+                nombreElement.textContent = 'Selecciona un paciente';
+            }
+        }
+        
+        // Cargar historial de consultas
+        async function cargarHistorialConsultas(pacienteId) {
+            try {
+                const snapshot = await db.collection('patients').doc(pacienteId)
+                    .collection('consultations').orderBy('createdAt', 'desc').limit(10).get();
+                
+                const historialDiv = document.getElementById('historial-consultas');
+                if (snapshot.empty) {
+                    historialDiv.innerHTML = '<p class="text-gray-500 text-sm italic">Sin consultas previas</p>';
+                    return;
+                }
+                
+                historialDiv.innerHTML = snapshot.docs.map(doc => {
+                    const c = doc.data();
+                    const fecha = c.createdAt?.toDate().toLocaleDateString('es-MX', { 
+                        year: 'numeric', month: 'long', day: 'numeric' 
+                    }) || 'Sin fecha';
+                    
+                    return `
+                        <div class="border-l-4 border-blue-600 pl-4 py-3 bg-blue-50 rounded">
+                            <p class="font-bold text-gray-900">${c.diagnostico}</p>
+                            <p class="text-xs text-gray-500 mt-1">${fecha}</p>
+                            <p class="text-sm text-gray-700 mt-2">${c.sintomas}</p>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error cargando historial:', error);
+            }
+        }
+        
+        // Guardar consulta completa
+        async function guardarConsultaCompleta() {
+            const pacienteId = document.getElementById('select-paciente-consulta').value;
+            
+            if (!pacienteId) {
                 alert('Por favor selecciona un paciente');
                 return;
             }
             
+            // Validar mínimamente que haya diagnóstico
+            const diagnosticoPrincipal = document.getElementById('diagnostico-principal').value;
+            if (!diagnosticoPrincipal) {
+                alert('Por favor agrega un diagnóstico principal');
+                return;
+            }
+            
             try {
-                const btn = e.target.querySelector('button[type="submit"]');
+                const btn = event.target;
                 btn.disabled = true;
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Guardando...';
                 
-                await db.collection('patients').doc(patientId).collection('consultations').doc().set({
-                    diagnostico: document.getElementById('diagnostico').value,
-                    sintomas: document.getElementById('sintomas').value,
-                    tratamiento: document.getElementById('tratamiento').value,
+                // Recopilar toda la información
+                const consultaData = {
+                    // Información básica
+                    pacienteId: pacienteId,
                     doctorId: currentUser.uid,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    
+                    // Notas de Padecimiento
+                    motivoConsulta: document.getElementById('motivo-consulta').value,
+                    notasClinicas: document.getElementById('notas-clinicas').value,
+                    
+                    // Exploración Topográfica
+                    zonaExploracion: document.getElementById('zona-exploracion').value,
+                    hallazgosExploracion: document.getElementById('hallazgos-exploracion').value,
+                    
+                    // Odontograma
+                    tipoOdontograma: document.querySelector('input[name="tipo-odonto"]:checked').value,
+                    diagnosticoDental: document.getElementById('diagnostico-dental').value,
+                    notasOdonto: document.getElementById('notas-odonto').value,
+                    
+                    // Examen Físico
+                    examenFisico: {
+                        fc: document.getElementById('fc').value,
+                        fr: document.getElementById('fr').value,
+                        spo2: document.getElementById('spo2').value,
+                        o2Suplementario: document.getElementById('o2-suplementario').value,
+                        resumen: document.getElementById('resumen-examen').value
+                    },
+                    
+                    // Diagnóstico y Tratamiento
+                    diagnosticoPrincipal: diagnosticoPrincipal,
+                    planTratamiento: document.getElementById('plan-tratamiento').value,
+                    
+                    // Cargos
+                    cargos: consultaActual.cargos
+                };
                 
-                alert('✅ Consulta guardada correctamente');
-                document.getElementById('consulta-form').reset();
+                // Guardar en Firestore
+                await db.collection('patients').doc(pacienteId).collection('consultations').doc().set(consultaData);
+                
+                alert('✅ Consulta completa guardada correctamente');
+                
+                // Resetear formulario
+                limpiarFormularioConsulta();
                 switchView('mis-pacientes');
                 loadMedicoPatients();
+                
             } catch (error) {
                 console.error('Error guardando consulta:', error);
-                alert('Error al guardar la consulta');
+                alert('Error al guardar la consulta: ' + error.message);
             } finally {
-                const btn = document.getElementById('consulta-form').querySelector('button[type="submit"]');
+                const btn = event.target;
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-save mr-2"></i> Guardar Consulta';
+                btn.innerHTML = '<i class="fa-solid fa-save mr-2"></i> Guardar Consulta Completa';
             }
-        });
-
+        }
+        
+        // Limpiar formulario
+        function limpiarFormularioConsulta() {
+            document.querySelectorAll('#nueva-consulta input[type="text"], #nueva-consulta input[type="number"], #nueva-consulta textarea, #nueva-consulta select').forEach(el => {
+                if (el.id !== 'select-paciente-consulta') {
+                    el.value = '';
+                }
+            });
+            consultaActual = {
+                pacienteId: null,
+                historial: [],
+                notas: {},
+                exploracion: {},
+                odontograma: {},
+                examen: {},
+                diagnostico: {},
+                cargos: []
+            };
+        }
+        
+        // Cargar pacientes en select de Nueva Consulta
+        function cargarPacientesConsulta() {
+            if (currentRole !== 'medico') return;
+            
+            db.collection('patients')
+                .where('assignedDoctor', '==', currentUser.uid)
+                .get()
+                .then(snapshot => {
+                    const select = document.getElementById('select-paciente-consulta');
+                    select.innerHTML = '<option value="">Selecciona un paciente...</option>';
+                    snapshot.forEach(doc => {
+                        const option = document.createElement('option');
+                        option.value = doc.id;
+                        option.textContent = `${doc.data().nombre} ${doc.data().apellido} - ${doc.data().cedula}`;
+                        select.appendChild(option);
+                    });
+                });
+        }
+        
         // ==================== RECETAS ELECTRÓNICAS ====================
         
         // Variables globales para recetas
@@ -1560,9 +1905,11 @@ Instrucciones: ${document.getElementById('instrucciones').value || 'Ninguna'}
             document.querySelectorAll('.view').forEach(el => el.classList.add('hidden'));
             document.getElementById(view)?.classList.remove('hidden');
             
-            // Cargar pacientes si abre recetas
+            // Cargar pacientes si abre recetas o nueva consulta
             if (view === 'recetas') {
                 cargarPacientesReceta();
+            } else if (view === 'nueva-consulta') {
+                cargarPacientesConsulta();
             }
         }
 
