@@ -402,12 +402,20 @@
                     </div>
 
                     <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                        <!-- Selector de Paciente -->
+                        <!-- Buscador Inteligente de Pacientes -->
                         <div class="border-b border-gray-200 p-6">
                             <label class="block text-sm font-bold text-gray-700 mb-3">Seleccionar Paciente</label>
-                            <select id="select-paciente-consulta" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" onchange="actualizarNombrePaciente()">
-                                <option value="">Selecciona un paciente...</option>
-                            </select>
+                            <div class="relative">
+                                <input type="text" id="buscar-paciente-consulta" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" placeholder="Escribe nombre, apellido, email o CURP..." oninput="buscarPacienteConsulta()">
+                                <div id="resultados-pacientes-consulta" class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-64 overflow-y-auto hidden z-50">
+                                    <!-- Resultados dinamicos -->
+                                </div>
+                            </div>
+                            <div id="paciente-seleccionado-info" class="mt-3 text-sm text-gray-600 hidden">
+                                <span class="font-bold">Paciente seleccionado:</span>
+                                <span id="paciente-seleccionado-texto" class="text-blue-600"></span>
+                            </div>
+                            <input type="hidden" id="select-paciente-consulta" value="">
                         </div>
 
                         <!-- Tabs Navigation -->
@@ -775,7 +783,12 @@
                                     <div class="bg-blue-50 p-4 rounded-lg">
                                         <p class="text-sm font-bold text-gray-800">Busca servicios para agregar cargos</p>
                                     </div>
-                                    <input type="text" id="buscar-cargo" class="w-full border border-gray-300 rounded-lg px-4 py-3" placeholder="Buscar servicio...">
+                                    <div class="relative">
+                                        <input type="text" id="buscar-cargo" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Buscar servicio por nombre o código..." oninput="buscarServiciosCargo()">
+                                        <div id="servicios-disponibles" class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-64 overflow-y-auto hidden z-50">
+                                            <!-- Resultados dinamicos -->
+                                        </div>
+                                    </div>
                                     <div id="cargos-lista" class="space-y-2 border rounded-lg p-4 bg-gray-50 max-h-48 overflow-y-auto">
                                         <p class="text-gray-500 text-sm italic">Sin cargos agregados</p>
                                     </div>
@@ -3433,7 +3446,9 @@
             };
         }
         
-        // Cargar pacientes en select de Nueva Consulta
+        // Cargar pacientes en select de Nueva Consulta (almacenarlos para búsqueda inteligente)
+        let pacientesConsultaCache = [];
+        
         function cargarPacientesConsulta() {
             if (currentRole !== 'medico') return;
             
@@ -3441,15 +3456,165 @@
                 .where('assignedDoctor', '==', currentUser.uid)
                 .get()
                 .then(snapshot => {
-                    const select = document.getElementById('select-paciente-consulta');
-                    select.innerHTML = '<option value="">Selecciona un paciente...</option>';
+                    pacientesConsultaCache = [];
                     snapshot.forEach(doc => {
-                        const option = document.createElement('option');
-                        option.value = doc.id;
-                        option.textContent = `${doc.data().nombre} ${doc.data().apellido} - ${doc.data().cedula}`;
-                        select.appendChild(option);
+                        pacientesConsultaCache.push({
+                            id: doc.id,
+                            nombre: doc.data().nombre || '',
+                            apellido: doc.data().apellido || '',
+                            cedula: doc.data().cedula || '',
+                            email: doc.data().email || '',
+                            curp: doc.data().curp || '',
+                            telefono: doc.data().telefono || ''
+                        });
                     });
                 });
+        }
+        
+        // Búsqueda inteligente de pacientes en Nueva Consulta
+        function buscarPacienteConsulta() {
+            const termino = document.getElementById('buscar-paciente-consulta').value.toLowerCase().trim();
+            const contenedor = document.getElementById('resultados-pacientes-consulta');
+            
+            if (!termino) {
+                contenedor.classList.add('hidden');
+                return;
+            }
+            
+            const resultados = pacientesConsultaCache.filter(p => {
+                const nombre = `${p.nombre} ${p.apellido}`.toLowerCase();
+                const email = p.email.toLowerCase();
+                const curp = p.curp.toLowerCase();
+                const cedula = p.cedula.toLowerCase();
+                
+                return nombre.includes(termino) || email.includes(termino) || 
+                       curp.includes(termino) || cedula.includes(termino);
+            });
+            
+            if (resultados.length === 0) {
+                contenedor.innerHTML = '<div class="px-4 py-3 text-gray-500 text-sm">No se encontraron pacientes</div>';
+                contenedor.classList.remove('hidden');
+                return;
+            }
+            
+            contenedor.innerHTML = resultados.map(p => `
+                <div class="px-4 py-3 border-b border-gray-200 cursor-pointer hover:bg-blue-50 transition" onclick="seleccionarPacienteConsulta('${p.id}', '${p.nombre} ${p.apellido}', '${p.cedula}', '${p.email}')">
+                    <div class="font-bold text-gray-900">${p.nombre} ${p.apellido}</div>
+                    <div class="text-xs text-gray-600">CURP: ${p.curp} | Email: ${p.email} | Cédula: ${p.cedula}</div>
+                </div>
+            `).join('');
+            
+            contenedor.classList.remove('hidden');
+        }
+        
+        // Seleccionar paciente de la búsqueda
+        function seleccionarPacienteConsulta(pacienteId, nombre, cedula, email) {
+            document.getElementById('select-paciente-consulta').value = pacienteId;
+            document.getElementById('buscar-paciente-consulta').value = nombre;
+            document.getElementById('paciente-seleccionado-texto').textContent = `${nombre} (${cedula}) - ${email}`;
+            document.getElementById('paciente-seleccionado-info').classList.remove('hidden');
+            document.getElementById('resultados-pacientes-consulta').classList.add('hidden');
+            actualizarNombrePaciente();
+        }
+        
+        // ==================== BÚSQUEDA Y GESTIÓN DE CARGOS EN NUEVA CONSULTA ====================
+        
+        // Búsqueda de servicios para agregar cargos
+        function buscarServiciosCargo() {
+            const termino = document.getElementById('buscar-cargo').value.toLowerCase().trim();
+            const contenedor = document.getElementById('servicios-disponibles');
+            
+            if (!termino) {
+                contenedor.classList.add('hidden');
+                return;
+            }
+            
+            // Filtrar servicios activos que coincidan con la búsqueda
+            const resultados = productosCache.filter(s => {
+                const codigo = s.codigo.toLowerCase();
+                const nombre = s.nombre.toLowerCase();
+                const categoria = s.categoria.toLowerCase();
+                
+                return s.activo && (codigo.includes(termino) || nombre.includes(termino) || categoria.includes(termino));
+            });
+            
+            if (resultados.length === 0) {
+                contenedor.innerHTML = '<div class="px-4 py-3 text-gray-500 text-sm">No se encontraron servicios activos</div>';
+                contenedor.classList.remove('hidden');
+                return;
+            }
+            
+            contenedor.innerHTML = resultados.map(s => `
+                <div class="px-4 py-3 border-b border-gray-200 cursor-pointer hover:bg-green-50 transition flex justify-between items-center" onclick="agregarCargo('${s.id}', '${s.nombre}', ${s.precio})">
+                    <div>
+                        <div class="font-bold text-gray-900">${s.nombre}</div>
+                        <div class="text-xs text-gray-600">Código: ${s.codigo} | Categoría: ${s.categoria}</div>
+                    </div>
+                    <div class="font-bold text-green-600">$${parseFloat(s.precio).toFixed(2)}</div>
+                </div>
+            `).join('');
+            
+            contenedor.classList.remove('hidden');
+        }
+        
+        // Agregar cargo a la consulta
+        function agregarCargo(servicioId, nombre, precio) {
+            // Agregar a consultaActual.cargos
+            if (!consultaActual.cargos) {
+                consultaActual.cargos = [];
+            }
+            
+            consultaActual.cargos.push({
+                id: Date.now(),
+                servicioId: servicioId,
+                nombre: nombre,
+                precio: precio
+            });
+            
+            // Actualizar lista de cargos
+            actualizarListaCargos();
+            
+            // Limpiar búsqueda
+            document.getElementById('buscar-cargo').value = '';
+            document.getElementById('servicios-disponibles').classList.add('hidden');
+        }
+        
+        // Actualizar lista de cargos mostrados
+        function actualizarListaCargos() {
+            const lista = document.getElementById('cargos-lista');
+            
+            if (!consultaActual.cargos || consultaActual.cargos.length === 0) {
+                lista.innerHTML = '<p class="text-gray-500 text-sm italic">Sin cargos agregados</p>';
+                document.getElementById('total-cargos').textContent = '$0.00';
+                return;
+            }
+            
+            let total = 0;
+            lista.innerHTML = consultaActual.cargos.map(cargo => {
+                total += cargo.precio;
+                return `
+                    <div class="flex justify-between items-center bg-white p-3 rounded border border-gray-200 hover:shadow-sm transition">
+                        <div>
+                            <div class="font-bold text-gray-900">${cargo.nombre}</div>
+                            <div class="text-xs text-gray-600">ID Servicio: ${cargo.servicioId}</div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="font-bold text-blue-600">$${parseFloat(cargo.precio).toFixed(2)}</span>
+                            <button type="button" onclick="eliminarCargo(${cargo.id})" class="text-red-600 hover:text-red-900 text-sm">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('total-cargos').textContent = `$${total.toFixed(2)}`;
+        }
+        
+        // Eliminar cargo de la consulta
+        function eliminarCargo(cargoId) {
+            consultaActual.cargos = consultaActual.cargos.filter(c => c.id !== cargoId);
+            actualizarListaCargos();
         }
         
         // ==================== MIS PACIENTES - BÚSQUEDA Y CREACIÓN ====================
@@ -4809,6 +4974,7 @@ Notas: ${props.notas || 'Sin notas'}
                 cargarPacientesReceta();
             } else if (view === 'nueva-consulta') {
                 cargarPacientesConsulta();
+                cargarProductos(); // Cargar servicios para el buscador de cargos
             } else if (view === 'agenda-operativa') {
                 setTimeout(() => {
                     cargarPacientesAgendaLista();
