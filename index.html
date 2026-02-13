@@ -579,109 +579,146 @@
                                 </div>
                             </div>
 
-                            <!-- TAB: Odontograma Dinámico -->
+                            <!-- TAB: Odontograma Profesional con Caras Dentales -->
                             <div id="tab-odontograma" class="tab-content hidden">
-                                <h3 class="text-xl font-black text-gray-900 mb-6">Odontograma Dinámico</h3>
+                                <h3 class="text-xl font-black text-gray-900 mb-6">Odontograma Profesional</h3>
                                 
-                                <div class="grid grid-cols-12 gap-6">
-                                    <!-- Panel de controles (izquierda) -->
-                                    <div class="col-span-3 space-y-4">
+                                <div class="space-y-6">
+                                    <!-- Panel de controles superior -->
+                                    <div class="grid grid-cols-4 gap-4">
                                         <!-- Tipo de dentición -->
                                         <div>
-                                            <label class="block text-sm font-bold text-gray-700 mb-2">Tipo de Dentición</label>
-                                            <div class="space-y-2">
-                                                <label class="flex items-center gap-2 cursor-pointer">
-                                                    <input type="radio" name="tipo-denticion" value="adulto" checked onchange="cambiarTipoDenticion('adulto')"> 
-                                                    <span class="text-sm">Adulto (32 dientes)</span>
+                                            <label class="block text-xs font-bold text-gray-700 mb-2">Tipo</label>
+                                            <div class="space-y-1">
+                                                <label class="flex items-center gap-2 text-xs cursor-pointer">
+                                                    <input type="radio" name="tipo-denticion" value="adulto" checked onchange="cambiarTipoDenticion('adulto')"> Adulto
                                                 </label>
-                                                <label class="flex items-center gap-2 cursor-pointer">
-                                                    <input type="radio" name="tipo-denticion" value="infantil" onchange="cambiarTipoDenticion('infantil')"> 
-                                                    <span class="text-sm">Infantil (20 dientes)</span>
+                                                <label class="flex items-center gap-2 text-xs cursor-pointer">
+                                                    <input type="radio" name="tipo-denticion" value="infantil" onchange="cambiarTipoDenticion('infantil')"> Infantil
                                                 </label>
                                             </div>
                                         </div>
 
-                                        <!-- Selector de estado dental -->
+                                        <!-- Selector de cara dental -->
                                         <div>
-                                            <label class="block text-sm font-bold text-gray-700 mb-2">Estado Dental</label>
-                                            <div class="space-y-2">
-                                                <button type="button" onclick="setEstadoDental('sano')" class="w-full text-left px-3 py-2 rounded text-sm transition flex items-center gap-2" style="background-color: #22c55e; color: white;">
-                                                    <i class="fa-solid fa-tooth"></i> Sano
-                                                </button>
-                                                <button type="button" onclick="setEstadoDental('cariado')" class="w-full text-left px-3 py-2 rounded text-sm transition flex items-center gap-2" style="background-color: #ef4444; color: white;">
-                                                    <i class="fa-solid fa-triangle-exclamation"></i> Cariado
-                                                </button>
-                                                <button type="button" onclick="setEstadoDental('restaurado')" class="w-full text-left px-3 py-2 rounded text-sm transition flex items-center gap-2" style="background-color: #3b82f6; color: white;">
-                                                    <i class="fa-solid fa-tools"></i> Restaurado
-                                                </button>
-                                                <button type="button" onclick="setEstadoDental('ausente')" class="w-full text-left px-3 py-2 rounded text-sm transition flex items-center gap-2" style="background-color: #6b7280; color: white;">
-                                                    <i class="fa-solid fa-ban"></i> Ausente
-                                                </button>
-                                                <button type="button" onclick="setEstadoDental('sellante')" class="w-full text-left px-3 py-2 rounded text-sm transition flex items-center gap-2" style="background-color: #f59e0b; color: white;">
-                                                    <i class="fa-solid fa-shield"></i> Sellante
-                                                </button>
-                                                <button type="button" onclick="setEstadoDental('endodoncia')" class="w-full text-left px-3 py-2 rounded text-sm transition flex items-center gap-2" style="background-color: #8b5cf6; color: white;">
-                                                    <i class="fa-solid fa-microchip"></i> Endodoncia
-                                                </button>
-                                            </div>
-                                            <p class="text-xs text-gray-500 mt-2">Seleccionado: <span id="estado-dental-seleccionado" class="font-bold">Ninguno</span></p>
+                                            <label class="block text-xs font-bold text-gray-700 mb-2">Cara Seleccionada</label>
+                                            <p class="text-xs text-gray-600 px-2 py-1 bg-gray-100 rounded" id="cara-seleccionada">Ninguna</p>
                                         </div>
 
-                                        <!-- Botones de acción -->
-                                        <div class="space-y-2">
-                                            <button type="button" onclick="limpiarOdontograma()" class="w-full border border-gray-300 text-gray-700 font-bold px-4 py-2 rounded-lg hover:bg-gray-50 transition text-sm">
-                                                <i class="fa-solid fa-eraser mr-2"></i> Limpiar
-                                            </button>
-                                            <button type="button" onclick="exportarOdontogramaPDF()" class="w-full border border-gray-300 text-gray-700 font-bold px-4 py-2 rounded-lg hover:bg-gray-50 transition text-sm">
-                                                <i class="fa-solid fa-file-pdf mr-2"></i> Exportar PDF
-                                            </button>
+                                        <!-- Pieza seleccionada -->
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-700 mb-2">Pieza Seleccionada</label>
+                                            <p class="text-xs text-gray-600 px-2 py-1 bg-gray-100 rounded" id="pieza-seleccionada">Ninguna</p>
                                         </div>
 
-                                        <!-- Resumen de hallazgos -->
-                                        <div>
-                                            <label class="block text-sm font-bold text-gray-700 mb-2">Diagnóstico General</label>
-                                            <textarea id="diagnostico-dental" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none h-20 text-sm" placeholder="Hallazgos odontológicos..."></textarea>
+                                        <!-- Botones de acción rápida -->
+                                        <div class="flex flex-col gap-1">
+                                            <button type="button" onclick="limpiarOdontograma()" class="text-xs px-2 py-1 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition">
+                                                <i class="fa-solid fa-eraser mr-1"></i> Limpiar
+                                            </button>
+                                            <button type="button" onclick="exportarOdontogramaPDF()" class="text-xs px-2 py-1 border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition">
+                                                <i class="fa-solid fa-file-pdf mr-1"></i> PDF
+                                            </button>
                                         </div>
                                     </div>
 
-                                    <!-- Panel visual (odontograma) -->
-                                    <div class="col-span-9 space-y-4">
-                                        <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
-                                            <!-- Odontograma -->
-                                            <div id="odontograma-container" class="flex flex-col gap-8">
-                                                <!-- Arcada Superior -->
-                                                <div>
-                                                    <h4 class="text-sm font-bold text-gray-700 mb-3 text-center">ARCADA SUPERIOR</h4>
-                                                    <div class="flex justify-center gap-1" id="arcada-superior">
-                                                        <!-- Se genera dinámicamente -->
-                                                    </div>
+                                    <!-- Odontograma visual -->
+                                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 overflow-x-auto">
+                                        <div id="odontograma-container" class="flex flex-col gap-8 min-w-max">
+                                            <!-- Arcada Superior -->
+                                            <div>
+                                                <h4 class="text-xs font-bold text-gray-700 mb-2 text-center uppercase">Arcada Superior</h4>
+                                                <div class="flex justify-center gap-1" id="arcada-superior">
+                                                    <!-- Se genera dinámicamente -->
                                                 </div>
+                                            </div>
 
-                                                <!-- Arcada Inferior -->
-                                                <div>
-                                                    <h4 class="text-sm font-bold text-gray-700 mb-3 text-center">ARCADA INFERIOR</h4>
-                                                    <div class="flex justify-center gap-1" id="arcada-inferior">
-                                                        <!-- Se genera dinámicamente -->
-                                                    </div>
+                                            <!-- Línea separadora -->
+                                            <div class="flex justify-center">
+                                                <div class="w-full h-px bg-gray-400"></div>
+                                            </div>
+
+                                            <!-- Arcada Inferior -->
+                                            <div>
+                                                <h4 class="text-xs font-bold text-gray-700 mb-2 text-center uppercase">Arcada Inferior</h4>
+                                                <div class="flex justify-center gap-1" id="arcada-inferior">
+                                                    <!-- Se genera dinámicamente -->
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
 
-                                        <!-- Leyenda de colores -->
-                                        <div class="grid grid-cols-3 gap-2 text-xs">
-                                            <div class="flex items-center gap-2"><div class="w-6 h-6 rounded" style="background-color: #22c55e;"></div><span>Sano</span></div>
-                                            <div class="flex items-center gap-2"><div class="w-6 h-6 rounded" style="background-color: #ef4444;"></div><span>Cariado</span></div>
-                                            <div class="flex items-center gap-2"><div class="w-6 h-6 rounded" style="background-color: #3b82f6;"></div><span>Restaurado</span></div>
-                                            <div class="flex items-center gap-2"><div class="w-6 h-6 rounded" style="background-color: #6b7280;"></div><span>Ausente</span></div>
-                                            <div class="flex items-center gap-2"><div class="w-6 h-6 rounded" style="background-color: #f59e0b;"></div><span>Sellante</span></div>
-                                            <div class="flex items-center gap-2"><div class="w-6 h-6 rounded" style="background-color: #8b5cf6;"></div><span>Endodoncia</span></div>
+                                    <!-- Procedimientos -->
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <!-- Diagnóstico y Procedimiento -->
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-700 mb-2">Diagnóstico</label>
+                                            <input type="text" id="diagnostico-proc" class="w-full border border-gray-300 rounded px-3 py-2 text-xs" placeholder="Ej: Caries">
                                         </div>
 
-                                        <!-- Sistema numérico ISO 1992 -->
-                                        <div class="text-xs text-gray-500 p-3 bg-gray-50 rounded border border-gray-200">
-                                            <p class="font-bold mb-1">Sistema de Numeración ISO 1992:</p>
-                                            <p>Superior: 11-18 (derecha) 21-28 (izquierda) | Inferior: 31-38 (derecha) 41-48 (izquierda)</p>
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-700 mb-2">Procedimiento</label>
+                                            <select id="procedimiento-select" class="w-full border border-gray-300 rounded px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+                                                <option value="">Selecciona procedimiento...</option>
+                                                <option value="Profiláctico">Profiláctico</option>
+                                                <option value="Restauración con Resina">Restauración con Resina</option>
+                                                <option value="Restauración con Amalgama">Restauración con Amalgama</option>
+                                                <option value="Sellador">Sellador</option>
+                                                <option value="Extracción">Extracción</option>
+                                                <option value="Curetaje">Curetaje</option>
+                                                <option value="Alargamiento de Corona">Alargamiento de Corona</option>
+                                                <option value="Recubrimiento Gingival">Recubrimiento Gingival</option>
+                                                <option value="Coronas/Puentes">Coronas/Puentes</option>
+                                                <option value="Implante">Implante</option>
+                                                <option value="Endodoncia">Endodoncia</option>
+                                            </select>
                                         </div>
+                                    </div>
+
+                                    <!-- Botón para agregar procedimiento -->
+                                    <button type="button" onclick="agregarProcedimientoDental()" class="w-full text-white font-bold px-4 py-2 rounded-lg transition text-sm" style="background-color: #1465ff;">
+                                        <i class="fa-solid fa-plus mr-2"></i> Agregar Procedimiento
+                                    </button>
+
+                                    <!-- Tabla de procedimientos -->
+                                    <div>
+                                        <h4 class="text-sm font-bold text-gray-900 mb-3">Procedimientos Registrados</h4>
+                                        <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                                            <table class="w-full text-xs">
+                                                <thead class="bg-gray-100 border-b border-gray-200">
+                                                    <tr>
+                                                        <th class="px-3 py-2 text-left font-bold text-gray-700">Diagnóstico</th>
+                                                        <th class="px-3 py-2 text-left font-bold text-gray-700">Procedimiento</th>
+                                                        <th class="px-3 py-2 text-center font-bold text-gray-700">Pieza</th>
+                                                        <th class="px-3 py-2 text-center font-bold text-gray-700">Cara</th>
+                                                        <th class="px-3 py-2 text-center font-bold text-gray-700 w-16">Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="procedimientos-tbody">
+                                                    <tr>
+                                                        <td colspan="5" class="px-3 py-4 text-center text-gray-500">Sin procedimientos registrados</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <!-- Leyenda -->
+                                    <div class="text-xs text-gray-600 p-3 bg-gray-50 rounded border border-gray-200">
+                                        <p class="font-bold mb-2">Caras Dentales:</p>
+                                        <div class="grid grid-cols-3 gap-2">
+                                            <p><strong>V:</strong> Vestibular (frente)</p>
+                                            <p><strong>O:</strong> Oclusal (masticatoria)</p>
+                                            <p><strong>L:</strong> Lingual/Palatina (lengua)</p>
+                                            <p><strong>M:</strong> Mesial (hacia la línea media)</p>
+                                            <p><strong>D:</strong> Distal (lejos de la línea media)</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Diagnóstico General -->
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">Diagnóstico General</label>
+                                        <textarea id="diagnostico-dental" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none h-20 text-sm" placeholder="Resumen de hallazgos odontológicos..."></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -2844,96 +2881,51 @@
             }
         }
 
-        // ==================== ODONTOGRAMA DINÁMICO ====================
+        // ==================== ODONTOGRAMA PROFESIONAL CON CARAS DENTALES ====================
         let odontogramaData = {
             tipoDenticion: 'adulto',
-            estadoSeleccionado: null,
-            dientes: {}
+            piezaSeleccionada: null,
+            caraSeleccionada: null,
+            procedimientos: [], // Array de {diagnostico, procedimiento, pieza, cara, comentarios}
+            carasPorPieza: {} // {pieza: {V, O, L, M, D}}
         };
 
-        // Dientes en adulto (32) - Nomenclatura FDI ISO 1992
+        // Dientes adulto ISO 1992
         const DIENTES_ADULTO = [
-            // Cuadrante 1 (Superior Derecho)
-            {id: '18', num: '18', cuadrante: 'superior-derecha'},
-            {id: '17', num: '17', cuadrante: 'superior-derecha'},
-            {id: '16', num: '16', cuadrante: 'superior-derecha'},
-            {id: '15', num: '15', cuadrante: 'superior-derecha'},
-            {id: '14', num: '14', cuadrante: 'superior-derecha'},
-            {id: '13', num: '13', cuadrante: 'superior-derecha'},
-            {id: '12', num: '12', cuadrante: 'superior-derecha'},
-            {id: '11', num: '11', cuadrante: 'superior-derecha'},
-            // Cuadrante 2 (Superior Izquierdo)
-            {id: '21', num: '21', cuadrante: 'superior-izquierda'},
-            {id: '22', num: '22', cuadrante: 'superior-izquierda'},
-            {id: '23', num: '23', cuadrante: 'superior-izquierda'},
-            {id: '24', num: '24', cuadrante: 'superior-izquierda'},
-            {id: '25', num: '25', cuadrante: 'superior-izquierda'},
-            {id: '26', num: '26', cuadrante: 'superior-izquierda'},
-            {id: '27', num: '27', cuadrante: 'superior-izquierda'},
-            {id: '28', num: '28', cuadrante: 'superior-izquierda'},
-            // Cuadrante 3 (Inferior Izquierdo)
-            {id: '38', num: '38', cuadrante: 'inferior-izquierda'},
-            {id: '37', num: '37', cuadrante: 'inferior-izquierda'},
-            {id: '36', num: '36', cuadrante: 'inferior-izquierda'},
-            {id: '35', num: '35', cuadrante: 'inferior-izquierda'},
-            {id: '34', num: '34', cuadrante: 'inferior-izquierda'},
-            {id: '33', num: '33', cuadrante: 'inferior-izquierda'},
-            {id: '32', num: '32', cuadrante: 'inferior-izquierda'},
-            {id: '31', num: '31', cuadrante: 'inferior-izquierda'},
-            // Cuadrante 4 (Inferior Derecho)
-            {id: '41', num: '41', cuadrante: 'inferior-derecha'},
-            {id: '42', num: '42', cuadrante: 'inferior-derecha'},
-            {id: '43', num: '43', cuadrante: 'inferior-derecha'},
-            {id: '44', num: '44', cuadrante: 'inferior-derecha'},
-            {id: '45', num: '45', cuadrante: 'inferior-derecha'},
-            {id: '46', num: '46', cuadrante: 'inferior-derecha'},
-            {id: '47', num: '47', cuadrante: 'inferior-derecha'},
-            {id: '48', num: '48', cuadrante: 'inferior-derecha'}
+            {id: '18', num: '18'}, {id: '17', num: '17'}, {id: '16', num: '16'}, {id: '15', num: '15'},
+            {id: '14', num: '14'}, {id: '13', num: '13'}, {id: '12', num: '12'}, {id: '11', num: '11'},
+            {id: '21', num: '21'}, {id: '22', num: '22'}, {id: '23', num: '23'}, {id: '24', num: '24'},
+            {id: '25', num: '25'}, {id: '26', num: '26'}, {id: '27', num: '27'}, {id: '28', num: '28'},
+            {id: '38', num: '38'}, {id: '37', num: '37'}, {id: '36', num: '36'}, {id: '35', num: '35'},
+            {id: '34', num: '34'}, {id: '33', num: '33'}, {id: '32', num: '32'}, {id: '31', num: '31'},
+            {id: '41', num: '41'}, {id: '42', num: '42'}, {id: '43', num: '43'}, {id: '44', num: '44'},
+            {id: '45', num: '45'}, {id: '46', num: '46'}, {id: '47', num: '47'}, {id: '48', num: '48'}
         ];
 
-        // Dientes en infantil (20) - Nomenclatura Letras A-J
         const DIENTES_INFANTIL = [
-            // Superior
-            {id: '55', num: '55', cuadrante: 'superior-derecha'},
-            {id: '54', num: '54', cuadrante: 'superior-derecha'},
-            {id: '53', num: '53', cuadrante: 'superior-derecha'},
-            {id: '52', num: '52', cuadrante: 'superior-derecha'},
-            {id: '51', num: '51', cuadrante: 'superior-derecha'},
-            {id: '61', num: '61', cuadrante: 'superior-izquierda'},
-            {id: '62', num: '62', cuadrante: 'superior-izquierda'},
-            {id: '63', num: '63', cuadrante: 'superior-izquierda'},
-            {id: '64', num: '64', cuadrante: 'superior-izquierda'},
-            {id: '65', num: '65', cuadrante: 'superior-izquierda'},
-            // Inferior
-            {id: '85', num: '85', cuadrante: 'inferior-izquierda'},
-            {id: '84', num: '84', cuadrante: 'inferior-izquierda'},
-            {id: '83', num: '83', cuadrante: 'inferior-izquierda'},
-            {id: '82', num: '82', cuadrante: 'inferior-izquierda'},
-            {id: '81', num: '81', cuadrante: 'inferior-izquierda'},
-            {id: '71', num: '71', cuadrante: 'inferior-derecha'},
-            {id: '72', num: '72', cuadrante: 'inferior-derecha'},
-            {id: '73', num: '73', cuadrante: 'inferior-derecha'},
-            {id: '74', num: '74', cuadrante: 'inferior-derecha'},
-            {id: '75', num: '75', cuadrante: 'inferior-derecha'}
+            {id: '55', num: '55'}, {id: '54', num: '54'}, {id: '53', num: '53'}, {id: '52', num: '52'},
+            {id: '51', num: '51'}, {id: '61', num: '61'}, {id: '62', num: '62'}, {id: '63', num: '63'},
+            {id: '64', num: '64'}, {id: '65', num: '65'}, {id: '85', num: '85'}, {id: '84', num: '84'},
+            {id: '83', num: '83'}, {id: '82', num: '82'}, {id: '81', num: '81'}, {id: '71', num: '71'},
+            {id: '72', num: '72'}, {id: '73', num: '73'}, {id: '74', num: '74'}, {id: '75', num: '75'}
         ];
+
+        // Caras dentales: V (Vestibular), O (Oclusal), L (Lingual), M (Mesial), D (Distal)
+        const CARAS = ['V', 'O', 'L', 'M', 'D'];
+        const CARAS_NOMBRES = {
+            'V': 'Vestibular',
+            'O': 'Oclusal',
+            'L': 'Lingual/Palatina',
+            'M': 'Mesial',
+            'D': 'Distal'
+        };
 
         function cambiarTipoDenticion(tipo) {
             odontogramaData.tipoDenticion = tipo;
-            odontogramaData.dientes = {};
+            odontogramaData.piezaSeleccionada = null;
+            odontogramaData.caraSeleccionada = null;
             renderizarOdontograma();
-        }
-
-        function setEstadoDental(estado) {
-            odontogramaData.estadoSeleccionado = estado;
-            const estadoNames = {
-                'sano': 'Sano',
-                'cariado': 'Cariado',
-                'restaurado': 'Restaurado',
-                'ausente': 'Ausente',
-                'sellante': 'Sellante',
-                'endodoncia': 'Endodoncia'
-            };
-            document.getElementById('estado-dental-seleccionado').textContent = estadoNames[estado] || 'Ninguno';
+            actualizarSeleccion();
         }
 
         function renderizarOdontograma() {
@@ -2945,143 +2937,279 @@
             arcadaInferior.innerHTML = '';
 
             dientes.forEach(diente => {
-                const estado = odontogramaData.dientes[diente.id] || 'vacio';
-                const colorCSS = getColorEstadoDental(estado);
+                const container = document.createElement('div');
+                container.className = 'flex flex-col items-center';
                 
-                const elemento = document.createElement('button');
-                elemento.type = 'button';
-                elemento.id = `diente-${diente.id}`;
-                elemento.className = 'w-12 h-12 rounded border-2 font-bold text-xs transition hover:shadow-lg';
-                elemento.style.borderColor = colorCSS;
-                elemento.style.backgroundColor = estado === 'vacio' ? 'white' : colorCSS;
-                elemento.style.color = estado === 'vacio' ? colorCSS : 'white';
-                elemento.textContent = diente.num;
-                elemento.onclick = () => marcarDiente(diente.id);
+                // Número de pieza
+                const numeroDiv = document.createElement('div');
+                numeroDiv.className = 'text-xs font-bold text-gray-600 mb-1';
+                numeroDiv.textContent = diente.num;
+                container.appendChild(numeroDiv);
                 
-                if (diente.cuadrante.includes('superior')) {
-                    arcadaSuperior.appendChild(elemento);
+                // Diente con 5 caras (dividido en 5 secciones)
+                const dienteDiv = document.createElement('div');
+                dienteDiv.className = 'relative w-8 h-8 border-2 border-gray-400 rounded';
+                dienteDiv.style.display = 'grid';
+                dienteDiv.style.gridTemplateColumns = '1fr 1fr';
+                dienteDiv.style.gridTemplateRows = 'auto 1fr 1fr';
+                dienteDiv.style.gap = '1px';
+                dienteDiv.style.backgroundColor = '#f3f4f6';
+                
+                // O (Oclusal) - arriba centro
+                const oclusales = document.createElement('button');
+                oclusales.className = 'col-span-2 text-xs text-gray-700 hover:opacity-80 border border-gray-300 rounded-t';
+                oclusales.textContent = 'O';
+                oclusales.onclick = () => seleccionarCara(diente.num, 'O');
+                oclusales.style.backgroundColor = obteneditorColorCara(diente.num, 'O');
+                dienteDiv.appendChild(oclusales);
+                
+                // M (Mesial) - izquierda
+                const mesial = document.createElement('button');
+                mesial.className = 'text-xs text-gray-700 hover:opacity-80 border border-gray-300';
+                mesial.textContent = 'M';
+                mesial.onclick = () => seleccionarCara(diente.num, 'M');
+                mesial.style.backgroundColor = obteneditorColorCara(diente.num, 'M');
+                dienteDiv.appendChild(mesial);
+                
+                // D (Distal) - derecha
+                const distal = document.createElement('button');
+                distal.className = 'text-xs text-gray-700 hover:opacity-80 border border-gray-300';
+                distal.textContent = 'D';
+                distal.onclick = () => seleccionarCara(diente.num, 'D');
+                distal.style.backgroundColor = obteneditorColorCara(diente.num, 'D');
+                dienteDiv.appendChild(distal);
+                
+                // V (Vestibular) - abajo izquierda
+                const vestibular = document.createElement('button');
+                vestibular.className = 'text-xs text-gray-700 hover:opacity-80 border border-gray-300 rounded-bl';
+                vestibular.textContent = 'V';
+                vestibular.onclick = () => seleccionarCara(diente.num, 'V');
+                vestibular.style.backgroundColor = obteneditorColorCara(diente.num, 'V');
+                dienteDiv.appendChild(vestibular);
+                
+                // L (Lingual) - abajo derecha
+                const lingual = document.createElement('button');
+                lingual.className = 'text-xs text-gray-700 hover:opacity-80 border border-gray-300 rounded-br';
+                lingual.textContent = 'L';
+                lingual.onclick = () => seleccionarCara(diente.num, 'L');
+                lingual.style.backgroundColor = obteneditorColorCara(diente.num, 'L');
+                dienteDiv.appendChild(lingual);
+                
+                // Click en el diente selecciona la pieza
+                dienteDiv.onclick = (e) => {
+                    if (e.target === dienteDiv) {
+                        seleccionarPieza(diente.num);
+                    }
+                };
+                dienteDiv.style.cursor = 'pointer';
+                
+                container.appendChild(dienteDiv);
+                
+                // Agregar a la arcada correspondiente
+                const esInferior = diente.num.startsWith('3') || diente.num.startsWith('4');
+                if (esInferior) {
+                    arcadaInferior.appendChild(container);
                 } else {
-                    arcadaInferior.appendChild(elemento);
+                    arcadaSuperior.appendChild(container);
                 }
             });
         }
 
-        function marcarDiente(dienteId) {
-            if (!odontogramaData.estadoSeleccionado) {
-                alert('⚠️ Por favor selecciona un estado dental primero');
+        function obteneditorColorCara(pieza, cara) {
+            if (!odontogramaData.carasPorPieza[pieza]) return 'white';
+            const colorCara = odontogramaData.carasPorPieza[pieza][cara];
+            if (!colorCara) return 'white';
+            
+            const colores = {
+                'cariado': '#fca5a5',
+                'restaurado': '#93c5fd',
+                'sellante': '#fcd34d',
+                'endodoncia': '#d8b4fe',
+                'ausente': '#d1d5db'
+            };
+            return colores[colorCara] || 'white';
+        }
+
+        function seleccionarPieza(pieza) {
+            odontogramaData.piezaSeleccionada = pieza;
+            actualizarSeleccion();
+        }
+
+        function seleccionarCara(pieza, cara) {
+            odontogramaData.piezaSeleccionada = pieza;
+            odontogramaData.caraSeleccionada = cara;
+            actualizarSeleccion();
+        }
+
+        function actualizarSeleccion() {
+            document.getElementById('pieza-seleccionada').textContent = odontogramaData.piezaSeleccionada || 'Ninguna';
+            document.getElementById('cara-seleccionada').textContent = odontogramaData.caraSeleccionada ? CARAS_NOMBRES[odontogramaData.caraSeleccionada] : 'Ninguna';
+        }
+
+        function agregarProcedimientoDental() {
+            if (!odontogramaData.piezaSeleccionada) {
+                alert('⚠️ Por favor selecciona una pieza dental');
                 return;
             }
             
-            odontogramaData.dientes[dienteId] = odontogramaData.estadoSeleccionado;
+            if (!odontogramaData.caraSeleccionada) {
+                alert('⚠️ Por favor selecciona una cara (V, O, L, M, D)');
+                return;
+            }
+            
+            const diagnostico = document.getElementById('diagnostico-proc').value.trim();
+            if (!diagnostico) {
+                alert('⚠️ Por favor ingresa un diagnóstico');
+                return;
+            }
+            
+            const procedimiento = document.getElementById('procedimiento-select').value;
+            if (!procedimiento) {
+                alert('⚠️ Por favor selecciona un procedimiento');
+                return;
+            }
+            
+            // Agregar procedimiento
+            const nuevoProc = {
+                id: Date.now(),
+                diagnostico: diagnostico,
+                procedimiento: procedimiento,
+                pieza: odontogramaData.piezaSeleccionada,
+                cara: odontogramaData.caraSeleccionada,
+                comentarios: ''
+            };
+            
+            odontogramaData.procedimientos.push(nuevoProc);
+            
+            // Marcar cara en el odontograma
+            if (!odontogramaData.carasPorPieza[odontogramaData.piezaSeleccionada]) {
+                odontogramaData.carasPorPieza[odontogramaData.piezaSeleccionada] = {};
+            }
+            odontogramaData.carasPorPieza[odontogramaData.piezaSeleccionada][odontogramaData.caraSeleccionada] = 'cariado'; // Color por defecto
+            
+            // Limpiar formulario
+            document.getElementById('diagnostico-proc').value = '';
+            document.getElementById('procedimiento-select').value = '';
+            
+            // Actualizar vistas
             renderizarOdontograma();
+            actualizarTablaProcedimientos();
         }
 
-        function getColorEstadoDental(estado) {
-            const colores = {
-                'sano': '#22c55e',
-                'cariado': '#ef4444',
-                'restaurado': '#3b82f6',
-                'ausente': '#6b7280',
-                'sellante': '#f59e0b',
-                'endodoncia': '#8b5cf6',
-                'vacio': '#d1d5db'
-            };
-            return colores[estado] || '#d1d5db';
+        function actualizarTablaProcedimientos() {
+            const tbody = document.getElementById('procedimientos-tbody');
+            
+            if (odontogramaData.procedimientos.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-3 py-4 text-center text-gray-500">Sin procedimientos registrados</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = odontogramaData.procedimientos.map(proc => `
+                <tr class="border-t border-gray-200 hover:bg-gray-50">
+                    <td class="px-3 py-2 text-gray-700">${proc.diagnostico}</td>
+                    <td class="px-3 py-2 text-gray-700">${proc.procedimiento}</td>
+                    <td class="px-3 py-2 text-center font-bold text-gray-900">${proc.pieza}</td>
+                    <td class="px-3 py-2 text-center"><span class="bg-gray-200 px-2 py-1 rounded text-xs">${CARAS_NOMBRES[proc.cara]}</span></td>
+                    <td class="px-3 py-2 text-center space-x-1">
+                        <button type="button" onclick="editarProcedimiento(${proc.id})" class="text-blue-600 hover:text-blue-900 text-xs" title="Comentarios">
+                            <i class="fa-solid fa-comment"></i>
+                        </button>
+                        <button type="button" onclick="eliminarProcedimiento(${proc.id})" class="text-red-600 hover:text-red-900 text-xs" title="Eliminar">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function editarProcedimiento(procId) {
+            const proc = odontogramaData.procedimientos.find(p => p.id === procId);
+            if (!proc) return;
+            
+            const nuevoComentario = prompt('Agregar comentarios:', proc.comentarios);
+            if (nuevoComentario !== null) {
+                proc.comentarios = nuevoComentario;
+                actualizarTablaProcedimientos();
+            }
+        }
+
+        function eliminarProcedimiento(procId) {
+            if (confirm('¿Eliminar este procedimiento?')) {
+                odontogramaData.procedimientos = odontogramaData.procedimientos.filter(p => p.id !== procId);
+                actualizarTablaProcedimientos();
+            }
         }
 
         function limpiarOdontograma() {
-            if (Object.keys(odontogramaData.dientes).length === 0) {
-                alert('⚠️ No hay dientes marcados para limpiar');
+            if (odontogramaData.procedimientos.length === 0 && Object.keys(odontogramaData.carasPorPieza).length === 0) {
+                alert('⚠️ No hay datos para limpiar');
                 return;
             }
             
-            if (confirm('¿Está seguro de que desea limpiar todo el odontograma?')) {
-                odontogramaData.dientes = {};
-                renderizarOdontograma();
+            if (confirm('¿Limpiar todo el odontograma?')) {
+                odontogramaData.procedimientos = [];
+                odontogramaData.carasPorPieza = {};
+                odontogramaData.piezaSeleccionada = null;
+                odontogramaData.caraSeleccionada = null;
                 document.getElementById('diagnostico-dental').value = '';
+                document.getElementById('diagnostico-proc').value = '';
+                document.getElementById('procedimiento-select').value = '';
+                renderizarOdontograma();
+                actualizarTablaProcedimientos();
+                actualizarSeleccion();
             }
         }
 
         function exportarOdontogramaPDF() {
-            if (Object.keys(odontogramaData.dientes).length === 0) {
-                alert('⚠️ No hay datos de odontograma para exportar');
+            if (odontogramaData.procedimientos.length === 0) {
+                alert('⚠️ Sin procedimientos para exportar');
                 return;
             }
             
             try {
                 const pdfContent = document.createElement('div');
                 pdfContent.style.padding = '20px';
-                pdfContent.style.backgroundColor = 'white';
                 pdfContent.style.fontFamily = 'Arial, sans-serif';
                 
-                // Header
-                const header = document.createElement('h1');
-                header.textContent = 'Odontograma';
-                header.style.fontSize = '24px';
-                header.style.marginBottom = '10px';
-                pdfContent.appendChild(header);
+                const title = document.createElement('h1');
+                title.textContent = 'Odontograma';
+                title.style.marginBottom = '10px';
+                pdfContent.appendChild(title);
                 
-                const subheader = document.createElement('p');
-                subheader.textContent = `Fecha: ${new Date().toLocaleDateString('es-MX')} | Tipo: ${odontogramaData.tipoDenticion === 'adulto' ? 'Adulto (32 dientes)' : 'Infantil (20 dientes)'}`;
-                subheader.style.fontSize = '12px';
-                subheader.style.color = '#666';
-                subheader.style.marginBottom = '20px';
-                pdfContent.appendChild(subheader);
+                const fecha = document.createElement('p');
+                fecha.textContent = `Fecha: ${new Date().toLocaleDateString('es-MX')}`;
+                fecha.style.color = '#666';
+                fecha.style.marginBottom = '20px';
+                pdfContent.appendChild(fecha);
                 
-                // Resumen de dientes
-                const resumenDiv = document.createElement('div');
-                resumenDiv.style.marginBottom = '20px';
+                // Tabla de procedimientos
+                const tableHTML = `
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                        <tr style="background-color: #f3f4f6; border-bottom: 2px solid #d1d5db;">
+                            <th style="border: 1px solid #d1d5db; padding: 8px; text-align: left; font-weight: bold;">Diagnóstico</th>
+                            <th style="border: 1px solid #d1d5db; padding: 8px; text-align: left; font-weight: bold;">Procedimiento</th>
+                            <th style="border: 1px solid #d1d5db; padding: 8px; text-align: center; font-weight: bold;">Pieza</th>
+                            <th style="border: 1px solid #d1d5db; padding: 8px; text-align: center; font-weight: bold;">Cara</th>
+                        </tr>
+                        ${odontogramaData.procedimientos.map(p => `
+                            <tr>
+                                <td style="border: 1px solid #d1d5db; padding: 8px;">${p.diagnostico}</td>
+                                <td style="border: 1px solid #d1d5db; padding: 8px;">${p.procedimiento}</td>
+                                <td style="border: 1px solid #d1d5db; padding: 8px; text-align: center; font-weight: bold;">${p.pieza}</td>
+                                <td style="border: 1px solid #d1d5db; padding: 8px; text-align: center;">${CARAS_NOMBRES[p.cara]}</td>
+                            </tr>
+                        `).join('')}
+                    </table>
+                `;
+                pdfContent.innerHTML += tableHTML;
                 
-                const estados = {};
-                const estadoNames = {
-                    'sano': 'Sanos',
-                    'cariado': 'Cariados',
-                    'restaurado': 'Restaurados',
-                    'ausente': 'Ausentes',
-                    'sellante': 'Con Sellante',
-                    'endodoncia': 'Endodoncias'
-                };
-                
-                Object.entries(odontogramaData.dientes).forEach(([diente, estado]) => {
-                    estados[estado] = (estados[estado] || 0) + 1;
-                });
-                
-                const resumenText = Object.entries(estados)
-                    .map(([estado, count]) => `${estadoNames[estado] || estado}: ${count}`)
-                    .join(' | ');
-                
-                resumenDiv.innerHTML = `<p style="font-weight: bold; margin: 0;"><strong>Resumen:</strong> ${resumenText}</p>`;
-                pdfContent.appendChild(resumenDiv);
-                
-                // Diagrama (clonado del actual)
-                const svgContainer = document.createElement('div');
-                svgContainer.style.marginBottom = '20px';
-                svgContainer.innerHTML = document.getElementById('odontograma-container').innerHTML;
-                pdfContent.appendChild(svgContainer);
-                
-                // Diagnóstico
                 const diagnostico = document.getElementById('diagnostico-dental').value;
                 if (diagnostico) {
                     const diagDiv = document.createElement('div');
-                    diagDiv.style.marginTop = '20px';
-                    
-                    const diagTitle = document.createElement('p');
-                    diagTitle.textContent = 'Diagnóstico General:';
-                    diagTitle.style.fontWeight = 'bold';
-                    diagTitle.style.fontSize = '12px';
-                    diagTitle.style.marginBottom = '5px';
-                    diagDiv.appendChild(diagTitle);
-                    
-                    const diagText = document.createElement('p');
-                    diagText.textContent = diagnostico;
-                    diagText.style.fontSize = '11px';
-                    diagText.style.margin = '0';
-                    diagDiv.appendChild(diagText);
-                    
+                    diagDiv.innerHTML = `<strong>Diagnóstico General:</strong><p>${diagnostico}</p>`;
                     pdfContent.appendChild(diagDiv);
                 }
                 
-                // Generar PDF
                 if (typeof html2pdf === 'undefined') {
                     const script = document.createElement('script');
                     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
@@ -3107,16 +3235,16 @@
                     html2pdf().set(opt).from(pdfContent).save();
                 }
                 
-                alert('✅ PDF generado correctamente');
+                alert('✅ PDF generado');
             } catch (error) {
-                console.error('Error generando PDF:', error);
-                alert('❌ Error al generar PDF: ' + error.message);
+                alert('❌ Error: ' + error.message);
             }
         }
 
-        // Inicializar odontograma cuando carga
         function inicializarOdontograma() {
             renderizarOdontograma();
+            actualizarSeleccion();
+            actualizarTablaProcedimientos();
         }
         
         // Cambiar tab
