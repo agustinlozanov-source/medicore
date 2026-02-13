@@ -1804,8 +1804,18 @@
                 }
                 
                 const p = doc.data();
-                const fechaNac = new Date(p.fechaNacimiento);
-                const edad = new Date().getFullYear() - fechaNac.getFullYear();
+                
+                // Calcular edad de forma segura
+                let edad = 'No especificada';
+                if (p.fechaNacimiento && p.fechaNacimiento.trim()) {
+                    try {
+                        const fechaNac = new Date(p.fechaNacimiento);
+                        edad = new Date().getFullYear() - fechaNac.getFullYear();
+                    } catch (e) {
+                        edad = 'No especificada';
+                    }
+                }
+                
                 const altura = parseFloat(p.altura || 1.78);
                 const peso = parseFloat(p.peso || 76);
                 const bmi = (peso / (altura * altura)).toFixed(2);
@@ -2094,8 +2104,12 @@
                     
                     alert('✅ Signos vitales guardados correctamente');
                     vitalesForm.reset();
-                    switchView('mi-expediente');
-                    loadPatientRecord();
+                    
+                    // Esperar un poco para que Firestore sincronice
+                    setTimeout(() => {
+                        switchView('mi-expediente');
+                        loadPatientRecord();
+                    }, 500);
                 } catch (error) {
                     console.error('Error guardando signos vitales:', error);
                     alert('❌ Error al guardar signos vitales: ' + (error.message || 'Intenta de nuevo'));
