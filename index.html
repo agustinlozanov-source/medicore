@@ -1472,6 +1472,7 @@
         let auth, db;
         let currentUser = null;
         let currentRole = null;
+        let currentPatientId = null;  // Rastrear qué paciente se está viendo
         let pacientesCitaGlobal = [];
         let pacientesAgendaGlobal = [];
 
@@ -1794,6 +1795,8 @@
         
         // Ver expediente de paciente desde tabla
         function viewPatientRecord(patientId) {
+            currentPatientId = patientId;
+            console.log('Visualizando paciente:', patientId);
             loadPatientRecordById(patientId);
             switchView('mi-expediente');
         }
@@ -2101,8 +2104,16 @@
                         return;
                     }
                     
+                    // Determinar qué ID usar: si es médico, usar el paciente; si es paciente, usar su propio ID
+                    const patientIdToUpdate = currentRole === 'medico' ? currentPatientId : currentUser.uid;
+                    
+                    if (!patientIdToUpdate) {
+                        alert('⚠️ Error: No se identificó el paciente');
+                        return;
+                    }
+                    
                     // Usar set con merge para crear o actualizar el documento
-                    await db.collection('patients').doc(currentUser.uid).set({
+                    await db.collection('patients').doc(patientIdToUpdate).set({
                         altura: parseFloat(altura),
                         peso: parseFloat(peso),
                         temperatura: parseFloat(temperatura),
@@ -2117,7 +2128,12 @@
                     // Esperar un poco para que Firestore sincronice
                     setTimeout(() => {
                         switchView('mi-expediente');
-                        loadPatientRecord();
+                        // Recargar el mismo paciente que se estaba viendo
+                        if (currentRole === 'medico' && currentPatientId) {
+                            loadPatientRecordById(currentPatientId);
+                        } else {
+                            loadPatientRecord();
+                        }
                     }, 500);
                 } catch (error) {
                     console.error('Error guardando signos vitales:', error);
