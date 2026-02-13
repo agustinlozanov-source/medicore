@@ -11,6 +11,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
     <!-- Chart.js para gráficas -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <!-- FullCalendar -->
@@ -247,6 +248,17 @@
                     <div class="grid grid-cols-3 gap-6">
                         <!-- Columna Izquierda: Datos Personales -->
                         <div class="col-span-1 space-y-4">
+                            <!-- Foto de Perfil -->
+                            <div class="bg-white rounded-xl shadow-lg p-6 text-center">
+                                <div class="flex flex-col items-center">
+                                    <img id="med-foto-preview" src="https://via.placeholder.com/150" alt="Foto de perfil" class="w-24 h-24 rounded-full mb-4 object-cover border-4 border-gray-200">
+                                    <input type="file" id="med-foto-input" accept="image/*" style="display:none;">
+                                    <button onclick="document.getElementById('med-foto-input').click()" class="text-white font-bold px-4 py-2 rounded-lg transition text-sm" style="background-color: #1465ff;">
+                                        <i class="fa-solid fa-camera mr-2"></i>Cambiar Foto
+                                    </button>
+                                </div>
+                            </div>
+                            
                             <div class="bg-white rounded-xl shadow-lg p-6">
                                 <h3 class="text-xl font-black text-gray-900 mb-6">Información Personal</h3>
                                 
@@ -826,10 +838,12 @@
                             <!-- Tarjeta Paciente -->
                             <div class="bg-white rounded-xl shadow-lg p-6">
                                 <div class="text-center mb-4">
-                                    <div class="w-20 h-20 mx-auto bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                                        <i class="fa-solid fa-user"></i>
-                                    </div>
+                                    <img id="exp-foto-preview" src="https://via.placeholder.com/80" alt="Foto de perfil" class="w-20 h-20 rounded-full mx-auto object-cover border-4 border-gray-200">
+                                    <input type="file" id="exp-foto-input" accept="image/*" style="display:none;">
                                 </div>
+                                <button onclick="document.getElementById('exp-foto-input').click()" class="w-full text-white font-bold px-4 py-2 rounded-lg transition text-xs mb-4" style="background-color: #1465ff;">
+                                    <i class="fa-solid fa-camera mr-2"></i>Cambiar Foto
+                                </button>
                                 <h3 id="exp-nombre" class="text-xl font-black text-gray-900 text-center">Juan García</h3>
                                 <p id="exp-edad" class="text-sm text-gray-500 text-center">32 años</p>
                                 <hr class="my-4">
@@ -1860,6 +1874,12 @@
                 setTextContent('exp-cedula-header', `CURP: ${p.curp || p.cedula || 'N/A'}`);
                 setTextContent('exp-email', p.email);
                 setTextContent('exp-telefono', p.telefono || '-');
+                
+                // Update patient photo
+                if (p.fotoUrl) {
+                    const fotoPreview = document.getElementById('exp-foto-preview');
+                    if (fotoPreview) fotoPreview.src = p.fotoUrl;
+                }
                 
                 // Signos vitales
                 setTextContent('exp-altura', `${altura} m`);
@@ -3868,6 +3888,12 @@ Notas: ${props.notas || 'Sin notas'}
                     document.getElementById('perm-laboratorio').checked = data.permisos?.laboratorio || false;
                     document.getElementById('conf-agenda').checked = data.config?.agenda !== false;
                     document.getElementById('conf-cobros').checked = data.config?.cobros !== false;
+                    
+                    // Load doctor photo if exists
+                    if (data.fotoUrl) {
+                        const fotoPreview = document.getElementById('med-foto-preview');
+                        if (fotoPreview) fotoPreview.src = data.fotoUrl;
+                    }
                 } else {
                     // Si no existe, cargar datos del auth
                     const user = await auth.currentUser;
@@ -3936,6 +3962,82 @@ Notas: ${props.notas || 'Sin notas'}
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-save mr-2"></i> Guardar Cambios';
             }
+        }
+
+        // Photo Upload Handler for Doctor
+        const medFotoInput = document.getElementById('med-foto-input');
+        if (medFotoInput) {
+            medFotoInput.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                if (!file.type.startsWith('image/')) {
+                    alert('⚠️ Por favor selecciona una imagen');
+                    return;
+                }
+                
+                try {
+                    // Get Firebase Storage reference
+                    const storage = firebase.storage();
+                    const userId = auth.currentUser.uid;
+                    const storageRef = storage.ref(`users/${userId}/photo`);
+                    
+                    // Upload file
+                    const snapshot = await storageRef.put(file);
+                    const downloadURL = await snapshot.ref.getDownloadURL();
+                    
+                    // Update Firestore
+                    await db.collection('doctores').doc(userId).set({
+                        fotoUrl: downloadURL
+                    }, { merge: true });
+                    
+                    // Update preview
+                    document.getElementById('med-foto-preview').src = downloadURL;
+                    
+                    console.log('✅ Foto de médico actualizada');
+                } catch (error) {
+                    console.error('Error uploading doctor photo:', error);
+                    alert('❌ Error al cargar la foto: ' + error.message);
+                }
+            });
+        }
+
+        // Photo Upload Handler for Patient
+        const expFotoInput = document.getElementById('exp-foto-input');
+        if (expFotoInput) {
+            expFotoInput.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                if (!file.type.startsWith('image/')) {
+                    alert('⚠️ Por favor selecciona una imagen');
+                    return;
+                }
+                
+                try {
+                    // Get Firebase Storage reference
+                    const storage = firebase.storage();
+                    const userId = auth.currentUser.uid;
+                    const storageRef = storage.ref(`users/${userId}/photo`);
+                    
+                    // Upload file
+                    const snapshot = await storageRef.put(file);
+                    const downloadURL = await snapshot.ref.getDownloadURL();
+                    
+                    // Update Firestore
+                    await db.collection('pacientes').doc(userId).set({
+                        fotoUrl: downloadURL
+                    }, { merge: true });
+                    
+                    // Update preview
+                    document.getElementById('exp-foto-preview').src = downloadURL;
+                    
+                    console.log('✅ Foto de paciente actualizada');
+                } catch (error) {
+                    console.error('Error uploading patient photo:', error);
+                    alert('❌ Error al cargar la foto: ' + error.message);
+                }
+            });
         }
 
         // Logout
