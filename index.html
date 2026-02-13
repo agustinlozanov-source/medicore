@@ -1459,17 +1459,20 @@
                             </button>
                         </div>
                         <div class="p-8 space-y-6">
-                            <!-- Buscador de Paciente -->
+                            <!-- Buscador Inteligente de Paciente -->
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Paciente *</label>
-                                <div class="relative mb-2">
-                                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-4 text-gray-400"></i>
-                                    <input type="text" id="cita-buscar-paciente" placeholder="Buscar por nombre, CURP o email..." class="w-full border border-gray-300 rounded-lg px-4 py-3 pl-12 focus:ring-2 focus:ring-blue-500 outline-none font-bold" oninput="filtrarPacientesCita()">
+                                <div class="relative">
+                                    <input type="text" id="cita-buscar-paciente" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" placeholder="Escribe nombre, apellido, email o CURP..." oninput="buscarPacienteCita()">
+                                    <div id="resultados-pacientes-cita" class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-64 overflow-y-auto hidden z-50">
+                                        <!-- Resultados dinámicos -->
+                                    </div>
                                 </div>
-                                <select id="cita-paciente" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" onchange="seleccionarPacienteCita()">
-                                    <option value="">Selecciona un paciente...</option>
-                                </select>
-                                <p class="text-xs text-gray-500 mt-2" id="cita-paciente-info">-</p>
+                                <div id="paciente-cita-info" class="mt-3 text-sm text-gray-600 hidden">
+                                    <span class="font-bold">Paciente seleccionado:</span>
+                                    <span id="paciente-cita-texto" class="text-blue-600"></span>
+                                </div>
+                                <input type="hidden" id="cita-paciente" value="">
                             </div>
 
                             <!-- Fecha y Hora -->
@@ -1866,8 +1869,6 @@
         let currentUser = null;
         let currentRole = null;
         let currentPatientId = null;  // Rastrear qué paciente se está viendo
-        let pacientesCitaGlobal = [];
-        let pacientesAgendaGlobal = [];
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
@@ -4865,21 +4866,19 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
             alert('📥 Descargar agenda en desarrollo');
         }
 
+        // Variables para cache de pacientes en citas
+        let pacientesCitaCache = [];
+
         // Abrir modal Nueva Cita
         function abrirModalNuevaCita(pacienteId = null) {
             document.getElementById('modal-nueva-cita').classList.remove('hidden');
+            document.getElementById('cita-buscar-paciente').value = '';
+            document.getElementById('cita-paciente').value = '';
+            document.getElementById('paciente-cita-info').classList.add('hidden');
+            document.getElementById('resultados-pacientes-cita').classList.add('hidden');
             
-            // Si se pasa un pacienteId, pre-llenar el selector
-            if (pacienteId) {
-                document.getElementById('cita-paciente').value = pacienteId;
-                const paciente = pacientesCitaGlobal.find(p => p.id === pacienteId);
-                if (paciente) {
-                    const infoText = `${paciente.nombre} ${paciente.apellido} • CURP: ${paciente.curp} • ${paciente.email}`;
-                    document.getElementById('cita-paciente-info').textContent = infoText;
-                }
-            } else {
-                cargarPacientesAgenda();
-            }
+            // Cargar pacientes para el buscador
+            cargarPacientesAgendaLista();
             
             // Establecer fecha mínima a hoy
             const hoy = new Date().toISOString().split('T')[0];
@@ -4890,31 +4889,83 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
         // Cerrar modal Nueva Cita
         function cerrarModalNuevaCita() {
             document.getElementById('modal-nueva-cita').classList.add('hidden');
+            document.getElementById('cita-buscar-paciente').value = '';
             document.getElementById('cita-paciente').value = '';
             document.getElementById('cita-fecha').value = '';
             document.getElementById('cita-hora').value = '';
             document.getElementById('cita-duracion').value = '30';
             document.getElementById('cita-tipo').value = 'consulta-general';
             document.getElementById('cita-notas').value = '';
+            document.getElementById('paciente-cita-info').classList.add('hidden');
         }
 
-        // Cargar pacientes para la tabla de Agenda
+        // Búsqueda fuzzy de pacientes en citas
+        function buscarPacienteCita() {
+            const termino = document.getElementById('cita-buscar-paciente').value.toLowerCase().trim();
+            const contenedor = document.getElementById('resultados-pacientes-cita');
+            
+            if (!termino) {
+                contenedor.classList.add('hidden');
+                return;
+            }
+            
+            const resultados = pacientesCitaCache.filter(p => {
+                const nombre = `${p.nombre} ${p.apellido}`.toLowerCase();
+                const email = p.email.toLowerCase();
+                const curp = p.curp.toLowerCase();
+                const cedula = p.cedula.toLowerCase();
+                
+                return nombre.includes(termino) || email.includes(termino) || 
+                       curp.includes(termino) || cedula.includes(termino);
+            });
+            
+            if (resultados.length === 0) {
+                contenedor.innerHTML = '<div class="px-4 py-3 text-gray-500 text-sm">No se encontraron pacientes</div>';
+                contenedor.classList.remove('hidden');
+                return;
+            }
+            
+            contenedor.innerHTML = resultados.map(p => `
+                <div class="px-4 py-3 border-b border-gray-200 cursor-pointer hover:bg-blue-50 transition" onclick="seleccionarPacienteCitaFuzzy('${p.id}', '${p.nombre} ${p.apellido}', '${p.cedula}', '${p.email}')">
+                    <div class="font-bold text-gray-900">${p.nombre} ${p.apellido}</div>
+                    <div class="text-xs text-gray-600">CURP: ${p.curp} | Email: ${p.email} | Cédula: ${p.cedula}</div>
+                </div>
+            `).join('');
+            
+            contenedor.classList.remove('hidden');
+        }
+
+        // Seleccionar paciente en cita (fuzzy)
+        function seleccionarPacienteCitaFuzzy(pacienteId, nombre, cedula, email) {
+            document.getElementById('cita-paciente').value = pacienteId;
+            document.getElementById('cita-buscar-paciente').value = nombre;
+            document.getElementById('paciente-cita-texto').textContent = `${nombre} (${cedula}) - ${email}`;
+            document.getElementById('paciente-cita-info').classList.remove('hidden');
+            document.getElementById('resultados-pacientes-cita').classList.add('hidden');
+        }
+
+        // Cargar pacientes para búsqueda en citas
         async function cargarPacientesAgendaLista() {
             try {
-                const snapshot = await db.collection('patients').where('doctorId', '==', currentUser.uid).get();
-                let pacientes = [];
+                const snapshot = await db.collection('patients')
+                    .where('assignedDoctor', '==', currentUser.uid)
+                    .get();
                 
+                pacientesCitaCache = [];
                 snapshot.forEach(doc => {
-                    pacientes.push({
+                    pacientesCitaCache.push({
                         id: doc.id,
                         nombre: doc.data().nombre || '',
                         apellido: doc.data().apellido || '',
                         curp: doc.data().curp || '',
+                        cedula: doc.data().cedula || '',
                         email: doc.data().email || ''
                     });
                 });
-                
-                // Guardar en global para búsqueda
+            } catch (error) {
+                console.error('Error cargando pacientes para agenda:', error);
+            }
+        }
                 pacientesAgendaGlobal = pacientes;
                 mostrarPacientesAgendaLista(pacientes);
             } catch (error) {
@@ -4959,38 +5010,6 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
                     p.email.toLowerCase().includes(busqueda)
                 );
                 mostrarPacientesAgendaLista(filtrados);
-            }
-        }
-
-        // Cargar pacientes en selector del modal Agenda
-        async function cargarPacientesAgenda() {
-            try {
-                const selectPaciente = document.getElementById('cita-paciente');
-                selectPaciente.innerHTML = '<option value="">Selecciona un paciente...</option>';
-                
-                const snapshot = await db.collection('patients').where('doctorId', '==', currentUser.uid).get();
-                pacientesCitaGlobal = [];
-                
-                snapshot.forEach(doc => {
-                    const paciente = doc.data();
-                    pacientesCitaGlobal.push({
-                        id: doc.id,
-                        nombre: paciente.nombre || '',
-                        apellido: paciente.apellido || '',
-                        curp: paciente.curp || '',
-                        email: paciente.email || '',
-                        telefono: paciente.telefono || ''
-                    });
-                    
-                    const option = document.createElement('option');
-                    option.value = doc.id;
-                    option.dataset.curp = paciente.curp || '';
-                    option.dataset.email = paciente.email || '';
-                    option.textContent = `${paciente.nombre} ${paciente.apellido || ''} (${paciente.curp || 'N/A'})`;
-                    selectPaciente.appendChild(option);
-                });
-            } catch (error) {
-                console.error('Error cargando pacientes para agenda:', error);
             }
         }
 
