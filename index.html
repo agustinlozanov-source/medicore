@@ -497,6 +497,9 @@
                                             <button type="button" onclick="limpiarTopografico()" class="w-full border border-gray-300 text-gray-700 font-bold px-4 py-2 rounded-lg hover:bg-gray-50 transition text-sm">
                                                 <i class="fa-solid fa-eraser mr-2"></i> Limpiar
                                             </button>
+                                            <button type="button" onclick="exportarExplotacionPDF()" class="w-full border border-gray-300 text-gray-700 font-bold px-4 py-2 rounded-lg hover:bg-gray-50 transition text-sm">
+                                                <i class="fa-solid fa-file-pdf mr-2"></i> Exportar PDF
+                                            </button>
                                         </div>
 
                                         <!-- Lista de hallazgos agregados -->
@@ -1823,6 +1826,8 @@
             if (role === 'medico') {
                 switchView('mis-pacientes');
                 loadMedicoPatients();
+                // Inicializar SVG clickeable para exploración topográfica
+                setTimeout(() => inicializarSVGClickeable(), 500);
             }
             else if (role === 'paciente') {
                 switchView('mi-expediente');
@@ -2536,6 +2541,223 @@
                 document.getElementById('topographic-description').value = '';
                 topographicData.colorSeleccionado = null;
                 document.getElementById('color-seleccionado').textContent = 'Ninguno';
+                limpiarMarcasZonas();
+            }
+        }
+
+        // Inicializar SVG clickeable
+        function inicializarSVGClickeable() {
+            const zonas = [
+                'zona-head', 'zona-neck', 'zona-chest', 'zona-abdomen',
+                'zona-left-arm', 'zona-right-arm', 'zona-left-leg', 'zona-right-leg',
+                'zona-head-back', 'zona-neck-back', 'zona-back', 'zona-buttocks',
+                'zona-left-arm-back', 'zona-right-arm-back', 'zona-left-leg-back', 'zona-right-leg-back'
+            ];
+            
+            zonas.forEach(zonaId => {
+                const elemento = document.getElementById(zonaId);
+                if (elemento) {
+                    elemento.addEventListener('click', (e) => marcarZona(zonaId, e));
+                    elemento.addEventListener('mouseenter', () => {
+                        elemento.style.strokeWidth = '3';
+                    });
+                    elemento.addEventListener('mouseleave', () => {
+                        const hasColor = topographicData.zonasMarcadas && topographicData.zonasMarcadas[zonaId];
+                        elemento.style.strokeWidth = hasColor ? '3' : '2';
+                    });
+                }
+            });
+        }
+
+        // Inicializar objeto de zonas marcadas si no existe
+        if (!topographicData.zonasMarcadas) {
+            topographicData.zonasMarcadas = {};
+        }
+
+        function marcarZona(zonaId, event) {
+            if (!topographicData.colorSeleccionado) {
+                alert('⚠️ Por favor selecciona un color primero');
+                return;
+            }
+            
+            const elemento = event.target;
+            const color = topographicData.colorSeleccionado;
+            const colorCSS = getColorCSS(color);
+            
+            // Marcar la zona
+            elemento.setAttribute('fill', colorCSS);
+            elemento.setAttribute('fill-opacity', '0.6');
+            elemento.setAttribute('stroke', colorCSS);
+            elemento.setAttribute('stroke-width', '3');
+            
+            // Guardar en data
+            topographicData.zonasMarcadas[zonaId] = {
+                color: color,
+                timestamp: new Date()
+            };
+            
+            // Auto-generar descripción si está vacío
+            if (!document.getElementById('topographic-description').value) {
+                const nombreZona = zonaId.replace('zona-', '').replace(/-/g, ' ');
+                document.getElementById('topographic-description').value = `Hallazgo en ${nombreZona}`;
+            }
+        }
+
+        function limpiarMarcasZonas() {
+            const zonas = [
+                'zona-head', 'zona-neck', 'zona-chest', 'zona-abdomen',
+                'zona-left-arm', 'zona-right-arm', 'zona-left-leg', 'zona-right-leg',
+                'zona-head-back', 'zona-neck-back', 'zona-back', 'zona-buttocks',
+                'zona-left-arm-back', 'zona-right-arm-back', 'zona-left-leg-back', 'zona-right-leg-back'
+            ];
+            
+            zonas.forEach(zonaId => {
+                const elemento = document.getElementById(zonaId);
+                if (elemento) {
+                    elemento.setAttribute('fill', 'none');
+                    elemento.setAttribute('stroke', '#999');
+                    elemento.setAttribute('stroke-width', '2');
+                }
+            });
+            
+            topographicData.zonasMarcadas = {};
+        }
+
+        // Guardar exploración topográfica en consulta
+        function guardarExploracionTopografica() {
+            if (topographicData.hallazgos.length === 0 && Object.keys(topographicData.zonasMarcadas || {}).length === 0) {
+                return;
+            }
+            
+            consultaActual.exploracion = {
+                hallazgos: topographicData.hallazgos,
+                zonasMarcadas: topographicData.zonasMarcadas,
+                timestamp: new Date()
+            };
+        }
+
+        // Exportar PDF de exploración topográfica
+        async function exportarExplotacionPDF() {
+            if (topographicData.hallazgos.length === 0 && Object.keys(topographicData.zonasMarcadas || {}).length === 0) {
+                alert('⚠️ No hay datos de exploración para exportar');
+                return;
+            }
+            
+            try {
+                // Crear elemento para el PDF
+                const pdfContent = document.createElement('div');
+                pdfContent.style.padding = '20px';
+                pdfContent.style.backgroundColor = 'white';
+                pdfContent.style.fontFamily = 'Arial, sans-serif';
+                
+                // Header
+                const header = document.createElement('h1');
+                header.textContent = 'Exploración Topográfica';
+                header.style.fontSize = '24px';
+                header.style.marginBottom = '10px';
+                pdfContent.appendChild(header);
+                
+                const subheader = document.createElement('p');
+                subheader.textContent = `Fecha: ${new Date().toLocaleDateString('es-MX')} - ${new Date().toLocaleTimeString('es-MX')}`;
+                subheader.style.fontSize = '12px';
+                subheader.style.color = '#666';
+                subheader.style.marginBottom = '20px';
+                pdfContent.appendChild(subheader);
+                
+                // SVG (captura de pantalla)
+                const svgContainer = document.createElement('div');
+                svgContainer.style.marginBottom = '20px';
+                svgContainer.style.textAlign = 'center';
+                
+                const svgActual = topographicData.vistaActual === 'frontal' 
+                    ? document.getElementById('svg-cuerpo-frontal') 
+                    : document.getElementById('svg-cuerpo-dorsal');
+                
+                if (svgActual && !svgActual.classList.contains('hidden')) {
+                    const svgClone = svgActual.cloneNode(true);
+                    svgClone.style.width = '200px';
+                    svgClone.style.height = 'auto';
+                    svgContainer.appendChild(svgClone);
+                }
+                
+                const vistaLabel = document.createElement('p');
+                vistaLabel.textContent = `Vista: ${topographicData.vistaActual === 'frontal' ? 'Frontal' : 'Dorsal'}`;
+                vistaLabel.style.fontSize = '12px';
+                vistaLabel.style.color = '#666';
+                svgContainer.appendChild(vistaLabel);
+                pdfContent.appendChild(svgContainer);
+                
+                // Hallazgos
+                const hallazgosTitle = document.createElement('h2');
+                hallazgosTitle.textContent = 'Hallazgos Registrados';
+                hallazgosTitle.style.fontSize = '16px';
+                hallazgosTitle.style.marginTop = '20px';
+                hallazgosTitle.style.marginBottom = '10px';
+                pdfContent.appendChild(hallazgosTitle);
+                
+                const colorNames = {
+                    'red': 'Lesión',
+                    'yellow': 'Edema',
+                    'blue': 'Equimosis',
+                    'green': 'Normal',
+                    'purple': 'Otro'
+                };
+                
+                topographicData.hallazgos.forEach((h, index) => {
+                    const hallazgoDiv = document.createElement('div');
+                    hallazgoDiv.style.marginBottom = '15px';
+                    hallazgoDiv.style.padding = '10px';
+                    hallazgoDiv.style.borderLeft = `4px solid ${getColorCSS(h.color)}`;
+                    hallazgoDiv.style.backgroundColor = '#f9f9f9';
+                    
+                    const titulo = document.createElement('p');
+                    titulo.textContent = `${index + 1}. ${colorNames[h.color]} (${h.vista})`;
+                    titulo.style.fontWeight = 'bold';
+                    titulo.style.fontSize = '12px';
+                    titulo.style.margin = '0 0 5px 0';
+                    hallazgoDiv.appendChild(titulo);
+                    
+                    const desc = document.createElement('p');
+                    desc.textContent = h.descripcion;
+                    desc.style.fontSize = '11px';
+                    desc.style.margin = '0';
+                    desc.style.color = '#333';
+                    hallazgoDiv.appendChild(desc);
+                    
+                    pdfContent.appendChild(hallazgoDiv);
+                });
+                
+                // Usar html2pdf (agregar librería en el head si no está)
+                if (typeof html2pdf === 'undefined') {
+                    // Cargar html2pdf dinámicamente
+                    const script = document.createElement('script');
+                    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+                    script.onload = () => {
+                        const opt = {
+                            margin: 10,
+                            filename: `Exploracion_Topografica_${new Date().toISOString().slice(0,10)}.pdf`,
+                            image: { type: 'jpeg', quality: 0.98 },
+                            html2canvas: { scale: 2 },
+                            jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+                        };
+                        html2pdf().set(opt).from(pdfContent).save();
+                    };
+                    document.head.appendChild(script);
+                } else {
+                    const opt = {
+                        margin: 10,
+                        filename: `Exploracion_Topografica_${new Date().toISOString().slice(0,10)}.pdf`,
+                        image: { type: 'jpeg', quality: 0.98 },
+                        html2canvas: { scale: 2 },
+                        jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+                    };
+                    html2pdf().set(opt).from(pdfContent).save();
+                }
+                
+                alert('✅ PDF generado correctamente');
+            } catch (error) {
+                console.error('Error generando PDF:', error);
+                alert('❌ Error al generar PDF: ' + error.message);
             }
         }
         
@@ -2637,6 +2859,9 @@
                 btn.disabled = true;
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Guardando...';
                 
+                // Guardar exploración topográfica en consultaActual
+                guardarExploracionTopografica();
+                
                 // Recopilar toda la información
                 const consultaData = {
                     // Información básica
@@ -2648,9 +2873,8 @@
                     motivoConsulta: document.getElementById('motivo-consulta').value,
                     notasClinicas: document.getElementById('notas-clinicas').value,
                     
-                    // Exploración Topográfica
-                    zonaExploracion: document.getElementById('zona-exploracion').value,
-                    hallazgosExploracion: document.getElementById('hallazgos-exploracion').value,
+                    // Exploración Topográfica Dinámica
+                    exploracionTopografica: consultaActual.exploracion,
                     
                     // Odontograma
                     tipoOdontograma: document.querySelector('input[name="tipo-odonto"]:checked').value,
