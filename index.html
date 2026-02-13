@@ -51,6 +51,10 @@
                 Ingresar
             </button>
 
+            <button type="button" id="create-test-user-btn" class="w-full mt-2 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition shadow-lg text-sm">
+                <i class="fa-solid fa-user-plus mr-2"></i>Crear Usuario de Prueba
+            </button>
+
             <p class="text-center text-sm text-gray-600 mt-4">
                 ¿No tienes cuenta? <a href="#" id="show-signup" class="text-blue-600 hover:underline font-semibold">Regístrate</a>
             </p>
@@ -1427,6 +1431,60 @@
         db = firebase.firestore();
 
         console.log('✅ Firebase inicializado');
+
+        // Crear usuario de prueba
+        document.getElementById('create-test-user-btn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            const btn = e.target;
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Creando...';
+
+            try {
+                // Crear usuario de prueba paciente
+                const testEmail = 'paciente@test.com';
+                const testPassword = 'TestPass123!';
+                
+                const userCredential = await auth.createUserWithEmailAndPassword(testEmail, testPassword);
+                
+                // Crear documento en Firestore
+                await db.collection('patients').doc(userCredential.user.uid).set({
+                    email: testEmail,
+                    role: 'paciente',
+                    nombre: 'Juan',
+                    apellido: 'Pérez',
+                    genero: 'M',
+                    fechaNacimiento: '1990-01-01',
+                    curp: 'PEJJ900101HDFLLR00',
+                    cedula: '12345678',
+                    telefono: '5551234567',
+                    altura: 1.75,
+                    peso: 75,
+                    temperatura: 36.5,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                alert(`✅ Usuario de prueba creado:\n\nEmail: ${testEmail}\nContraseña: ${testPassword}\n\nUsalo para hacer login.`);
+                
+                // Rellenar los campos
+                document.getElementById('login-email').value = testEmail;
+                document.getElementById('login-password').value = testPassword;
+                document.getElementById('login-role').value = 'paciente';
+            } catch (error) {
+                console.error('Error creando usuario:', error);
+                if (error.code === 'auth/email-already-in-use') {
+                    alert('El usuario de prueba ya existe.\n\nEmail: paciente@test.com\nContraseña: TestPass123!');
+                    document.getElementById('login-email').value = 'paciente@test.com';
+                    document.getElementById('login-password').value = 'TestPass123!';
+                    document.getElementById('login-role').value = 'paciente';
+                } else {
+                    alert('Error creando usuario: ' + error.message);
+                }
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        });
 
         // Login Handler
         document.getElementById('login-btn').addEventListener('click', async (e) => {
