@@ -538,14 +538,46 @@
 
                 <!-- Agenda Operativa (Médico) -->
                 <div id="agenda-operativa" class="view hidden">
-                    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-lg p-6 mb-6 flex justify-between items-center">
-                        <h2 class="text-4xl font-black">Agenda Operativa</h2>
-                        <button onclick="abrirModalNuevaCita()" class="bg-white text-blue-600 font-bold px-6 py-3 rounded-lg hover:bg-blue-50 transition">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-3xl font-black text-gray-900">Agenda Operativa</h2>
+                        <button onclick="abrirModalNuevaCita()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-lg transition flex items-center gap-2 shadow-lg">
                             <i class="fa-solid fa-plus mr-2"></i> Nueva Cita
                         </button>
                     </div>
-                    <div class="bg-white rounded-xl shadow-lg p-6">
-                        <div id="agenda-calendar" style="min-height: 600px;"></div>
+
+                    <!-- Buscador de Pacientes -->
+                    <div class="mb-6">
+                        <div class="relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-4 top-4 text-gray-400"></i>
+                            <input type="text" id="buscar-pacientes-agenda" placeholder="Buscar paciente para agendar cita..." class="w-full border border-gray-300 rounded-lg px-4 py-3 pl-12 focus:ring-2 focus:ring-blue-500 outline-none font-bold shadow-sm" oninput="filtrarPacientesAgendaLista()">
+                        </div>
+                    </div>
+
+                    <!-- Tabla de Pacientes para Agendar -->
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
+                        <table class="w-full">
+                            <thead class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+                                <tr>
+                                    <th class="px-6 py-4 text-left text-sm font-black">Nombre</th>
+                                    <th class="px-6 py-4 text-left text-sm font-black">CURP</th>
+                                    <th class="px-6 py-4 text-left text-sm font-black">Email</th>
+                                    <th class="px-6 py-4 text-center text-sm font-black">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="agenda-pacientes-tbody" class="divide-y divide-gray-200">
+                                <tr>
+                                    <td colspan="4" class="px-6 py-4 text-center text-gray-500">Cargando pacientes...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Calendario -->
+                    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-lg p-6 mb-6">
+                        <h3 class="text-2xl font-black mb-4">Calendario de Citas</h3>
+                        <div class="bg-white rounded-lg overflow-hidden">
+                            <div id="agenda-calendar" style="min-height: 600px;"></div>
+                        </div>
                     </div>
                 </div>
 
@@ -1005,12 +1037,17 @@
                             </button>
                         </div>
                         <div class="p-8 space-y-6">
-                            <!-- Seleccionar Paciente -->
+                            <!-- Buscador de Paciente -->
                             <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Paciente</label>
-                                <select id="cita-paciente" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold">
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Paciente *</label>
+                                <div class="relative mb-2">
+                                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-4 text-gray-400"></i>
+                                    <input type="text" id="cita-buscar-paciente" placeholder="Buscar por nombre, CURP o email..." class="w-full border border-gray-300 rounded-lg px-4 py-3 pl-12 focus:ring-2 focus:ring-blue-500 outline-none font-bold" oninput="filtrarPacientesCita()">
+                                </div>
+                                <select id="cita-paciente" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" onchange="seleccionarPacienteCita()">
                                     <option value="">Selecciona un paciente...</option>
                                 </select>
+                                <p class="text-xs text-gray-500 mt-2" id="cita-paciente-info">-</p>
                             </div>
 
                             <!-- Fecha y Hora -->
@@ -1190,7 +1227,7 @@
                 <div id="modal-nuevo-producto" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
                     <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full">
                         <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 flex justify-between items-center rounded-t-xl">
-                            <h3 class="text-2xl font-black">Crear Nuevo Servicio/Producto</h3>
+                            <h3 id="modal-titulo-producto" class="text-2xl font-black">Crear Nuevo Servicio/Producto</h3>
                             <button onclick="cerrarModalNuevoProducto()" class="text-white hover:bg-blue-700 rounded-lg p-2 transition">
                                 <i class="fa-solid fa-times text-xl"></i>
                             </button>
@@ -1239,7 +1276,7 @@
 
                             <div class="flex justify-end gap-3 border-t pt-6">
                                 <button onclick="cerrarModalNuevoProducto()" class="px-6 py-2 border border-gray-300 rounded-lg font-bold hover:bg-gray-50 transition">Cancelar</button>
-                                <button onclick="guardarNuevoProducto()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition">
+                                <button id="btn-guardar-producto" onclick="guardarNuevoProducto()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition">
                                     <i class="fa-solid fa-plus mr-2"></i> Crear Servicio
                                 </button>
                             </div>
@@ -1381,6 +1418,8 @@
         let auth, db;
         let currentUser = null;
         let currentRole = null;
+        let pacientesCitaGlobal = [];
+        let pacientesAgendaGlobal = [];
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
@@ -1505,6 +1544,11 @@
                     .get();
                 
                 const select = document.getElementById('select-paciente');
+                if (!select) {
+                    console.warn('⚠️ Elemento select-paciente no encontrado en el DOM');
+                    return;
+                }
+                
                 select.innerHTML = '<option value="">Selecciona un paciente...</option>';
                 
                 snapshot.docs.forEach(doc => {
@@ -1578,7 +1622,7 @@
                 
                 // Mostrar alergias
                 const alergiasList = document.getElementById('exp-alergias-list');
-                if (antecedentes.alergias && antecedentes.alergias.length > 0) {
+                if (alergiasList && antecedentes.alergias && antecedentes.alergias.length > 0) {
                     alergiasList.innerHTML = antecedentes.alergias.map(alergia => `
                         <div class="bg-red-100 px-3 py-2 rounded-lg font-bold text-red-900">
                             <i class="fa-solid fa-ban mr-2"></i>${alergia}
@@ -1588,7 +1632,7 @@
                 
                 // Mostrar patológicos
                 const patologicosList = document.getElementById('exp-patologicos-list');
-                if (antecedentes.patologicos && antecedentes.patologicos.length > 0) {
+                if (patologicosList && antecedentes.patologicos && antecedentes.patologicos.length > 0) {
                     patologicosList.innerHTML = antecedentes.patologicos.map(pat => `
                         <div class="flex items-start gap-2">
                             <i class="fa-solid fa-check text-blue-600 mt-1"></i>
@@ -1599,7 +1643,7 @@
                 
                 // Mostrar no patológicos
                 const noPatologicosList = document.getElementById('exp-no-patologicos-list');
-                if (antecedentes['no-patologicos'] && antecedentes['no-patologicos'].length > 0) {
+                if (noPatologicosList && antecedentes['no-patologicos'] && antecedentes['no-patologicos'].length > 0) {
                     noPatologicosList.innerHTML = antecedentes['no-patologicos'].map(nopat => `
                         <div class="flex items-start gap-2">
                             <i class="fa-solid fa-leaf text-green-600 mt-1"></i>
@@ -1613,20 +1657,22 @@
                     .collection('consultations').orderBy('createdAt', 'desc').get();
                 
                 const consultasDiv = document.getElementById('exp-consultas');
-                if (consultasSnapshot.empty) {
-                    consultasDiv.innerHTML = '<p class="text-gray-500">Sin consultas registradas</p>';
-                } else {
-                    consultasDiv.innerHTML = consultasSnapshot.docs.map(doc => {
-                        const c = doc.data();
-                        const fecha = c.createdAt?.toDate().toLocaleDateString('es-MX') || 'Sin fecha';
-                        return `
-                            <div class="border-l-4 border-blue-600 pl-4 py-2">
-                                <p class="font-bold text-gray-900">${c.diagnostico}</p>
-                                <p class="text-sm text-gray-500">${fecha}</p>
-                                <p class="text-sm text-gray-700">${c.sintomas}</p>
-                            </div>
-                        `;
-                    }).join('');
+                if (consultasDiv) {
+                    if (consultasSnapshot.empty) {
+                        consultasDiv.innerHTML = '<p class="text-gray-500">Sin consultas registradas</p>';
+                    } else {
+                        consultasDiv.innerHTML = consultasSnapshot.docs.map(doc => {
+                            const c = doc.data();
+                            const fecha = c.createdAt?.toDate().toLocaleDateString('es-MX') || 'Sin fecha';
+                            return `
+                                <div class="border-l-4 border-blue-600 pl-4 py-2">
+                                    <p class="font-bold text-gray-900">${c.diagnostico}</p>
+                                    <p class="text-sm text-gray-500">${fecha}</p>
+                                    <p class="text-sm text-gray-700">${c.sintomas}</p>
+                                </div>
+                            `;
+                        }).join('');
+                    }
                 }
                 
                 console.log('✅ Expediente cargado:', p.nombre);
@@ -1798,30 +1844,44 @@
         }
         
         // Guardar signos vitales
-        document.getElementById('vitales-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            try {
-                const altura = document.getElementById('altura').value;
-                const peso = document.getElementById('peso').value;
-                const temperatura = document.getElementById('temperatura').value;
+        const vitalesForm = document.getElementById('vitales-form');
+        if (vitalesForm) {
+            vitalesForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
                 
-                await db.collection('patients').doc(currentUser.uid).update({
-                    altura: parseFloat(altura),
-                    peso: parseFloat(peso),
-                    temperatura: parseFloat(temperatura),
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                alert('✅ Signos vitales guardados correctamente');
-                document.getElementById('vitales-form').reset();
-                switchView('mi-expediente');
-                loadPatientRecord();
-            } catch (error) {
-                console.error('Error guardando signos vitales:', error);
-                alert('Error al guardar signos vitales');
-            }
-        });
+                try {
+                    const altura = document.getElementById('altura').value;
+                    const peso = document.getElementById('peso').value;
+                    const temperatura = document.getElementById('temperatura').value;
+                    const presionSistolica = document.getElementById('presion-sistolica').value;
+                    const presionDiastolica = document.getElementById('presion-diastolica').value;
+                    
+                    // Validar que los campos requeridos estén completos
+                    if (!altura || !peso || !temperatura) {
+                        alert('⚠️ Por favor completa todos los campos requeridos (Altura, Peso, Temperatura)');
+                        return;
+                    }
+                    
+                    // Usar set con merge para crear o actualizar el documento
+                    await db.collection('patients').doc(currentUser.uid).set({
+                        altura: parseFloat(altura),
+                        peso: parseFloat(peso),
+                        temperatura: parseFloat(temperatura),
+                        presionSistolica: presionSistolica ? parseFloat(presionSistolica) : null,
+                        presionDiastolica: presionDiastolica ? parseFloat(presionDiastolica) : null,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
+                    
+                    alert('✅ Signos vitales guardados correctamente');
+                    vitalesForm.reset();
+                    switchView('mi-expediente');
+                    loadPatientRecord();
+                } catch (error) {
+                    console.error('Error guardando signos vitales:', error);
+                    alert('❌ Error al guardar signos vitales: ' + (error.message || 'Intenta de nuevo'));
+                }
+            });
+        }
         
         // AUTOCOMPLETE CIE-10 (Compatible con ambas interfaces)
         let cie10Timeout;
@@ -2791,9 +2851,20 @@ Instrucciones: ${document.getElementById('instrucciones').value || 'Ninguna'}
         let agendaCalendar = null;
 
         // Abrir modal Nueva Cita
-        function abrirModalNuevaCita() {
+        function abrirModalNuevaCita(pacienteId = null) {
             document.getElementById('modal-nueva-cita').classList.remove('hidden');
-            cargarPacientesAgenda();
+            
+            // Si se pasa un pacienteId, pre-llenar el selector
+            if (pacienteId) {
+                document.getElementById('cita-paciente').value = pacienteId;
+                const paciente = pacientesCitaGlobal.find(p => p.id === pacienteId);
+                if (paciente) {
+                    const infoText = `${paciente.nombre} ${paciente.apellido} • CURP: ${paciente.curp} • ${paciente.email}`;
+                    document.getElementById('cita-paciente-info').textContent = infoText;
+                }
+            } else {
+                cargarPacientesAgenda();
+            }
             
             // Establecer fecha mínima a hoy
             const hoy = new Date().toISOString().split('T')[0];
@@ -2812,28 +2883,101 @@ Instrucciones: ${document.getElementById('instrucciones').value || 'Ninguna'}
             document.getElementById('cita-notas').value = '';
         }
 
-        // Cargar pacientes en selector de Agenda
+        // Cargar pacientes para la tabla de Agenda
+        async function cargarPacientesAgendaLista() {
+            try {
+                const snapshot = await db.collection('patients').where('doctorId', '==', currentUser.uid).get();
+                let pacientes = [];
+                
+                snapshot.forEach(doc => {
+                    pacientes.push({
+                        id: doc.id,
+                        nombre: doc.data().nombre || '',
+                        apellido: doc.data().apellido || '',
+                        curp: doc.data().curp || '',
+                        email: doc.data().email || ''
+                    });
+                });
+                
+                // Guardar en global para búsqueda
+                pacientesAgendaGlobal = pacientes;
+                mostrarPacientesAgendaLista(pacientes);
+            } catch (error) {
+                console.error('Error cargando pacientes para agenda:', error);
+            }
+        }
+
+        // Mostrar pacientes en tabla de agenda
+        function mostrarPacientesAgendaLista(pacientes) {
+            const tbody = document.getElementById('agenda-pacientes-tbody');
+            
+            if (pacientes.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">No hay pacientes registrados</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = pacientes.map(p => `
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="px-6 py-4 text-gray-900 font-bold">${p.nombre} ${p.apellido}</td>
+                    <td class="px-6 py-4 text-gray-700 text-sm">${p.curp}</td>
+                    <td class="px-6 py-4 text-gray-700 text-sm">${p.email}</td>
+                    <td class="px-6 py-4 text-center">
+                        <button onclick="abrirModalNuevaCita('${p.id}')" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs font-bold transition">
+                            Agendar
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Filtrar pacientes en tabla de agenda
+        function filtrarPacientesAgendaLista() {
+            const busqueda = document.getElementById('buscar-pacientes-agenda').value.toLowerCase();
+            
+            if (busqueda === '') {
+                mostrarPacientesAgendaLista(pacientesAgendaGlobal);
+            } else {
+                const filtrados = pacientesAgendaGlobal.filter(p =>
+                    p.nombre.toLowerCase().includes(busqueda) ||
+                    p.apellido.toLowerCase().includes(busqueda) ||
+                    p.curp.toLowerCase().includes(busqueda) ||
+                    p.email.toLowerCase().includes(busqueda)
+                );
+                mostrarPacientesAgendaLista(filtrados);
+            }
+        }
+
+        // Cargar pacientes en selector del modal Agenda
         async function cargarPacientesAgenda() {
             try {
                 const selectPaciente = document.getElementById('cita-paciente');
                 selectPaciente.innerHTML = '<option value="">Selecciona un paciente...</option>';
                 
                 const snapshot = await db.collection('patients').where('doctorId', '==', currentUser.uid).get();
+                pacientesCitaGlobal = [];
+                
                 snapshot.forEach(doc => {
                     const paciente = doc.data();
+                    pacientesCitaGlobal.push({
+                        id: doc.id,
+                        nombre: paciente.nombre || '',
+                        apellido: paciente.apellido || '',
+                        curp: paciente.curp || '',
+                        email: paciente.email || '',
+                        telefono: paciente.telefono || ''
+                    });
+                    
                     const option = document.createElement('option');
                     option.value = doc.id;
-                    option.textContent = `${paciente.nombre} (${paciente.cedula})`;
+                    option.dataset.curp = paciente.curp || '';
+                    option.dataset.email = paciente.email || '';
+                    option.textContent = `${paciente.nombre} ${paciente.apellido || ''} (${paciente.curp || 'N/A'})`;
                     selectPaciente.appendChild(option);
                 });
             } catch (error) {
                 console.error('Error cargando pacientes para agenda:', error);
-                alert('Error al cargar pacientes');
             }
         }
-
-        // Guardar nueva cita
-        async function guardarNuevaCita() {
             if (!currentUser) {
                 alert('Error: usuario no identificado');
                 return;
@@ -2971,6 +3115,10 @@ Notas: ${props.notas || 'Sin notas'}
         // Abrir modal Nuevo Producto
         function abrirModalNuevoProducto() {
             document.getElementById('modal-nuevo-producto').classList.remove('hidden');
+            document.getElementById('modal-titulo-producto').textContent = 'Crear Nuevo Servicio/Producto';
+            const btnGuardar = document.getElementById('btn-guardar-producto');
+            btnGuardar.innerHTML = '<i class="fa-solid fa-plus mr-2"></i> Crear Servicio';
+            btnGuardar.onclick = guardarNuevoProducto;
             limpiarFormularioProducto();
         }
         
@@ -3017,8 +3165,8 @@ Notas: ${props.notas || 'Sin notas'}
                     descripcion: descripcion,
                     activo: activo,
                     doctorId: currentUser.uid,
-                    createdAt: new Date(),
-                    updatedAt: new Date()
+                    createdAt: firebase.firestore.Timestamp.now(),
+                    updatedAt: firebase.firestore.Timestamp.now()
                 });
                 
                 alert('✅ Servicio creado correctamente');
@@ -3055,14 +3203,13 @@ Notas: ${props.notas || 'Sin notas'}
                     const estado = p.activo ? '<span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-bold">Activo</span>' : '<span class="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-xs font-bold">Inactivo</span>';
                     
                     return `
-                        <tr class="hover:bg-gray-50 transition">
+                        <tr class="hover:bg-gray-50 transition cursor-pointer" onclick="editarProducto('${doc.id}')">
                             <td class="px-6 py-4 text-gray-900 font-bold text-sm">${p.codigo}</td>
                             <td class="px-6 py-4 text-gray-900 font-bold">${p.nombre}</td>
                             <td class="px-6 py-4 text-gray-700 text-sm">${p.categoria}</td>
                             <td class="px-6 py-4 text-right text-gray-900 font-bold">$${p.precio.toFixed(2)}</td>
                             <td class="px-6 py-4 text-center">${estado}</td>
-                            <td class="px-6 py-4 text-center space-x-2">
-                                <button onclick="editarProducto('${doc.id}')" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs font-bold transition">Editar</button>
+                            <td class="px-6 py-4 text-center space-x-2" onclick="event.stopPropagation();">
                                 <button onclick="eliminarProducto('${doc.id}')" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs font-bold transition">Eliminar</button>
                             </td>
                         </tr>
@@ -3073,8 +3220,82 @@ Notas: ${props.notas || 'Sin notas'}
             }
         }
         
-        function editarProducto(id) {
-            alert('Funcionalidad de edición en desarrollo');
+        // Editar producto
+        async function editarProducto(id) {
+            try {
+                const doc = await db.collection('servicios').doc(id).get();
+                if (!doc.exists) {
+                    alert('Servicio no encontrado');
+                    return;
+                }
+                
+                const p = doc.data();
+                
+                // Llenar el modal con los datos del producto
+                document.getElementById('prod-codigo').value = p.codigo || '';
+                document.getElementById('prod-nombre').value = p.nombre || '';
+                document.getElementById('prod-categoria').value = p.categoria || '';
+                document.getElementById('prod-precio').value = p.precio || '';
+                document.getElementById('prod-descripcion').value = p.descripcion || '';
+                document.getElementById('prod-activo').checked = p.activo || false;
+                
+                // Cambiar el título del modal
+                document.getElementById('modal-titulo-producto').textContent = 'Editar Servicio/Producto';
+                
+                // Cambiar el botón de envío
+                const btnGuardar = document.getElementById('btn-guardar-producto');
+                btnGuardar.innerHTML = '<i class="fa-solid fa-save mr-2"></i> Actualizar Servicio';
+                btnGuardar.onclick = () => guardarEdicionProducto(id);
+                
+                // Abrir el modal
+                document.getElementById('modal-nuevo-producto').classList.remove('hidden');
+            } catch (error) {
+                console.error('Error cargando producto para edición:', error);
+                alert('Error al cargar el servicio');
+            }
+        }
+        
+        // Guardar edición de producto
+        async function guardarEdicionProducto(id) {
+            const codigo = document.getElementById('prod-codigo').value.trim();
+            const nombre = document.getElementById('prod-nombre').value.trim();
+            const categoria = document.getElementById('prod-categoria').value.trim();
+            const precio = parseFloat(document.getElementById('prod-precio').value);
+            const descripcion = document.getElementById('prod-descripcion').value.trim();
+            const activo = document.getElementById('prod-activo').checked;
+            
+            if (!codigo || !nombre || !categoria || !precio) {
+                alert('Por favor completa todos los campos requeridos (*)');
+                return;
+            }
+            
+            try {
+                const btn = document.getElementById('btn-guardar-producto');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Actualizando...';
+                
+                await db.collection('servicios').doc(id).update({
+                    codigo,
+                    nombre,
+                    categoria,
+                    precio,
+                    descripcion,
+                    activo
+                });
+                
+                alert('✅ Servicio actualizado correctamente');
+                cerrarModalNuevoProducto();
+                cargarProductos();
+                
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-plus mr-2"></i> Crear Servicio';
+            } catch (error) {
+                console.error('Error actualizando producto:', error);
+                alert('Error al actualizar: ' + error.message);
+                const btn = document.getElementById('btn-guardar-producto');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-save mr-2"></i> Actualizar Servicio';
+            }
         }
         
         function eliminarProducto(id) {
@@ -3200,8 +3421,8 @@ Notas: ${props.notas || 'Sin notas'}
                     metodo: metodo,
                     estado: estado,
                     notas: notas,
-                    fecha: new Date(),
-                    createdAt: new Date()
+                    fecha: firebase.firestore.Timestamp.now(),
+                    createdAt: firebase.firestore.Timestamp.now()
                 });
                 
                 alert('✅ Cobro registrado correctamente');
@@ -3235,7 +3456,22 @@ Notas: ${props.notas || 'Sin notas'}
                 } else {
                     tbody.innerHTML = snapshot.docs.map(doc => {
                         const c = doc.data();
-                        const fecha = new Date(c.fecha.toDate());
+                        
+                        // Manejar fecha correctamente
+                        let fecha;
+                        try {
+                            if (c.fecha && typeof c.fecha.toDate === 'function') {
+                                fecha = c.fecha.toDate();
+                            } else if (c.fecha instanceof Date) {
+                                fecha = c.fecha;
+                            } else {
+                                fecha = new Date();
+                            }
+                        } catch (e) {
+                            console.warn('Error parsando fecha de cobro:', e);
+                            fecha = new Date();
+                        }
+                        
                         const fechaStr = fecha.toLocaleDateString('es-MX');
                         const esPagado = c.estado === 'pagado';
                         
@@ -3288,7 +3524,10 @@ Notas: ${props.notas || 'Sin notas'}
             } else if (view === 'nueva-consulta') {
                 cargarPacientesConsulta();
             } else if (view === 'agenda-operativa') {
-                setTimeout(() => inicializarAgenda(), 100);
+                setTimeout(() => {
+                    cargarPacientesAgendaLista();
+                    inicializarAgenda();
+                }, 100);
             } else if (view === 'mi-cuenta') {
                 cargarPerfil();
             } else if (view === 'productos') {
