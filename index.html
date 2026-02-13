@@ -3198,6 +3198,9 @@ Instrucciones: ${document.getElementById('instrucciones').value || 'Ninguna'}
                 console.error('Error cargando pacientes para agenda:', error);
             }
         }
+
+        // Guardar cita en Firestore
+        async function guardarCita(event) {
             if (!currentUser) {
                 alert('Error: usuario no identificado');
                 return;
