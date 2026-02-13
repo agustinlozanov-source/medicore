@@ -1514,7 +1514,7 @@
                             <!-- Botones -->
                             <div class="flex justify-end gap-3 border-t pt-6">
                                 <button onclick="cerrarModalNuevaCita()" class="px-6 py-2 border border-gray-300 rounded-lg font-bold hover:bg-gray-50 transition">Cancelar</button>
-                                <button onclick="guardarNuevaCita()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition">
+                                <button id="btn-guardar-cita" onclick="guardarNuevaCita(this)" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition">
                                     <i class="fa-solid fa-plus mr-2"></i> Crear Cita
                                 </button>
                             </div>
@@ -5008,7 +5008,7 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
         }
 
         // Guardar cita en Firestore
-        async function guardarCita(event) {
+        async function guardarNuevaCita(btn) {
             if (!currentUser) {
                 alert('Error: usuario no identificado');
                 return;
@@ -5027,7 +5027,6 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
             }
 
             try {
-                const btn = event.target;
                 btn.disabled = true;
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Guardando...';
 
@@ -5054,12 +5053,12 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
                 btn.innerHTML = '<i class="fa-solid fa-plus mr-2"></i> Crear Cita';
                 
                 // Recargar calendario
-                if (agendaCalendar) {
+                if (typeof agendaCalendar !== 'undefined' && agendaCalendar) {
                     agendaCalendar.refetchEvents();
                 }
             } catch (error) {
                 console.error('Error guardando cita:', error);
-                alert('Error al guardar cita');
+                alert('Error al guardar cita: ' + error.message);
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-plus mr-2"></i> Crear Cita';
             }
