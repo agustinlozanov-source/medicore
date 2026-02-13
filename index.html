@@ -1477,6 +1477,34 @@
                 console.error('⚠️ Error actualizando token:', error);
             }
 
+            // Si es paciente, asegurar que existe su documento en Firestore
+            if (role === 'paciente') {
+                try {
+                    const patientDoc = await db.collection('patients').doc(currentUser.uid).get();
+                    if (!patientDoc.exists) {
+                        // Crear documento mínimo para el paciente
+                        await db.collection('patients').doc(currentUser.uid).set({
+                            email: email,
+                            role: 'paciente',
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            nombre: email.split('@')[0],
+                            apellido: '',
+                            genero: '',
+                            fechaNacimiento: '',
+                            curp: '',
+                            cedula: '',
+                            telefono: '',
+                            altura: null,
+                            peso: null,
+                            temperatura: null
+                        });
+                        console.log('✅ Documento de paciente creado');
+                    }
+                } catch (error) {
+                    console.error('Error creando documento de paciente:', error);
+                }
+            }
+
             document.getElementById('medico-menu').classList.toggle('hidden', role !== 'medico');
             document.getElementById('paciente-menu').classList.toggle('hidden', role !== 'paciente');
             document.getElementById('admin-menu').classList.toggle('hidden', role !== 'admin');
