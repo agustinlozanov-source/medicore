@@ -2890,6 +2890,21 @@
             carasPorPieza: {} // {pieza: {V, O, L, M, D}}
         };
 
+        // Mapa de colores para procedimientos
+        const COLORES_PROCEDIMIENTOS = {
+            'Profiláctico': '#e0f7fa',
+            'Restauración con Resina': '#c8e6c9',
+            'Restauración con Amalgama': '#d7ccc8',
+            'Sellador': '#fff9c4',
+            'Extracción': '#ffccbc',
+            'Curetaje': '#f8bbd0',
+            'Alargamiento de Corona': '#ffe0b2',
+            'Recubrimiento Gingival': '#c5e1a5',
+            'Coronas/Puentes': '#b3e5fc',
+            'Implante': '#d1c4e9',
+            'Endodoncia': '#ffcccc'
+        };
+
         // Dientes adulto ISO 1992
         const DIENTES_ADULTO = [
             {id: '18', num: '18'}, {id: '17', num: '17'}, {id: '16', num: '16'}, {id: '15', num: '15'},
@@ -3016,18 +3031,16 @@
         }
 
         function obteneditorColorCara(pieza, cara) {
-            if (!odontogramaData.carasPorPieza[pieza]) return 'white';
-            const colorCara = odontogramaData.carasPorPieza[pieza][cara];
-            if (!colorCara) return 'white';
+            // Buscar si existe un procedimiento para esta pieza y cara
+            const procedimiento = odontogramaData.procedimientos.find(
+                p => p.pieza === pieza && p.cara === cara
+            );
             
-            const colores = {
-                'cariado': '#fca5a5',
-                'restaurado': '#93c5fd',
-                'sellante': '#fcd34d',
-                'endodoncia': '#d8b4fe',
-                'ausente': '#d1d5db'
-            };
-            return colores[colorCara] || 'white';
+            if (procedimiento) {
+                return COLORES_PROCEDIMIENTOS[procedimiento.procedimiento] || '#e0e7ff';
+            }
+            
+            return 'white';
         }
 
         function seleccionarPieza(pieza) {
@@ -3081,12 +3094,6 @@
             
             odontogramaData.procedimientos.push(nuevoProc);
             
-            // Marcar cara en el odontograma
-            if (!odontogramaData.carasPorPieza[odontogramaData.piezaSeleccionada]) {
-                odontogramaData.carasPorPieza[odontogramaData.piezaSeleccionada] = {};
-            }
-            odontogramaData.carasPorPieza[odontogramaData.piezaSeleccionada][odontogramaData.caraSeleccionada] = 'cariado'; // Color por defecto
-            
             // Limpiar formulario
             document.getElementById('diagnostico-proc').value = '';
             document.getElementById('procedimiento-select').value = '';
@@ -3136,19 +3143,19 @@
         function eliminarProcedimiento(procId) {
             if (confirm('¿Eliminar este procedimiento?')) {
                 odontogramaData.procedimientos = odontogramaData.procedimientos.filter(p => p.id !== procId);
+                renderizarOdontograma();
                 actualizarTablaProcedimientos();
             }
         }
 
         function limpiarOdontograma() {
-            if (odontogramaData.procedimientos.length === 0 && Object.keys(odontogramaData.carasPorPieza).length === 0) {
+            if (odontogramaData.procedimientos.length === 0) {
                 alert('⚠️ No hay datos para limpiar');
                 return;
             }
             
             if (confirm('¿Limpiar todo el odontograma?')) {
                 odontogramaData.procedimientos = [];
-                odontogramaData.carasPorPieza = {};
                 odontogramaData.piezaSeleccionada = null;
                 odontogramaData.caraSeleccionada = null;
                 document.getElementById('diagnostico-dental').value = '';
