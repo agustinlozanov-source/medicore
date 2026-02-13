@@ -4325,7 +4325,11 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
             
             alert('ℹ️ Función de compartir en desarrollo');
         }
-                btn.innerHTML = '<i class="fa-solid fa-save mr-2"></i> Guardar Receta';
+        
+        // Cerrar dropdown al hacer click fuera
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#buscar-medicamento') && !e.target.closest('#medicamentos-dropdown')) {
+                document.getElementById('medicamentos-dropdown')?.classList.add('hidden');
             }
         });
         
