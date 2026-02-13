@@ -138,23 +138,20 @@
                 <div class="space-y-6">
                     <!-- Médico Menu -->
                     <div id="medico-menu" class="hidden space-y-3">
-                        <button onclick="switchView('mis-pacientes')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 group hover:bg-blue-50" title="Mis Pacientes">
-                            <i class="fa-solid fa-users transition" style="color: #859ac1; group-hover:color: #1465ff;"></i> <span class="text-gray-700">Mis Pacientes</span>
+                        <button onclick="switchView('mis-pacientes')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 group hover:bg-blue-50" title="Pacientes">
+                            <i class="fa-solid fa-users transition" style="color: #859ac1; group-hover:color: #1465ff;"></i> <span class="text-gray-700">Pacientes</span>
                         </button>
-                        <button onclick="switchView('nueva-consulta')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Nueva Consulta">
-                            <i class="fa-solid fa-stethoscope transition" style="color: #859ac1;"></i> <span class="text-gray-700">Nueva Consulta</span>
+                        <button onclick="switchView('nueva-consulta')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Consultas">
+                            <i class="fa-solid fa-stethoscope transition" style="color: #859ac1;"></i> <span class="text-gray-700">Consultas</span>
                         </button>
                         <button onclick="switchView('recetas')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Recetas">
                             <i class="fa-solid fa-prescription-bottle transition" style="color: #859ac1;"></i> <span class="text-gray-700">Recetas</span>
                         </button>
-                        <button onclick="switchView('prescripciones')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Prescripciones">
-                            <i class="fa-solid fa-prescription-bottle transition" style="color: #859ac1;"></i> <span class="text-gray-700">Prescripciones</span>
+                        <button onclick="switchView('agenda-operativa')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Agenda">
+                            <i class="fa-solid fa-calendar transition" style="color: #859ac1;"></i> <span class="text-gray-700">Agenda</span>
                         </button>
-                        <button onclick="switchView('agenda-operativa')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Agenda Operativa">
-                            <i class="fa-solid fa-calendar transition" style="color: #859ac1;"></i> <span class="text-gray-700">Agenda Operativa</span>
-                        </button>
-                        <button onclick="switchView('productos')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Catálogo de Servicios">
-                            <i class="fa-solid fa-box transition" style="color: #859ac1;"></i> <span class="text-gray-700">Catálogo de Servicios</span>
+                        <button onclick="switchView('productos')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Productos">
+                            <i class="fa-solid fa-box transition" style="color: #859ac1;"></i> <span class="text-gray-700">Productos</span>
                         </button>
                         <button onclick="switchView('cobros')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Cobros">
                             <i class="fa-solid fa-cash-register transition" style="color: #859ac1;"></i> <span class="text-gray-700">Cobros</span>
@@ -163,24 +160,24 @@
 
                     <!-- Paciente Menu -->
                     <div id="paciente-menu" class="hidden space-y-3">
-                        <button onclick="switchView('mi-expediente')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Mi Expediente">
-                            <i class="fa-solid fa-file-medical transition" style="color: #859ac1;"></i> <span class="text-gray-700">Mi Expediente</span>
+                        <button onclick="switchView('mi-expediente')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Expediente">
+                            <i class="fa-solid fa-file-medical transition" style="color: #859ac1;"></i> <span class="text-gray-700">Expediente</span>
                         </button>
-                        <button onclick="switchView('mis-citas')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Mis Citas">
-                            <i class="fa-solid fa-calendar transition" style="color: #859ac1;"></i> <span class="text-gray-700">Mis Citas</span>
+                        <button onclick="switchView('mis-citas')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Citas">
+                            <i class="fa-solid fa-calendar transition" style="color: #859ac1;"></i> <span class="text-gray-700">Citas</span>
                         </button>
-                        <button onclick="switchView('resultados')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Resultados Lab">
-                            <i class="fa-solid fa-flask-vial transition" style="color: #859ac1;"></i> <span class="text-gray-700">Resultados Lab</span>
+                        <button onclick="switchView('resultados')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Resultados">
+                            <i class="fa-solid fa-flask-vial transition" style="color: #859ac1;"></i> <span class="text-gray-700">Resultados</span>
                         </button>
                     </div>
 
                     <!-- Admin Menu -->
                     <div id="admin-menu" class="hidden space-y-3">
-                        <button onclick="switchView('pacientes')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Gestión Pacientes">
-                            <i class="fa-solid fa-person transition" style="color: #859ac1;"></i> <span class="text-gray-700">Gestión Pacientes</span>
+                        <button onclick="switchView('pacientes')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Pacientes">
+                            <i class="fa-solid fa-person transition" style="color: #859ac1;"></i> <span class="text-gray-700">Pacientes</span>
                         </button>
-                        <button onclick="switchView('medicos')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Gestión Médicos">
-                            <i class="fa-solid fa-user-doctor transition" style="color: #859ac1;"></i> <span class="text-gray-700">Gestión Médicos</span>
+                        <button onclick="switchView('medicos')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Médicos">
+                            <i class="fa-solid fa-user-doctor transition" style="color: #859ac1;"></i> <span class="text-gray-700">Médicos</span>
                         </button>
                         <button onclick="switchView('citas')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Citas">
                             <i class="fa-solid fa-calendar-check transition" style="color: #859ac1;"></i> <span class="text-gray-700">Citas</span>
