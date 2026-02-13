@@ -1832,25 +1832,32 @@
                 const peso = parseFloat(p.peso || 76);
                 const bmi = (peso / (altura * altura)).toFixed(2);
                 
-                // Actualizar datos básicos
-                document.getElementById('exp-nombre').textContent = `${p.nombre} ${p.apellido}`;
-                document.getElementById('exp-nombre-header').textContent = `${p.nombre} ${p.apellido}`;
-                document.getElementById('exp-edad').textContent = `${edad} años`;
-                document.getElementById('exp-edad-header').textContent = `${edad} años`;
-                document.getElementById('exp-genero-header').textContent = p.genero || 'No especificado';
-                document.getElementById('exp-cedula').textContent = p.cedula;
-                document.getElementById('exp-cedula-header').textContent = `CURP: ${p.curp || p.cedula || 'N/A'}`;
-                document.getElementById('exp-email').textContent = p.email;
-                document.getElementById('exp-telefono').textContent = p.telefono || '-';
+                // Actualizar datos básicos - con validación null
+                const setTextContent = (id, value) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = value;
+                    else console.warn(`Elemento ${id} no encontrado`);
+                };
+                
+                setTextContent('exp-nombre', `${p.nombre} ${p.apellido}`);
+                setTextContent('exp-nombre-header', `${p.nombre} ${p.apellido}`);
+                setTextContent('exp-edad', `${edad} años`);
+                setTextContent('exp-edad-header', `${edad} años`);
+                setTextContent('exp-genero-header', p.genero || 'No especificado');
+                setTextContent('exp-cedula', p.cedula);
+                setTextContent('exp-cedula-header', `CURP: ${p.curp || p.cedula || 'N/A'}`);
+                setTextContent('exp-email', p.email);
+                setTextContent('exp-telefono', p.telefono || '-');
                 
                 // Signos vitales
-                document.getElementById('exp-altura').textContent = `${altura} m`;
-                document.getElementById('exp-peso').textContent = `${peso} kg`;
-                document.getElementById('exp-bmi').textContent = bmi;
-                document.getElementById('exp-temp').textContent = `${p.temperatura || 36.5}°C`;
+                setTextContent('exp-altura', `${altura} m`);
+                setTextContent('exp-peso', `${peso} kg`);
+                setTextContent('exp-bmi', bmi);
+                setTextContent('exp-temp', `${p.temperatura || 36.5}°C`);
                 
                 // Alergias
-                document.getElementById('exp-alergias').textContent = p.alergias || 'Sin alergias registradas';
+                const alergControl = document.getElementById('exp-alergias');
+                if (alergControl) alergControl.textContent = p.alergias || 'Sin alergias registradas';
                 
                 // Antecedentes Dinámicos
                 const antecedentes = p.antecedentes || {
