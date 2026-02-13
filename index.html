@@ -192,17 +192,17 @@
             <!-- Main Content -->
             <main class="flex-1 p-8" style="background-color: #f9fbfc;">
                 <!-- Mis Pacientes (Médico) -->
-                <div id="mis-pacientes" class="view hidden">
+                <div id="mis-pacientes" class="view hidden" style="font-family: 'Inter', sans-serif;">
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-3xl font-black text-gray-900">Mis Pacientes</h2>
                         <div class="relative inline-block group">
-                            <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-lg transition flex items-center gap-2 shadow-lg">
+                            <button class="text-white font-bold px-6 py-3 rounded-lg transition flex items-center gap-2 shadow-lg" style="background-color: #1465ff;">
                                 <i class="fa-solid fa-plus mr-2"></i> Nuevo Paciente
                                 <i class="fa-solid fa-chevron-down ml-2"></i>
                             </button>
                             <div class="absolute right-0 mt-0 w-48 bg-white border border-gray-200 rounded-lg shadow-xl hidden group-hover:block z-10">
                                 <button onclick="abrirModalNuevoPaciente()" class="w-full text-left px-4 py-3 hover:bg-blue-50 font-bold text-gray-900 border-b border-gray-200 flex items-center gap-2">
-                                    <i class="fa-solid fa-user-plus text-blue-600"></i> Crear Paciente
+                                    <i class="fa-solid fa-user-plus" style="color: #1465ff;"></i> Crear Paciente
                                 </button>
                                 <button onclick="abrirModalImportarExcel()" class="w-full text-left px-4 py-3 hover:bg-blue-50 font-bold text-gray-900 flex items-center gap-2 rounded-b-lg">
                                     <i class="fa-solid fa-file-csv text-green-600"></i> Importar de Excel
@@ -215,28 +215,28 @@
                     <div class="mb-6">
                         <div class="relative">
                             <i class="fa-solid fa-magnifying-glass absolute left-4 top-4 text-gray-400"></i>
-                            <input type="text" id="buscar-pacientes" placeholder="Buscar por nombre, CURP o email..." class="w-full border border-gray-300 rounded-lg px-4 py-3 pl-12 focus:ring-2 focus:ring-blue-500 outline-none font-bold shadow-sm" oninput="filtrarPacientes()">
+                            <input type="text" id="buscar-pacientes" placeholder="Buscar por nombre, CURP o email..." class="w-full border border-gray-300 rounded-lg px-4 py-3 pl-12 outline-none font-bold shadow-sm" style="font-family: 'Inter', sans-serif;" oninput="filtrarPacientes()">
                         </div>
                     </div>
 
                     <div class="bg-white rounded-xl shadow-lg overflow-hidden">
                         <table class="w-full">
-                            <thead class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+                            <thead class="text-white" style="background-color: #1465ff;">
                                 <tr>
-                                    <th class="px-6 py-4 text-left text-sm font-black">Nombre</th>
-                                    <th class="px-6 py-4 text-left text-sm font-black">CURP</th>
-                                    <th class="px-6 py-4 text-left text-sm font-black">Edad</th>
-                                    <th class="px-6 py-4 text-left text-sm font-black">Email</th>
-                                    <th class="px-6 py-4 text-center text-sm font-black">Acciones</th>
+                                    <th class="px-6 py-4 text-left text-sm font-black" style="font-family: 'Inter', sans-serif;">Nombre</th>
+                                    <th class="px-6 py-4 text-left text-sm font-black" style="font-family: 'Inter', sans-serif;">CURP</th>
+                                    <th class="px-6 py-4 text-left text-sm font-black" style="font-family: 'Inter', sans-serif;">Edad</th>
+                                    <th class="px-6 py-4 text-left text-sm font-black" style="font-family: 'Inter', sans-serif;">Email</th>
+                                    <th class="px-6 py-4 text-center text-sm font-black" style="font-family: 'Inter', sans-serif;">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody id="pacientes-tbody" class="divide-y divide-gray-200">
                                 <tr class="hover:bg-gray-50 transition">
-                                    <td class="px-6 py-4 text-gray-900 font-bold">Cargando...</td>
-                                    <td class="px-6 py-4 text-gray-500">-</td>
-                                    <td class="px-6 py-4 text-gray-500">-</td>
-                                    <td class="px-6 py-4 text-gray-500">-</td>
-                                    <td class="px-6 py-4 text-center">-</td>
+                                    <td class="px-6 py-4 text-gray-900 font-bold" style="font-family: 'Inter', sans-serif;">Cargando...</td>
+                                    <td class="px-6 py-4 text-gray-500" style="font-family: 'Inter', sans-serif;">-</td>
+                                    <td class="px-6 py-4 text-gray-500" style="font-family: 'Inter', sans-serif;">-</td>
+                                    <td class="px-6 py-4 text-gray-500" style="font-family: 'Inter', sans-serif;">-</td>
+                                    <td class="px-6 py-4 text-center" style="font-family: 'Inter', sans-serif;">-</td>
                                 </tr>
                             </tbody>
                         </table>
