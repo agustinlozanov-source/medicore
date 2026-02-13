@@ -133,59 +133,59 @@
         <!-- Sidebar + Content -->
         <div class="flex">
             <!-- Sidebar -->
-            <aside class="w-64 bg-gray-900 text-white p-6 min-h-screen">
+            <aside class="w-64 bg-white border-r border-gray-200 p-6 min-h-screen">
                 <div class="space-y-6">
                     <!-- Médico Menu -->
                     <div id="medico-menu" class="hidden space-y-3">
                         <h3 class="text-xs font-black uppercase text-gray-400 tracking-widest">Médico</h3>
-                        <button onclick="switchView('mis-pacientes')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-blue-600 transition flex items-center gap-3 text-sm font-bold">
-                            <i class="fa-solid fa-users"></i> Mis Pacientes
+                        <button onclick="switchView('mis-pacientes')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 group hover:bg-blue-50" title="Mis Pacientes">
+                            <i class="fa-solid fa-users transition" style="color: #859ac1; group-hover:color: #1465ff;"></i> <span class="text-gray-700">Mis Pacientes</span>
                         </button>
-                        <button onclick="switchView('nueva-consulta')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-blue-600 transition flex items-center gap-3 text-sm font-bold">
-                            <i class="fa-solid fa-stethoscope"></i> Nueva Consulta
+                        <button onclick="switchView('nueva-consulta')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Nueva Consulta">
+                            <i class="fa-solid fa-stethoscope transition" style="color: #859ac1;"></i> <span class="text-gray-700">Nueva Consulta</span>
                         </button>
-                        <button onclick="switchView('recetas')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-blue-600 transition flex items-center gap-3 text-sm font-bold">
-                            <i class="fa-solid fa-prescription-bottle"></i> Recetas
+                        <button onclick="switchView('recetas')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Recetas">
+                            <i class="fa-solid fa-prescription-bottle transition" style="color: #859ac1;"></i> <span class="text-gray-700">Recetas</span>
                         </button>
-                        <button onclick="switchView('prescripciones')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-blue-600 transition flex items-center gap-3 text-sm font-bold">
-                            <i class="fa-solid fa-prescription-bottle"></i> Prescripciones
+                        <button onclick="switchView('prescripciones')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Prescripciones">
+                            <i class="fa-solid fa-prescription-bottle transition" style="color: #859ac1;"></i> <span class="text-gray-700">Prescripciones</span>
                         </button>
-                        <button onclick="switchView('agenda-operativa')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-blue-600 transition flex items-center gap-3 text-sm font-bold">
-                            <i class="fa-solid fa-calendar"></i> Agenda Operativa
+                        <button onclick="switchView('agenda-operativa')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Agenda Operativa">
+                            <i class="fa-solid fa-calendar transition" style="color: #859ac1;"></i> <span class="text-gray-700">Agenda Operativa</span>
                         </button>
-                        <button onclick="switchView('productos')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-blue-600 transition flex items-center gap-3 text-sm font-bold">
-                            <i class="fa-solid fa-box"></i> Catálogo de Servicios
+                        <button onclick="switchView('productos')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Catálogo de Servicios">
+                            <i class="fa-solid fa-box transition" style="color: #859ac1;"></i> <span class="text-gray-700">Catálogo de Servicios</span>
                         </button>
-                        <button onclick="switchView('cobros')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-blue-600 transition flex items-center gap-3 text-sm font-bold">
-                            <i class="fa-solid fa-cash-register"></i> Cobros
+                        <button onclick="switchView('cobros')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Cobros">
+                            <i class="fa-solid fa-cash-register transition" style="color: #859ac1;"></i> <span class="text-gray-700">Cobros</span>
                         </button>
                     </div>
 
                     <!-- Paciente Menu -->
                     <div id="paciente-menu" class="hidden space-y-3">
                         <h3 class="text-xs font-black uppercase text-gray-400 tracking-widest">Paciente</h3>
-                        <button onclick="switchView('mi-expediente')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-blue-600 transition flex items-center gap-3 text-sm font-bold">
-                            <i class="fa-solid fa-file-medical"></i> Mi Expediente
+                        <button onclick="switchView('mi-expediente')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Mi Expediente">
+                            <i class="fa-solid fa-file-medical transition" style="color: #859ac1;"></i> <span class="text-gray-700">Mi Expediente</span>
                         </button>
-                        <button onclick="switchView('mis-citas')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-blue-600 transition flex items-center gap-3 text-sm font-bold">
-                            <i class="fa-solid fa-calendar"></i> Mis Citas
+                        <button onclick="switchView('mis-citas')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Mis Citas">
+                            <i class="fa-solid fa-calendar transition" style="color: #859ac1;"></i> <span class="text-gray-700">Mis Citas</span>
                         </button>
-                        <button onclick="switchView('resultados')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-blue-600 transition flex items-center gap-3 text-sm font-bold">
-                            <i class="fa-solid fa-flask-vial"></i> Resultados Lab
+                        <button onclick="switchView('resultados')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Resultados Lab">
+                            <i class="fa-solid fa-flask-vial transition" style="color: #859ac1;"></i> <span class="text-gray-700">Resultados Lab</span>
                         </button>
                     </div>
 
                     <!-- Admin Menu -->
                     <div id="admin-menu" class="hidden space-y-3">
                         <h3 class="text-xs font-black uppercase text-gray-400 tracking-widest">Administración</h3>
-                        <button onclick="switchView('pacientes')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-blue-600 transition flex items-center gap-3 text-sm font-bold">
-                            <i class="fa-solid fa-person"></i> Gestión Pacientes
+                        <button onclick="switchView('pacientes')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Gestión Pacientes">
+                            <i class="fa-solid fa-person transition" style="color: #859ac1;"></i> <span class="text-gray-700">Gestión Pacientes</span>
                         </button>
-                        <button onclick="switchView('medicos')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-blue-600 transition flex items-center gap-3 text-sm font-bold">
-                            <i class="fa-solid fa-user-doctor"></i> Gestión Médicos
+                        <button onclick="switchView('medicos')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Gestión Médicos">
+                            <i class="fa-solid fa-user-doctor transition" style="color: #859ac1;"></i> <span class="text-gray-700">Gestión Médicos</span>
                         </button>
-                        <button onclick="switchView('citas')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-blue-600 transition flex items-center gap-3 text-sm font-bold">
-                            <i class="fa-solid fa-calendar-check"></i> Citas
+                        <button onclick="switchView('citas')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Citas">
+                            <i class="fa-solid fa-calendar-check transition" style="color: #859ac1;"></i> <span class="text-gray-700">Citas</span>
                         </button>
                     </div>
                 </div>
@@ -1451,6 +1451,31 @@
     </div>
 
     <script>
+        // Cambiar color de iconos en sidebar al pasar el mouse
+        document.querySelectorAll('aside button').forEach(btn => {
+            const icon = btn.querySelector('i');
+            if (icon) {
+                btn.addEventListener('mouseenter', () => {
+                    icon.style.color = '#1465ff';
+                });
+                btn.addEventListener('mouseleave', () => {
+                    icon.style.color = '#859ac1';
+                });
+            }
+        });
+
+        // Cambiar color del icono cuando el botón está activo
+        function switchView(viewName) {
+            document.querySelectorAll('aside button').forEach(btn => {
+                btn.classList.remove('active');
+                const icon = btn.querySelector('i');
+                if (icon) icon.style.color = '#859ac1';
+            });
+            
+            event.target.closest('button').classList.add('active');
+            const activeIcon = event.target.closest('button').querySelector('i');
+            if (activeIcon) activeIcon.style.color = '#1465ff';
+        }
         // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyC1D-VFJhy2jWwx__Q67Dvdk0U6G5KUJZ4",
