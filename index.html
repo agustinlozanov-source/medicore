@@ -1735,19 +1735,28 @@
                     const edad = new Date().getFullYear() - fechaNac.getFullYear();
                     
                     return `
-                        <tr class="hover:bg-gray-50 transition">
+                        <tr class="hover:bg-gray-50 transition" data-patient-id="${doc.id}">
                             <td class="px-6 py-4 text-gray-900 font-bold">${p.nombre} ${p.apellido}</td>
                             <td class="px-6 py-4 text-gray-700 text-xs font-mono">${p.curp || '-'}</td>
                             <td class="px-6 py-4 text-gray-700">${edad} años</td>
                             <td class="px-6 py-4 text-gray-700">${p.email}</td>
                             <td class="px-6 py-4 text-center">
-                                <button onclick="viewPatientRecord('${doc.id}')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs font-bold transition">
+                                <button class="btn-ver-expediente bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs font-bold transition">
                                     Ver Expediente
                                 </button>
                             </td>
                         </tr>
                     `;
                 }).join('');
+                
+                // Agregar event listeners a los botones
+                document.querySelectorAll('.btn-ver-expediente').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const patientId = this.closest('tr').dataset.patientId;
+                        console.log('Abriendo expediente de paciente:', patientId);
+                        viewPatientRecord(patientId);
+                    });
+                });
                 
                 console.log(`✅ Pacientes cargados: ${snapshot.size}`);
                 loadPatientOptions();
