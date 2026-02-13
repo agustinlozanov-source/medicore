@@ -61,6 +61,56 @@
         </div>
     </div>
 
+    <!-- Signup Screen -->
+    <div id="signup-screen" class="hidden min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md border-t-4 border-green-600">
+            <div class="text-center mb-8">
+                <i class="fa-solid fa-user-plus text-green-600 text-5xl mb-4"></i>
+                <h1 class="text-3xl font-black text-gray-900">Crear Cuenta</h1>
+                <p class="text-sm text-gray-500 mt-2">MediCore - Sistema de Expediente Clínico</p>
+            </div>
+
+            <div class="space-y-4 mb-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                    <input type="email" id="signup-email" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none" placeholder="email@hospital.mx">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Contraseña</label>
+                    <input type="password" id="signup-password" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none" placeholder="••••••••">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Confirmar Contraseña</label>
+                    <input type="password" id="signup-password-confirm" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none" placeholder="••••••••">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Nombre</label>
+                    <input type="text" id="signup-name" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none" placeholder="Nombre">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Apellido</label>
+                    <input type="text" id="signup-lastname" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none" placeholder="Apellido">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Rol</label>
+                    <select id="signup-role" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none">
+                        <option value="paciente">Paciente</option>
+                        <option value="medico">Médico</option>
+                        <option value="admin">Personal Administrativo</option>
+                    </select>
+                </div>
+            </div>
+
+            <button id="signup-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition shadow-lg">
+                Crear Cuenta
+            </button>
+
+            <p class="text-center text-sm text-gray-600 mt-4">
+                ¿Ya tienes cuenta? <a href="#" id="show-login" class="text-green-600 hover:underline font-semibold">Inicia sesión</a>
+            </p>
+        </div>
+    </div>
+
     <!-- Dashboard Screen -->
     <div id="dashboard-screen" class="hidden min-h-screen">
         <!-- Navbar -->
@@ -1431,6 +1481,90 @@
         db = firebase.firestore();
 
         console.log('✅ Firebase inicializado');
+
+        // Alternar entre login y signup
+        document.getElementById('show-signup').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('signup-screen').classList.remove('hidden');
+        });
+
+        document.getElementById('show-login').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('signup-screen').classList.add('hidden');
+            document.getElementById('login-screen').classList.remove('hidden');
+        });
+
+        // Signup Handler
+        document.getElementById('signup-btn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const passwordConfirm = document.getElementById('signup-password-confirm').value;
+            const nombre = document.getElementById('signup-name').value;
+            const apellido = document.getElementById('signup-lastname').value;
+            const role = document.getElementById('signup-role').value;
+
+            if (!email || !password || !nombre || !apellido) {
+                alert('Por favor completa todos los campos');
+                return;
+            }
+
+            if (password !== passwordConfirm) {
+                alert('Las contraseñas no coinciden');
+                return;
+            }
+
+            const signupBtn = document.getElementById('signup-btn');
+            const originalText = signupBtn.innerHTML;
+            signupBtn.disabled = true;
+            signupBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Creando cuenta...';
+
+            try {
+                // Crear usuario en Firebase Auth
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const uid = userCredential.user.uid;
+
+                // Crear documento en Firestore
+                await db.collection('patients').doc(uid).set({
+                    email: email,
+                    nombre: nombre,
+                    apellido: apellido,
+                    role: role,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    genero: '',
+                    fechaNacimiento: '',
+                    curp: '',
+                    cedula: '',
+                    telefono: '',
+                    altura: null,
+                    peso: null,
+                    temperatura: null
+                });
+
+                alert('✅ Cuenta creada exitosamente. Ahora inicia sesión.');
+                // Limpiar formulario
+                document.getElementById('signup-email').value = '';
+                document.getElementById('signup-password').value = '';
+                document.getElementById('signup-password-confirm').value = '';
+                document.getElementById('signup-name').value = '';
+                document.getElementById('signup-lastname').value = '';
+                
+                // Volver al login
+                document.getElementById('signup-screen').classList.add('hidden');
+                document.getElementById('login-screen').classList.remove('hidden');
+            } catch (error) {
+                console.error('Error signup:', error);
+                let errorMsg = 'Error creando cuenta';
+                if (error.code === 'auth/email-already-in-use') errorMsg = 'El email ya está registrado';
+                else if (error.code === 'auth/weak-password') errorMsg = 'La contraseña es muy débil';
+                else if (error.code === 'auth/invalid-email') errorMsg = 'Email inválido';
+                alert(errorMsg);
+            } finally {
+                signupBtn.disabled = false;
+                signupBtn.innerHTML = originalText;
+            }
+        });
 
         // Crear usuario de prueba
         document.getElementById('create-test-user-btn').addEventListener('click', async (e) => {
