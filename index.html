@@ -814,47 +814,111 @@
                     </div>
                 </div>
 
-                <!-- Agenda Operativa (Médico) -->
+                <!-- Agenda Operativa Profesional (Médico) -->
                 <div id="agenda-operativa" class="view hidden">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-3xl font-black text-gray-900">Agenda Operativa</h2>
-                        <button onclick="abrirModalNuevaCita()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-lg transition flex items-center gap-2 shadow-lg">
-                            <i class="fa-solid fa-plus mr-2"></i> Nueva Cita
-                        </button>
-                    </div>
-
-                    <!-- Buscador de Pacientes -->
-                    <div class="mb-6">
-                        <div class="relative">
-                            <i class="fa-solid fa-magnifying-glass absolute left-4 top-4 text-gray-400"></i>
-                            <input type="text" id="buscar-pacientes-agenda" placeholder="Buscar paciente para agendar cita..." class="w-full border border-gray-300 rounded-lg px-4 py-3 pl-12 focus:ring-2 focus:ring-blue-500 outline-none font-bold shadow-sm" oninput="filtrarPacientesAgendaLista()">
+                    <!-- Header Profesional -->
+                    <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="flex items-center gap-4">
+                                <div class="relative">
+                                    <select id="medico-selector-agenda" class="appearance-none border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none font-bold pr-8 bg-white">
+                                        <option value="">Selecciona médico...</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="cambiarVistaAgenda('hoy')" class="px-4 py-2 rounded-lg font-bold transition" id="btn-hoy" style="background-color: #1465ff; color: white;">HOY</button>
+                                <button onclick="cambiarVistaAgenda('dia')" class="px-4 py-2 rounded-lg font-bold transition border border-gray-300" id="btn-dia">DÍA</button>
+                                <button onclick="cambiarVistaAgenda('semana')" class="px-4 py-2 rounded-lg font-bold transition border border-gray-300" id="btn-semana">SEMANA</button>
+                                <button onclick="cambiarVistaAgenda('mes')" class="px-4 py-2 rounded-lg font-bold transition border border-gray-300" id="btn-mes">MES</button>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="text-center">
+                                    <p class="text-sm text-gray-600 font-bold">Período</p>
+                                    <p class="text-lg font-black text-gray-900" id="rango-fechas">9 FEB 2026 - 15 FEB 2026</p>
+                                </div>
+                                <button onclick="navegarAgenda(-1)" class="p-2 hover:bg-gray-100 rounded-lg transition">
+                                    <i class="fa-solid fa-chevron-left text-lg text-gray-700"></i>
+                                </button>
+                                <button onclick="navegarAgenda(1)" class="p-2 hover:bg-gray-100 rounded-lg transition">
+                                    <i class="fa-solid fa-chevron-right text-lg text-gray-700"></i>
+                                </button>
+                                <button onclick="navegarAgenda(0)" class="p-2 hover:bg-gray-100 rounded-lg transition" title="Hoy">
+                                    <i class="fa-solid fa-calendar text-lg text-gray-700"></i>
+                                </button>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="abrirModalNuevaCita()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-lg transition flex items-center gap-2">
+                                    <i class="fa-solid fa-plus"></i> NUEVA CITA
+                                </button>
+                                <button onclick="abrirConfiguracionAgenda()" class="p-2 hover:bg-gray-100 rounded-lg transition border border-gray-300">
+                                    <i class="fa-solid fa-cog text-lg text-gray-700"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Tabla de Pacientes para Agendar -->
-                    <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
-                        <table class="w-full">
-                            <thead class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-                                <tr>
-                                    <th class="px-6 py-4 text-left text-sm font-black">Nombre</th>
-                                    <th class="px-6 py-4 text-left text-sm font-black">CURP</th>
-                                    <th class="px-6 py-4 text-left text-sm font-black">Email</th>
-                                    <th class="px-6 py-4 text-center text-sm font-black">Acción</th>
-                                </tr>
-                            </thead>
-                            <tbody id="agenda-pacientes-tbody" class="divide-y divide-gray-200">
-                                <tr>
-                                    <td colspan="4" class="px-6 py-4 text-center text-gray-500">Cargando pacientes...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    <!-- Grid principal: Calendario + Sidebar -->
+                    <div class="grid grid-cols-4 gap-6">
+                        <!-- Calendario Semanal (3 columnas) -->
+                        <div class="col-span-3">
+                            <!-- Vista Calendario -->
+                            <div id="agenda-calendario-container" class="bg-white rounded-xl shadow-lg overflow-hidden">
+                                <!-- Se rellena dinámicamente -->
+                            </div>
+                        </div>
 
-                    <!-- Calendario -->
-                    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-lg p-6 mb-6">
-                        <h3 class="text-2xl font-black mb-4">Calendario de Citas</h3>
-                        <div class="bg-white rounded-lg overflow-hidden">
-                            <div id="agenda-calendar" style="min-height: 600px;"></div>
+                        <!-- Sidebar Derecho (1 columna) -->
+                        <div class="space-y-6">
+                            <!-- Mini Calendario -->
+                            <div class="bg-white rounded-xl shadow-lg p-4">
+                                <div id="mini-calendario" class="space-y-4">
+                                    <!-- Se rellena dinámicamente -->
+                                </div>
+                            </div>
+
+                            <!-- Recordatorios Programados -->
+                            <div class="bg-white rounded-xl shadow-lg p-4">
+                                <h3 class="font-black text-gray-900 mb-4 flex items-center gap-2">
+                                    <i class="fa-solid fa-bell text-blue-600"></i> RECORDATORIOS PROGRAMADOS
+                                </h3>
+                                <div id="recordatorios-agenda" class="space-y-3 max-h-64 overflow-y-auto">
+                                    <p class="text-sm text-gray-500 italic">Sin recordatorios</p>
+                                </div>
+                            </div>
+
+                            <!-- Citas Pendientes -->
+                            <div class="bg-white rounded-xl shadow-lg p-4">
+                                <h3 class="font-black text-gray-900 mb-4 flex items-center gap-2">
+                                    <i class="fa-solid fa-hourglass-end text-orange-600"></i> CITAS PENDIENTES
+                                </h3>
+                                <div id="citas-pendientes-agenda" class="space-y-2 text-sm">
+                                    <p class="text-gray-500 italic">Sin citas pendientes</p>
+                                </div>
+                            </div>
+
+                            <!-- Enlaces Portales -->
+                            <div class="bg-white rounded-xl shadow-lg p-4">
+                                <h3 class="font-black text-gray-900 mb-4">Links de Portales</h3>
+                                <div class="space-y-2">
+                                    <button onclick="abrirLinkPortal('personal')" class="w-full text-left px-3 py-2 rounded-lg border border-blue-300 text-blue-600 hover:bg-blue-50 transition text-sm font-bold flex items-center gap-2">
+                                        <i class="fa-solid fa-check text-blue-600"></i> Portal personal
+                                    </button>
+                                </div>
+                                <button onclick="copiarLinkPortal()" class="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg transition text-sm">
+                                    <i class="fa-solid fa-copy mr-2"></i> Copiar
+                                </button>
+                            </div>
+
+                            <!-- Acciones Adicionales -->
+                            <div class="bg-white rounded-xl shadow-lg p-4">
+                                <button onclick="imprimirAgenda()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-2 rounded-lg transition text-sm flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-print"></i> Imprimir Agenda
+                                </button>
+                                <button onclick="exportarAgendaCSV()" class="w-full mt-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-2 rounded-lg transition text-sm flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-download"></i> Descargar
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -4525,8 +4589,281 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
             }
         }
 
-        // ==================== AGENDA OPERATIVA ====================
-        let agendaCalendar = null;
+        // ==================== AGENDA OPERATIVA PROFESIONAL ====================
+        
+        let agendaState = {
+            vistaActual: 'semana',
+            fechaActual: new Date(),
+            citas: [],
+            recordatorios: []
+        };
+
+        // Cambiar vista de agenda
+        function cambiarVistaAgenda(vista) {
+            agendaState.vistaActual = vista;
+            
+            // Actualizar botones activos
+            ['hoy', 'dia', 'semana', 'mes'].forEach(v => {
+                const btn = document.getElementById(`btn-${v}`);
+                if (btn) {
+                    if (v === vista) {
+                        btn.style.backgroundColor = '#1465ff';
+                        btn.style.color = 'white';
+                        btn.style.borderColor = '#1465ff';
+                    } else {
+                        btn.style.backgroundColor = 'white';
+                        btn.style.color = '#333';
+                        btn.style.borderColor = '#ddd';
+                    }
+                }
+            });
+            
+            renderizarAgenda();
+        }
+
+        // Navegar en agenda
+        function navegarAgenda(dias) {
+            if (dias === 0) {
+                agendaState.fechaActual = new Date();
+            } else {
+                agendaState.fechaActual.setDate(agendaState.fechaActual.getDate() + dias);
+            }
+            renderizarAgenda();
+        }
+
+        // Renderizar agenda según vista
+        function renderizarAgenda() {
+            const container = document.getElementById('agenda-calendario-container');
+            const vista = agendaState.vistaActual;
+            
+            if (vista === 'semana') {
+                renderizarAgendaSemanal(container);
+            } else if (vista === 'dia') {
+                renderizarAgendaDiaria(container);
+            } else if (vista === 'mes') {
+                renderizarAgendaMensual(container);
+            }
+            
+            actualizarRangoFechas();
+            renderizarMiniCalendario();
+            actualizarRecordatorios();
+        }
+
+        // Renderizar vista semanal
+        function renderizarAgendaSemanal(container) {
+            const fechaInicio = new Date(agendaState.fechaActual);
+            const dia = fechaInicio.getDay();
+            fechaInicio.setDate(fechaInicio.getDate() - (dia === 0 ? 6 : dia - 1));
+            
+            let html = '<div class="overflow-x-auto">';
+            html += '<table style="width: 100%; border-collapse: collapse;">';
+            
+            // Encabezado con horarios
+            html += '<thead>';
+            html += '<tr>';
+            html += '<td style="width: 80px; padding: 10px; border: 1px solid #e5e7eb; background: #f9fafb; font-weight: bold; text-align: center; font-size: 12px;">Hora</td>';
+            
+            // Días de la semana
+            const diasSemana = ['LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO', 'DOMINGO'];
+            for (let i = 0; i < 7; i++) {
+                const fecha = new Date(fechaInicio);
+                fecha.setDate(fecha.getDate() + i);
+                const dia = diasSemana[i];
+                const num = fecha.getDate();
+                const esHoy = fecha.toDateString() === new Date().toDateString();
+                
+                html += `<td style="width: 140px; padding: 10px; border: 1px solid #e5e7eb; background: ${esHoy ? '#dbeafe' : '#f9fafb'}; font-weight: bold; text-align: center; font-size: 13px;">
+                    ${dia} ${num}
+                </td>`;
+            }
+            html += '</tr>';
+            html += '</thead>';
+            
+            // Cuerpo de horarios
+            html += '<tbody>';
+            const horas = Array.from({length: 17}, (_, i) => 6 + i); // 6:00 AM a 10:00 PM
+            
+            horas.forEach(hora => {
+                html += '<tr style="height: 60px;">';
+                html += `<td style="padding: 5px; border: 1px solid #e5e7eb; text-align: center; font-weight: bold; font-size: 12px; background: #f9fafb;">${hora}:00</td>`;
+                
+                for (let i = 0; i < 7; i++) {
+                    html += `<td style="padding: 5px; border: 1px solid #e5e7eb; background: white; cursor: pointer; vertical-align: top;" onclick="abrirModalNuevaCita()">
+                        <div style="font-size: 11px; color: #666;">Disponible</div>
+                    </td>`;
+                }
+                html += '</tr>';
+            });
+            
+            html += '</tbody>';
+            html += '</table>';
+            html += '</div>';
+            
+            container.innerHTML = html;
+        }
+
+        // Renderizar vista diaria
+        function renderizarAgendaDiaria(container) {
+            const fecha = agendaState.fechaActual;
+            const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+            const mesNombre = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+            
+            let html = '<div style="padding: 20px;">';
+            html += `<h3 style="font-size: 24px; font-weight: bold; margin-bottom: 20px;">${diasSemana[fecha.getDay()]} ${fecha.getDate()} de ${mesNombre[fecha.getMonth()]}</h3>`;
+            html += '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px;">';
+            
+            const horas = Array.from({length: 17}, (_, i) => 6 + i);
+            horas.forEach(hora => {
+                html += `<div style="padding: 15px; border: 1px solid #e5e7eb; border-radius: 8px; background: white; cursor: pointer; hover:shadow: 0 2px 8px rgba(0,0,0,0.1);" onclick="abrirModalNuevaCita()">
+                    <div style="font-weight: bold; font-size: 16px;">${hora}:00 - ${hora + 1}:00</div>
+                    <div style="font-size: 13px; color: #666; margin-top: 5px;">Disponible</div>
+                </div>`;
+            });
+            
+            html += '</div>';
+            html += '</div>';
+            
+            container.innerHTML = html;
+        }
+
+        // Renderizar vista mensual
+        function renderizarAgendaMensual(container) {
+            const fecha = agendaState.fechaActual;
+            const mesNombre = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+            
+            let html = '<div style="padding: 20px;">';
+            html += `<h3 style="font-size: 24px; font-weight: bold; margin-bottom: 20px;">${mesNombre[fecha.getMonth()]} ${fecha.getFullYear()}</h3>`;
+            
+            // Mini calendario del mes
+            html += '<div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px;">';
+            
+            const diasSemana = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+            diasSemana.forEach(d => {
+                html += `<div style="text-align: center; font-weight: bold; padding: 10px; background: #f3f4f6;">${d}</div>`;
+            });
+            
+            const primerDia = new Date(fecha.getFullYear(), fecha.getMonth(), 1).getDay();
+            const diasMes = new Date(fecha.getFullYear(), fecha.getMonth() + 1, 0).getDate();
+            
+            // Días en blanco del mes anterior
+            for (let i = 0; i < primerDia; i++) {
+                html += '<div style="padding: 10px;"></div>';
+            }
+            
+            // Días del mes actual
+            for (let i = 1; i <= diasMes; i++) {
+                const esHoy = i === new Date().getDate() && fecha.getMonth() === new Date().getMonth();
+                html += `<div style="padding: 10px; text-align: center; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; background: ${esHoy ? '#dbeafe' : 'white'}; font-weight: ${esHoy ? 'bold' : 'normal'};" onclick="abrirModalNuevaCita()">${i}</div>`;
+            }
+            
+            html += '</div>';
+            html += '</div>';
+            
+            container.innerHTML = html;
+        }
+
+        // Renderizar mini calendario
+        function renderizarMiniCalendario() {
+            const container = document.getElementById('mini-calendario');
+            const fecha = new Date();
+            const mesNombre = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+            
+            let html = `<h4 style="font-weight: bold; text-align: center; margin-bottom: 10px;">${mesNombre[fecha.getMonth()]} ${fecha.getFullYear()}</h4>`;
+            
+            html += '<div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; font-size: 11px;">';
+            
+            const diasSemana = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
+            diasSemana.forEach(d => {
+                html += `<div style="font-weight: bold; padding: 5px;">${d}</div>`;
+            });
+            
+            const primerDia = new Date(fecha.getFullYear(), fecha.getMonth(), 1).getDay();
+            const diasMes = new Date(fecha.getFullYear(), fecha.getMonth() + 1, 0).getDate();
+            
+            for (let i = 0; i < primerDia; i++) {
+                html += '<div style="padding: 5px;"></div>';
+            }
+            
+            for (let i = 1; i <= diasMes; i++) {
+                const esHoy = i === fecha.getDate();
+                html += `<div style="padding: 5px; border-radius: 4px; background: ${esHoy ? '#1465ff' : '#f3f4f6'}; color: ${esHoy ? 'white' : 'black'}; font-weight: ${esHoy ? 'bold' : 'normal'}; cursor: pointer;" onclick="seleccionarDiaAgenda(${i})">${i}</div>`;
+            }
+            
+            html += '</div>';
+            
+            container.innerHTML = html;
+        }
+
+        // Actualizar rango de fechas
+        function actualizarRangoFechas() {
+            const elemento = document.getElementById('rango-fechas');
+            if (!elemento) return;
+            
+            const fecha = agendaState.fechaActual;
+            const meses = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
+            
+            if (agendaState.vistaActual === 'semana') {
+                const inicio = new Date(fecha);
+                const fin = new Date(fecha);
+                fin.setDate(fin.getDate() + 6);
+                elemento.textContent = `${inicio.getDate()} ${meses[inicio.getMonth()].toUpperCase()} ${inicio.getFullYear()} - ${fin.getDate()} ${meses[fin.getMonth()].toUpperCase()} ${fin.getFullYear()}`;
+            } else if (agendaState.vistaActual === 'dia') {
+                elemento.textContent = `${fecha.getDate()} ${meses[fecha.getMonth()].toUpperCase()} ${fecha.getFullYear()}`;
+            } else if (agendaState.vistaActual === 'mes') {
+                elemento.textContent = `${meses[fecha.getMonth()].toUpperCase()} ${fecha.getFullYear()}`;
+            }
+        }
+
+        // Actualizar recordatorios
+        function actualizarRecordatorios() {
+            const container = document.getElementById('recordatorios-agenda');
+            if (!container) return;
+            
+            // Recordatorios de ejemplo
+            const recordatorios = [
+                { fecha: '20 FEB', paciente: 'Agustín Lozano', tipo: 'Recordar Cita' }
+            ];
+            
+            if (recordatorios.length === 0) {
+                container.innerHTML = '<p class="text-sm text-gray-500 italic">Sin recordatorios</p>';
+            } else {
+                container.innerHTML = recordatorios.map(r => `
+                    <div class="border-l-4 border-blue-500 bg-blue-50 p-3 rounded">
+                        <div class="font-bold text-sm text-gray-900">${r.fecha}</div>
+                        <div class="text-xs text-gray-600">${r.paciente}</div>
+                        <div class="text-xs text-blue-600 font-semibold">${r.tipo}</div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Funciones auxiliares
+        function seleccionarDiaAgenda(dia) {
+            agendaState.fechaActual.setDate(dia);
+            renderizarAgenda();
+        }
+
+        function abrirConfiguracionAgenda() {
+            alert('⚙️ Configuración de Agenda - Próximamente');
+        }
+
+        function abrirLinkPortal(tipo) {
+            alert('🔗 Abriendo portal...');
+        }
+
+        function copiarLinkPortal() {
+            const enlace = 'https://app.nimbo-x.com/c/atencion';
+            navigator.clipboard.writeText(enlace);
+            alert('✅ Enlace copiado al portapapeles');
+        }
+
+        function imprimirAgenda() {
+            window.print();
+        }
+
+        function exportarAgendaCSV() {
+            alert('📥 Descargar agenda en desarrollo');
+        }
 
         // Abrir modal Nueva Cita
         function abrirModalNuevaCita(pacienteId = null) {
@@ -5207,8 +5544,8 @@ Notas: ${props.notas || 'Sin notas'}
                 cargarProductos(); // Cargar servicios para el buscador de cargos
             } else if (view === 'agenda-operativa') {
                 setTimeout(() => {
+                    renderizarAgenda();
                     cargarPacientesAgendaLista();
-                    inicializarAgenda();
                 }, 100);
             } else if (view === 'mi-cuenta') {
                 cargarPerfil();
