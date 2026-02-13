@@ -3977,24 +3977,48 @@ Notas: ${props.notas || 'Sin notas'}
                 }
                 
                 try {
-                    // Get Firebase Storage reference
-                    const storage = firebase.storage();
                     const userId = auth.currentUser.uid;
-                    const storageRef = storage.ref(`users/${userId}/photo`);
+                    const fileName = `users/${userId}/photo_${Date.now()}`;
                     
-                    // Upload file
-                    const snapshot = await storageRef.put(file);
-                    const downloadURL = await snapshot.ref.getDownloadURL();
-                    
-                    // Update Firestore
-                    await db.collection('doctores').doc(userId).set({
-                        fotoUrl: downloadURL
-                    }, { merge: true });
-                    
-                    // Update preview
-                    document.getElementById('med-foto-preview').src = downloadURL;
-                    
-                    console.log('✅ Foto de médico actualizada');
+                    // Create a blob from file
+                    const reader = new FileReader();
+                    reader.onload = async (event) => {
+                        try {
+                            const blob = new Blob([event.target.result], { type: file.type });
+                            
+                            // Use Firebase REST API directly
+                            const uploadUrl = `https://firebasestorage.googleapis.com/upload/storage/v1/b/medicore-879e2.firebasestorage.app/o?uploadType=media&name=${encodeURIComponent(fileName)}`;
+                            
+                            const response = await fetch(uploadUrl, {
+                                method: 'POST',
+                                body: blob,
+                                headers: {
+                                    'Content-Type': file.type
+                                }
+                            });
+                            
+                            if (!response.ok) {
+                                throw new Error('Upload failed');
+                            }
+                            
+                            const downloadURL = `https://firebasestorage.googleapis.com/v0/b/medicore-879e2.firebasestorage.app/o/${encodeURIComponent(fileName)}?alt=media`;
+                            
+                            // Update Firestore
+                            await db.collection('doctors').doc(userId).set({
+                                fotoUrl: downloadURL
+                            }, { merge: true });
+                            
+                            // Update preview
+                            document.getElementById('med-foto-preview').src = downloadURL;
+                            alert('✅ Foto actualizada correctamente');
+                            
+                            console.log('✅ Foto de médico actualizada');
+                        } catch (error) {
+                            console.error('Error uploading doctor photo:', error);
+                            alert('❌ Error al cargar la foto: ' + error.message);
+                        }
+                    };
+                    reader.readAsArrayBuffer(file);
                 } catch (error) {
                     console.error('Error uploading doctor photo:', error);
                     alert('❌ Error al cargar la foto: ' + error.message);
@@ -4015,24 +4039,48 @@ Notas: ${props.notas || 'Sin notas'}
                 }
                 
                 try {
-                    // Get Firebase Storage reference
-                    const storage = firebase.storage();
                     const userId = auth.currentUser.uid;
-                    const storageRef = storage.ref(`users/${userId}/photo`);
+                    const fileName = `users/${userId}/photo_${Date.now()}`;
                     
-                    // Upload file
-                    const snapshot = await storageRef.put(file);
-                    const downloadURL = await snapshot.ref.getDownloadURL();
-                    
-                    // Update Firestore
-                    await db.collection('pacientes').doc(userId).set({
-                        fotoUrl: downloadURL
-                    }, { merge: true });
-                    
-                    // Update preview
-                    document.getElementById('exp-foto-preview').src = downloadURL;
-                    
-                    console.log('✅ Foto de paciente actualizada');
+                    // Create a blob from file
+                    const reader = new FileReader();
+                    reader.onload = async (event) => {
+                        try {
+                            const blob = new Blob([event.target.result], { type: file.type });
+                            
+                            // Use Firebase REST API directly
+                            const uploadUrl = `https://firebasestorage.googleapis.com/upload/storage/v1/b/medicore-879e2.firebasestorage.app/o?uploadType=media&name=${encodeURIComponent(fileName)}`;
+                            
+                            const response = await fetch(uploadUrl, {
+                                method: 'POST',
+                                body: blob,
+                                headers: {
+                                    'Content-Type': file.type
+                                }
+                            });
+                            
+                            if (!response.ok) {
+                                throw new Error('Upload failed');
+                            }
+                            
+                            const downloadURL = `https://firebasestorage.googleapis.com/v0/b/medicore-879e2.firebasestorage.app/o/${encodeURIComponent(fileName)}?alt=media`;
+                            
+                            // Update Firestore
+                            await db.collection('patients').doc(userId).set({
+                                fotoUrl: downloadURL
+                            }, { merge: true });
+                            
+                            // Update preview
+                            document.getElementById('exp-foto-preview').src = downloadURL;
+                            alert('✅ Foto actualizada correctamente');
+                            
+                            console.log('✅ Foto de paciente actualizada');
+                        } catch (error) {
+                            console.error('Error uploading patient photo:', error);
+                            alert('❌ Error al cargar la foto: ' + error.message);
+                        }
+                    };
+                    reader.readAsArrayBuffer(file);
                 } catch (error) {
                     console.error('Error uploading patient photo:', error);
                     alert('❌ Error al cargar la foto: ' + error.message);
