@@ -133,11 +133,10 @@
         <!-- Sidebar + Content -->
         <div class="flex">
             <!-- Sidebar -->
-            <aside class="w-64 bg-white border-r border-gray-200 p-6 min-h-screen">
+            <aside class="w-64 bg-white border-r border-gray-200 p-6 min-h-screen" style="font-family: 'Helvetica', sans-serif;">
                 <div class="space-y-6">
                     <!-- Médico Menu -->
                     <div id="medico-menu" class="hidden space-y-3">
-                        <h3 class="text-xs font-black uppercase text-gray-400 tracking-widest">Médico</h3>
                         <button onclick="switchView('mis-pacientes')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 group hover:bg-blue-50" title="Mis Pacientes">
                             <i class="fa-solid fa-users transition" style="color: #859ac1; group-hover:color: #1465ff;"></i> <span class="text-gray-700">Mis Pacientes</span>
                         </button>
@@ -163,7 +162,6 @@
 
                     <!-- Paciente Menu -->
                     <div id="paciente-menu" class="hidden space-y-3">
-                        <h3 class="text-xs font-black uppercase text-gray-400 tracking-widest">Paciente</h3>
                         <button onclick="switchView('mi-expediente')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Mi Expediente">
                             <i class="fa-solid fa-file-medical transition" style="color: #859ac1;"></i> <span class="text-gray-700">Mi Expediente</span>
                         </button>
@@ -177,7 +175,6 @@
 
                     <!-- Admin Menu -->
                     <div id="admin-menu" class="hidden space-y-3">
-                        <h3 class="text-xs font-black uppercase text-gray-400 tracking-widest">Administración</h3>
                         <button onclick="switchView('pacientes')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Gestión Pacientes">
                             <i class="fa-solid fa-person transition" style="color: #859ac1;"></i> <span class="text-gray-700">Gestión Pacientes</span>
                         </button>
