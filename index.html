@@ -3113,13 +3113,29 @@ Instrucciones: ${document.getElementById('instrucciones').value || 'Ninguna'}
                 btn.disabled = true;
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Guardando...';
                 
-                await db.collection('patients').doc(currentUser.uid).update({
+                // Determinar qué ID usar: si es médico, usar el paciente; si es paciente, usar su propio ID
+                const patientIdToUpdate = currentRole === 'medico' ? currentPatientId : currentUser.uid;
+                
+                if (!patientIdToUpdate) {
+                    alert('⚠️ Error: No se identificó el paciente');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-save mr-2"></i>Guardar Cambios';
+                    return;
+                }
+                
+                await db.collection('patients').doc(patientIdToUpdate).update({
                     antecedentes: antecedentesTemp
                 });
                 
                 alert('✅ Antecedentes guardados correctamente');
                 cerrarModalAntecedentes();
-                loadPatientRecord();
+                
+                // Recargar el mismo paciente que se estaba viendo
+                if (currentRole === 'medico' && currentPatientId) {
+                    loadPatientRecordById(currentPatientId);
+                } else {
+                    loadPatientRecord();
+                }
             } catch (error) {
                 console.error('Error guardando antecedentes:', error);
                 alert('Error al guardar antecedentes');
