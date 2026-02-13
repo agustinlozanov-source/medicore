@@ -2087,9 +2087,15 @@
         
         // Guardar signos vitales
         const vitalesForm = document.getElementById('vitales-form');
+        console.log('Formulario de vitales encontrado:', !!vitalesForm);
+        
         if (vitalesForm) {
             vitalesForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                console.log('Guardando signos vitales...');
+                console.log('Rol actual:', currentRole);
+                console.log('ID paciente actual:', currentPatientId);
+                console.log('ID usuario:', currentUser?.uid);
                 
                 try {
                     const altura = document.getElementById('altura').value;
@@ -2097,6 +2103,8 @@
                     const temperatura = document.getElementById('temperatura').value;
                     const presionSistolica = document.getElementById('presion-sistolica').value;
                     const presionDiastolica = document.getElementById('presion-diastolica').value;
+                    
+                    console.log('Valores leídos:', { altura, peso, temperatura, presionSistolica, presionDiastolica });
                     
                     // Validar que los campos requeridos estén completos
                     if (!altura || !peso || !temperatura) {
@@ -2106,6 +2114,8 @@
                     
                     // Determinar qué ID usar: si es médico, usar el paciente; si es paciente, usar su propio ID
                     const patientIdToUpdate = currentRole === 'medico' ? currentPatientId : currentUser.uid;
+                    
+                    console.log('ID a actualizar:', patientIdToUpdate);
                     
                     if (!patientIdToUpdate) {
                         alert('⚠️ Error: No se identificó el paciente');
@@ -2122,6 +2132,7 @@
                         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     }, { merge: true });
                     
+                    console.log('✅ Signos vitales guardados en Firestore');
                     alert('✅ Signos vitales guardados correctamente');
                     vitalesForm.reset();
                     
@@ -2138,6 +2149,7 @@
                 } catch (error) {
                     console.error('Error guardando signos vitales:', error);
                     alert('❌ Error al guardar signos vitales: ' + (error.message || 'Intenta de nuevo'));
+
                 }
             });
         }
