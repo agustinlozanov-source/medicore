@@ -5144,7 +5144,8 @@ Notas: ${props.notas || 'Sin notas'}
                 }
                 
                 try {
-                    const userId = auth.currentUser.uid;
+                    // Use currentPatientId if available (doctor viewing patient), else use current user
+                    const patientId = currentRole === 'medico' && currentPatientId ? currentPatientId : auth.currentUser.uid;
                     
                     // Read file as base64
                     const reader = new FileReader();
@@ -5153,7 +5154,7 @@ Notas: ${props.notas || 'Sin notas'}
                             const base64Data = event.target.result;
                             
                             // Update Firestore with base64 image
-                            await db.collection('patients').doc(userId).set({
+                            await db.collection('patients').doc(patientId).set({
                                 fotoUrl: base64Data,
                                 fotoUpdatedAt: new Date()
                             }, { merge: true });
