@@ -139,8 +139,8 @@
                 <div class="space-y-6">
                     <!-- Médico Menu -->
                     <div id="medico-menu" class="hidden space-y-3">
-                        <button onclick="switchView('mis-pacientes')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 group hover:bg-blue-50" title="Pacientes">
-                            <i class="fa-solid fa-users transition" style="color: #859ac1; group-hover:color: #1465ff;"></i> <span class="text-gray-700">Pacientes</span>
+                        <button onclick="switchView('mis-pacientes')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 group hover:bg-blue-50" title="Pacientes" onmouseover="this.querySelector('i').style.color='#1465ff'" onmouseout="this.querySelector('i').style.color='#859ac1'">
+                            <i class="fa-solid fa-users transition" style="color: #859ac1;"></i> <span class="text-gray-700">Pacientes</span>
                         </button>
                         <button onclick="switchView('nueva-consulta')" class="w-full text-left px-4 py-3 rounded-lg transition flex items-center gap-3 text-sm font-bold text-gray-700 hover:bg-blue-50" title="Consultas">
                             <i class="fa-solid fa-stethoscope transition" style="color: #859ac1;"></i> <span class="text-gray-700">Consultas</span>
@@ -4962,12 +4962,6 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
                         email: doc.data().email || ''
                     });
                 });
-            } catch (error) {
-                console.error('Error cargando pacientes para agenda:', error);
-            }
-        }
-                pacientesAgendaGlobal = pacientes;
-                mostrarPacientesAgendaLista(pacientes);
             } catch (error) {
                 console.error('Error cargando pacientes para agenda:', error);
             }
