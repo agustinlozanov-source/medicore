@@ -3978,47 +3978,30 @@ Notas: ${props.notas || 'Sin notas'}
                 
                 try {
                     const userId = auth.currentUser.uid;
-                    const fileName = `users/${userId}/photo_${Date.now()}`;
                     
-                    // Create a blob from file
+                    // Read file as base64
                     const reader = new FileReader();
                     reader.onload = async (event) => {
                         try {
-                            const blob = new Blob([event.target.result], { type: file.type });
+                            const base64Data = event.target.result;
                             
-                            // Use Firebase REST API directly
-                            const uploadUrl = `https://firebasestorage.googleapis.com/upload/storage/v1/b/medicore-879e2.firebasestorage.app/o?uploadType=media&name=${encodeURIComponent(fileName)}`;
-                            
-                            const response = await fetch(uploadUrl, {
-                                method: 'POST',
-                                body: blob,
-                                headers: {
-                                    'Content-Type': file.type
-                                }
-                            });
-                            
-                            if (!response.ok) {
-                                throw new Error('Upload failed');
-                            }
-                            
-                            const downloadURL = `https://firebasestorage.googleapis.com/v0/b/medicore-879e2.firebasestorage.app/o/${encodeURIComponent(fileName)}?alt=media`;
-                            
-                            // Update Firestore
+                            // Update Firestore with base64 image
                             await db.collection('doctors').doc(userId).set({
-                                fotoUrl: downloadURL
+                                fotoUrl: base64Data,
+                                fotoUpdatedAt: new Date()
                             }, { merge: true });
                             
                             // Update preview
-                            document.getElementById('med-foto-preview').src = downloadURL;
+                            document.getElementById('med-foto-preview').src = base64Data;
                             alert('✅ Foto actualizada correctamente');
                             
                             console.log('✅ Foto de médico actualizada');
                         } catch (error) {
-                            console.error('Error uploading doctor photo:', error);
+                            console.error('Error updating doctor photo:', error);
                             alert('❌ Error al cargar la foto: ' + error.message);
                         }
                     };
-                    reader.readAsArrayBuffer(file);
+                    reader.readAsDataURL(file);
                 } catch (error) {
                     console.error('Error uploading doctor photo:', error);
                     alert('❌ Error al cargar la foto: ' + error.message);
@@ -4040,47 +4023,30 @@ Notas: ${props.notas || 'Sin notas'}
                 
                 try {
                     const userId = auth.currentUser.uid;
-                    const fileName = `users/${userId}/photo_${Date.now()}`;
                     
-                    // Create a blob from file
+                    // Read file as base64
                     const reader = new FileReader();
                     reader.onload = async (event) => {
                         try {
-                            const blob = new Blob([event.target.result], { type: file.type });
+                            const base64Data = event.target.result;
                             
-                            // Use Firebase REST API directly
-                            const uploadUrl = `https://firebasestorage.googleapis.com/upload/storage/v1/b/medicore-879e2.firebasestorage.app/o?uploadType=media&name=${encodeURIComponent(fileName)}`;
-                            
-                            const response = await fetch(uploadUrl, {
-                                method: 'POST',
-                                body: blob,
-                                headers: {
-                                    'Content-Type': file.type
-                                }
-                            });
-                            
-                            if (!response.ok) {
-                                throw new Error('Upload failed');
-                            }
-                            
-                            const downloadURL = `https://firebasestorage.googleapis.com/v0/b/medicore-879e2.firebasestorage.app/o/${encodeURIComponent(fileName)}?alt=media`;
-                            
-                            // Update Firestore
+                            // Update Firestore with base64 image
                             await db.collection('patients').doc(userId).set({
-                                fotoUrl: downloadURL
+                                fotoUrl: base64Data,
+                                fotoUpdatedAt: new Date()
                             }, { merge: true });
                             
                             // Update preview
-                            document.getElementById('exp-foto-preview').src = downloadURL;
+                            document.getElementById('exp-foto-preview').src = base64Data;
                             alert('✅ Foto actualizada correctamente');
                             
                             console.log('✅ Foto de paciente actualizada');
                         } catch (error) {
-                            console.error('Error uploading patient photo:', error);
+                            console.error('Error updating patient photo:', error);
                             alert('❌ Error al cargar la foto: ' + error.message);
                         }
                     };
-                    reader.readAsArrayBuffer(file);
+                    reader.readAsDataURL(file);
                 } catch (error) {
                     console.error('Error uploading patient photo:', error);
                     alert('❌ Error al cargar la foto: ' + error.message);
