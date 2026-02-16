@@ -5221,25 +5221,30 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
             // Cuerpo con slots de 15 minutos (4 por hora)
             html += '<tbody>';
             
-            // Generar cada hora y sus 4 slots de 15 minutos
-            for (let horaActual = Math.floor(minutosInicio / 60); horaActual < Math.ceil(minutosFin / 60); horaActual++) {
+            // Bloquear horas cerradas ANTES de inicio
+            const [inicioH, inicioM] = horarioInicio.split(':').map(Number);
+            const [finalH, finalM] = horarioFin.split(':').map(Number);
+            const minutosFinal = finalH * 60 + finalM;
+            
+            // Generar TODAS las horas del día (0-23)
+            for (let horaActual = 0; horaActual < 24; horaActual++) {
                 for (let slot = 0; slot < 4; slot++) {
                     const minutoSlot = (slot * 15);
                     const minutosTotal = horaActual * 60 + minutoSlot;
-                    
-                    // Si está fuera de horario laboral, saltar
-                    if (minutosTotal < minutosInicio || minutosTotal >= minutosFin) continue;
                     
                     const horas = Math.floor(minutosTotal / 60);
                     const mins = minutosTotal % 60;
                     const horaStr = `${String(horas).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
                     
                     const mostrarHora = slot === 0;
+                    const esFueraDeHorario = minutosTotal < minutosInicio || minutosTotal >= minutosFinal;
                     
                     html += '<tr style="height: 28px; border-bottom: 1px solid #e5e7eb;">';
                     
                     if (mostrarHora) {
-                        html += `<td style="padding: 2px 4px; text-align: center; font-weight: bold; font-size: 9px; background: #f9fafb; border-right: 1px solid #e5e7eb; vertical-align: center; position: sticky; left: 0; z-index: 10; color: #374151;" rowspan="4">${String(horas).padStart(2, '0')}:00</td>`;
+                        const bgHora = esFueraDeHorario ? '#d1d5db' : '#f9fafb';
+                        const colorHora = esFueraDeHorario ? '#666' : '#374151';
+                        html += `<td style="padding: 2px 4px; text-align: center; font-weight: bold; font-size: 9px; background: ${bgHora}; border-right: 1px solid #e5e7eb; vertical-align: center; position: sticky; left: 0; z-index: 10; color: ${colorHora};" rowspan="4">${String(horas).padStart(2, '0')}:00</td>`;
                     }
                     
                     for (let i = 0; i < 7; i++) {
@@ -5251,13 +5256,17 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
                         const cita = citasMap.get(key);
                         
                         // Determinar color de fondo
-                        let bgColor = esLaborable ? 'white' : '#d1d5db'; // Gris para no laborable
-                        let borderColor = '#e5e7eb';
-                        let contenido = '';
-                        let cursor = esLaborable ? 'pointer' : 'not-allowed';
-                        let onclick = esLaborable ? `onclick="abrirModalNuevaCitaConHora('${fechaStr}', '${horaStr}')"` : '';
+                        let bgColor, borderColor, contenido, cursor, onclick;
                         
-                        if (cita) {
+                        if (esFueraDeHorario) {
+                            // Fuera de horario laboral
+                            bgColor = '#d1d5db';
+                            borderColor = '#c4b5fd';
+                            contenido = '';
+                            cursor = 'not-allowed';
+                            onclick = '';
+                        } else if (cita) {
+                            // Cita existente
                             const colorMap = {
                                 'consulta-general': '#dbeafe',
                                 'seguimiento': '#dcfce7',
@@ -5267,11 +5276,17 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
                             };
                             bgColor = colorMap[cita.tipo] || colorMap.default;
                             borderColor = '#3b82f6';
-                            
                             const nombrePaciente = pacientesCache[cita.pacienteId] || 'Paciente';
                             contenido = `<span style="font-size: 7px; font-weight: bold; color: #1e40af;">${nombrePaciente}</span><br><span style="font-size: 6px; color: #666;">${cita.tipo.replace('-', ' ')}</span>`;
-                            onclick = '';
                             cursor = 'default';
+                            onclick = '';
+                        } else {
+                            // Disponible
+                            bgColor = esLaborable ? 'white' : '#f3f4f6';
+                            borderColor = '#e5e7eb';
+                            contenido = '';
+                            cursor = esLaborable ? 'pointer' : 'not-allowed';
+                            onclick = esLaborable ? `onclick="abrirModalNuevaCitaConHora('${fechaStr}', '${horaStr}')"` : '';
                         }
                         
                         html += `<td style="padding: 2px; border: 1px solid ${borderColor}; background: ${bgColor}; cursor: ${cursor}; vertical-align: center; text-align: center; font-size: 8px; transition: background-color 0.2s;" ${onclick}>
@@ -5279,28 +5294,6 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
                         </td>`;
                     }
                     html += '</tr>';
-                }
-            }
-            
-            // Bloquear horas cerradas (antes de inicio)
-            const [inicioH, inicioM] = horarioInicio.split(':').map(Number);
-            if (inicioH > 0) {
-                for (let h = 0; h < inicioH; h++) {
-                    for (let slot = 0; slot < 4; slot++) {
-                        const mins = (slot * 15);
-                        const mostrarHora = slot === 0;
-                        
-                        html = '<tr style="height: 28px; border-bottom: 1px solid #e5e7eb;">' + html;
-                        
-                        if (mostrarHora) {
-                            html = `<td style="padding: 2px 4px; text-align: center; font-weight: bold; font-size: 9px; background: #d1d5db; border-right: 1px solid #e5e7eb; vertical-align: center; position: sticky; left: 0; z-index: 10; color: #666;" rowspan="4">${String(h).padStart(2, '0')}:00</td>` + html;
-                        }
-                        
-                        for (let i = 0; i < 7; i++) {
-                            html += `<td style="padding: 2px; border: 1px solid #c4b5fd; background: #d1d5db; cursor: not-allowed;"></td>`;
-                        }
-                        html += '</tr>';
-                    }
                 }
             }
             
