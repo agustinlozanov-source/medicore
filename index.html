@@ -1538,16 +1538,12 @@
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Paciente *</label>
                                 <div class="relative">
-                                    <input type="text" id="cita-buscar-paciente" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" placeholder="Escribe nombre, apellido, email o CURP..." oninput="buscarPacienteCita()">
+                                    <input type="text" id="cita-paciente" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" placeholder="Escribe nombre, apellido o cédula..." oninput="buscarPacienteCita()">
                                     <div id="resultados-pacientes-cita" class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-64 overflow-y-auto hidden z-50">
                                         <!-- Resultados dinámicos -->
                                     </div>
                                 </div>
-                                <div id="paciente-cita-info" class="mt-3 text-sm text-gray-600 hidden">
-                                    <span class="font-bold">Paciente seleccionado:</span>
-                                    <span id="paciente-cita-texto" class="text-blue-600"></span>
-                                </div>
-                                <input type="hidden" id="cita-paciente" value="">
+                                <input type="hidden" id="paciente-cita-id" value="">
                             </div>
 
                             <!-- Fecha y Hora -->
@@ -5027,7 +5023,7 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
             actualizarRecordatorios();
         }
 
-        // Renderizar vista semanal (NUEVA: Con slots de 15 minutos)
+        // Renderizar vista semanal (NUEVA: Con slots de 15 minutos - 4 por hora)
         async function renderizarAgendaSemanal(container) {
             const fechaInicio = new Date(agendaState.fechaActual);
             const dia = fechaInicio.getDay();
@@ -5051,6 +5047,8 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
             
             // Obtener citas de la semana - Simplificar consulta para evitar índice compuesto
             let citasMap = new Map();
+            let pacientesCache = {}; // Cache para nombres de pacientes
+            
             try {
                 const citasSnapshot = await db.collection('appointments')
                     .where('doctorId', '==', currentUser.uid)
@@ -5069,6 +5067,21 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
                         citasMap.set(key, {id: doc.id, ...cita});
                     }
                 });
+                
+                // Pre-cargar datos de pacientes para evitar llamadas asincrónicas dentro del render
+                const pacientesIds = Array.from(citasMap.values()).map(c => c.pacienteId);
+                const uniquePacientesIds = [...new Set(pacientesIds)];
+                
+                for (const pacienteId of uniquePacientesIds) {
+                    try {
+                        const pacDoc = await db.collection('patients').doc(pacienteId).get();
+                        if (pacDoc.exists) {
+                            pacientesCache[pacienteId] = pacDoc.data().nombre || 'Paciente';
+                        }
+                    } catch (e) {
+                        pacientesCache[pacienteId] = 'Paciente';
+                    }
+                }
             } catch (error) {
                 console.error('Error cargando citas:', error);
             }
@@ -5084,8 +5097,8 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
             
             // Encabezado con días
             html += '<thead>';
-            html += '<tr>';
-            html += '<td style="width: 60px; padding: 10px; border: 1px solid #e5e7eb; background: #f9fafb; font-weight: bold; text-align: center; font-size: 11px;">Hora</td>';
+            html += '<tr style="border-bottom: 2px solid #1465ff;">';
+            html += '<td style="width: 60px; padding: 12px; background: #f9fafb; font-weight: bold; text-align: center; font-size: 11px;">HORA</td>';
             
             const diasSemana = ['LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO', 'DOMINGO'];
             const diasSemanaLowercase = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
@@ -5097,58 +5110,76 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
                 const esHoy = fecha.toDateString() === new Date().toDateString();
                 const esLaborable = diasLaborales.includes(diasSemanaLowercase[i]);
                 
-                html += `<td style="width: 140px; padding: 10px; border: 1px solid #e5e7eb; background: ${esHoy ? '#dbeafe' : (esLaborable ? '#f9fafb' : '#f3f4f6')}; font-weight: bold; text-align: center; font-size: 12px;">
+                html += `<td style="width: 140px; padding: 12px; background: ${esHoy ? '#dbeafe' : (esLaborable ? '#f9fafb' : '#f3f4f6')}; font-weight: bold; text-align: center; font-size: 12px; border-right: 1px solid #e5e7eb;">
                     ${diasSemana[i]}<br><span style="font-size: 11px; color: #666;">${num}</span>
                 </td>`;
             }
             html += '</tr>';
             html += '</thead>';
             
-            // Cuerpo con slots de 15 minutos
+            // Cuerpo con slots de 15 minutos (4 por hora)
             html += '<tbody>';
             
-            for (let minuto = minutosInicio; minuto < minutosFin; minuto += 15) {
-                const horas = Math.floor(minuto / 60);
-                const mins = minuto % 60;
-                const horaStr = `${String(horas).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
-                
-                html += '<tr style="height: 40px;">';
-                html += `<td style="padding: 2px; border: 1px solid #e5e7eb; text-align: center; font-weight: bold; font-size: 10px; background: #f9fafb;">${horaStr}</td>`;
-                
-                for (let i = 0; i < 7; i++) {
-                    const fecha = new Date(fechaInicio);
-                    fecha.setDate(fecha.getDate() + i);
-                    const fechaStr = fecha.toISOString().split('T')[0];
-                    const esLaborable = diasLaborales.includes(diasSemanaLowercase[i]);
-                    const key = fechaStr + '_' + horaStr;
-                    const cita = citasMap.get(key);
+            // Generar cada hora y sus 4 slots de 15 minutos
+            for (let horaActual = Math.floor(minutosInicio / 60); horaActual < Math.ceil(minutosFin / 60); horaActual++) {
+                for (let slot = 0; slot < 4; slot++) {
+                    const minutoSlot = (slot * 15);
+                    const minutosTotal = horaActual * 60 + minutoSlot;
                     
-                    let bgColor = esLaborable ? 'white' : '#e5e7eb';
-                    let borderColor = '#e5e7eb';
-                    let contenido = '<span style="font-size: 9px; color: #999;">-</span>';
-                    let cursor = esLaborable ? 'pointer' : 'not-allowed';
-                    let onclick = esLaborable ? `onclick="abrirModalNuevaCita()"` : '';
+                    // Si está fuera de horario, saltar
+                    if (minutosTotal < minutosInicio || minutosTotal >= minutosFin) continue;
                     
-                    if (cita) {
-                        const colorMap = {
-                            'consulta-general': '#dbeafe',
-                            'seguimiento': '#dcfce7',
-                            'urgencia': '#fee2e2',
-                            'procedimiento': '#fef3c7',
-                            'default': '#f0f9ff'
-                        };
-                        bgColor = colorMap[cita.tipo] || colorMap.default;
-                        borderColor = '#3b82f6';
-                        contenido = `<span style="font-size: 8px; font-weight: bold; color: #1e40af;">${cita.tipo.replace('-', ' ').toUpperCase()}</span>`;
-                        onclick = '';
-                        cursor = 'default';
+                    const horas = Math.floor(minutosTotal / 60);
+                    const mins = minutosTotal % 60;
+                    const horaStr = `${String(horas).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+                    
+                    // Mostrar la hora solo en el primer slot de cada hora
+                    const mostrarHora = slot === 0;
+                    
+                    html += '<tr style="height: 35px; border-bottom: 1px solid #e5e7eb;">';
+                    
+                    if (mostrarHora) {
+                        html += `<td style="padding: 5px; text-align: center; font-weight: bold; font-size: 11px; background: #f9fafb; border-right: 1px solid #e5e7eb; vertical-align: top;" rowspan="4">${String(horas).padStart(2, '0')}:00</td>`;
                     }
                     
-                    html += `<td style="padding: 2px; border: 1px solid ${borderColor}; background: ${bgColor}; cursor: ${cursor}; vertical-align: center; text-align: center;" ${onclick}>
-                        ${contenido}
-                    </td>`;
+                    for (let i = 0; i < 7; i++) {
+                        const fecha = new Date(fechaInicio);
+                        fecha.setDate(fecha.getDate() + i);
+                        const fechaStr = fecha.toISOString().split('T')[0];
+                        const esLaborable = diasLaborales.includes(diasSemanaLowercase[i]);
+                        const key = fechaStr + '_' + horaStr;
+                        const cita = citasMap.get(key);
+                        
+                        let bgColor = esLaborable ? 'white' : '#e5e7eb';
+                        let borderColor = '#e5e7eb';
+                        let contenido = '';
+                        let cursor = esLaborable ? 'pointer' : 'not-allowed';
+                        let onclick = esLaborable ? `onclick="abrirModalNuevaCitaConHora('${fechaStr}', '${horaStr}')"` : '';
+                        
+                        if (cita) {
+                            const colorMap = {
+                                'consulta-general': '#dbeafe',
+                                'seguimiento': '#dcfce7',
+                                'urgencia': '#fee2e2',
+                                'procedimiento': '#fef3c7',
+                                'default': '#f0f9ff'
+                            };
+                            bgColor = colorMap[cita.tipo] || colorMap.default;
+                            borderColor = '#3b82f6';
+                            
+                            // Usar nombre cacheado del paciente
+                            const nombrePaciente = pacientesCache[cita.pacienteId] || 'Paciente';
+                            contenido = `<span style="font-size: 8px; font-weight: bold; color: #1e40af;">${nombrePaciente}</span><br><span style="font-size: 7px; color: #666;">${cita.tipo.replace('-', ' ')}</span>`;
+                            onclick = '';
+                            cursor = 'default';
+                        }
+                        
+                        html += `<td style="padding: 4px; border: 1px solid ${borderColor}; background: ${bgColor}; cursor: ${cursor}; vertical-align: center; text-align: center; font-size: 9px; border-right: 1px solid #e5e7eb;" ${onclick}>
+                            ${contenido}
+                        </td>`;
+                    }
+                    html += '</tr>';
                 }
-                html += '</tr>';
             }
             
             html += '</tbody>';
@@ -5156,6 +5187,22 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
             html += '</div>';
             
             container.innerHTML = html;
+        }
+        
+        // Nueva función para abrir modal con fecha y hora específica
+        function abrirModalNuevaCitaConHora(fecha, hora) {
+            document.getElementById('modal-nueva-cita').classList.remove('hidden');
+            document.getElementById('cita-paciente').value = '';
+            document.getElementById('paciente-cita-id').value = '';
+            document.getElementById('cita-fecha').value = fecha;
+            document.getElementById('cita-hora').value = hora;
+            document.getElementById('cita-duracion').value = '30';
+            document.getElementById('cita-tipo').value = 'consulta-general';
+            document.getElementById('cita-notas').value = '';
+            document.getElementById('resultados-pacientes-cita').classList.add('hidden');
+            
+            // Cargar pacientes para el buscador
+            cargarPacientesAgendaLista();
         }
 
         // Renderizar vista diaria
@@ -5327,9 +5374,8 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
         // Abrir modal Nueva Cita
         function abrirModalNuevaCita(pacienteId = null) {
             document.getElementById('modal-nueva-cita').classList.remove('hidden');
-            document.getElementById('cita-buscar-paciente').value = '';
             document.getElementById('cita-paciente').value = '';
-            document.getElementById('paciente-cita-info').classList.add('hidden');
+            document.getElementById('paciente-cita-id').value = '';
             document.getElementById('resultados-pacientes-cita').classList.add('hidden');
             
             // Cargar pacientes para el buscador
@@ -5339,24 +5385,26 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
             const hoy = new Date().toISOString().split('T')[0];
             document.getElementById('cita-fecha').min = hoy;
             document.getElementById('cita-fecha').value = hoy;
+            document.getElementById('cita-hora').value = '10:00';
         }
-
+        
+        // Cargar pacientes para autocompletar en agenda
         // Cerrar modal Nueva Cita
         function cerrarModalNuevaCita() {
             document.getElementById('modal-nueva-cita').classList.add('hidden');
-            document.getElementById('cita-buscar-paciente').value = '';
             document.getElementById('cita-paciente').value = '';
+            document.getElementById('paciente-cita-id').value = '';
             document.getElementById('cita-fecha').value = '';
             document.getElementById('cita-hora').value = '';
             document.getElementById('cita-duracion').value = '30';
             document.getElementById('cita-tipo').value = 'consulta-general';
             document.getElementById('cita-notas').value = '';
-            document.getElementById('paciente-cita-info').classList.add('hidden');
+            document.getElementById('resultados-pacientes-cita').classList.add('hidden');
         }
 
         // Búsqueda fuzzy de pacientes en citas
         function buscarPacienteCita() {
-            const termino = document.getElementById('cita-buscar-paciente').value.toLowerCase().trim();
+            const termino = document.getElementById('cita-paciente').value.toLowerCase().trim();
             const contenedor = document.getElementById('resultados-pacientes-cita');
             
             if (!termino) {
@@ -5366,12 +5414,9 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
             
             const resultados = pacientesCitaCache.filter(p => {
                 const nombre = `${p.nombre} ${p.apellido}`.toLowerCase();
-                const email = p.email.toLowerCase();
-                const curp = p.curp.toLowerCase();
                 const cedula = p.cedula.toLowerCase();
                 
-                return nombre.includes(termino) || email.includes(termino) || 
-                       curp.includes(termino) || cedula.includes(termino);
+                return nombre.includes(termino) || cedula.includes(termino);
             });
             
             if (resultados.length === 0) {
@@ -5381,9 +5426,9 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
             }
             
             contenedor.innerHTML = resultados.map(p => `
-                <div class="px-4 py-3 border-b border-gray-200 cursor-pointer hover:bg-blue-50 transition" onclick="seleccionarPacienteCitaFuzzy('${p.id}', '${p.nombre} ${p.apellido}', '${p.cedula}', '${p.email}')">
+                <div class="px-4 py-3 border-b border-gray-200 cursor-pointer hover:bg-blue-50 transition" onclick="seleccionarPacienteCitaFuzzy('${p.id}', '${p.nombre} ${p.apellido}')">
                     <div class="font-bold text-gray-900">${p.nombre} ${p.apellido}</div>
-                    <div class="text-xs text-gray-600">CURP: ${p.curp} | Email: ${p.email} | Cédula: ${p.cedula}</div>
+                    <div class="text-xs text-gray-600">Cédula: ${p.cedula}</div>
                 </div>
             `).join('');
             
@@ -5391,11 +5436,9 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
         }
 
         // Seleccionar paciente en cita (fuzzy)
-        function seleccionarPacienteCitaFuzzy(pacienteId, nombre, cedula, email) {
-            document.getElementById('cita-paciente').value = pacienteId;
-            document.getElementById('cita-buscar-paciente').value = nombre;
-            document.getElementById('paciente-cita-texto').textContent = `${nombre} (${cedula}) - ${email}`;
-            document.getElementById('paciente-cita-info').classList.remove('hidden');
+        function seleccionarPacienteCitaFuzzy(pacienteId, nombre) {
+            document.getElementById('cita-paciente').value = nombre;
+            document.getElementById('paciente-cita-id').value = pacienteId;
             document.getElementById('resultados-pacientes-cita').classList.add('hidden');
         }
 
@@ -5469,7 +5512,7 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
                 return;
             }
 
-            const pacienteId = document.getElementById('cita-paciente').value;
+            const pacienteId = document.getElementById('paciente-cita-id').value;
             const fecha = document.getElementById('cita-fecha').value;
             const hora = document.getElementById('cita-hora').value;
             const duracion = parseInt(document.getElementById('cita-duracion').value);
@@ -5507,9 +5550,10 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-plus mr-2"></i> Crear Cita';
                 
-                // Recargar calendario
-                if (typeof agendaCalendar !== 'undefined' && agendaCalendar) {
-                    agendaCalendar.refetchEvents();
+                // Recargar agenda semanal
+                const container = document.getElementById('agenda-container');
+                if (container) {
+                    await renderizarAgendaSemanal(container);
                 }
             } catch (error) {
                 console.error('Error guardando cita:', error);
