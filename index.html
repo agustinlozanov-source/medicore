@@ -373,6 +373,49 @@
                                     </div>
 
                                     <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                        <h4 class="font-bold text-green-900 mb-3">⏰ Horarios de Atención</h4>
+                                        <div class="space-y-3">
+                                            <div>
+                                                <label class="block text-xs font-bold text-gray-700 mb-1">Hora de Inicio</label>
+                                                <input type="time" id="horario-inicio" class="w-full border border-green-300 rounded px-3 py-2 font-bold" value="08:00">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-bold text-gray-700 mb-1">Hora de Fin</label>
+                                                <input type="time" id="horario-fin" class="w-full border border-green-300 rounded px-3 py-2 font-bold" value="17:00">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-bold text-gray-700 mb-2">Días Laborales</label>
+                                                <div class="space-y-2">
+                                                    <label class="flex items-center gap-2 cursor-pointer">
+                                                        <input type="checkbox" class="dias-semana" value="lunes" checked class="w-4 h-4 text-green-600 rounded">
+                                                        <span class="text-xs text-gray-700">Lunes</span>
+                                                    </label>
+                                                    <label class="flex items-center gap-2 cursor-pointer">
+                                                        <input type="checkbox" class="dias-semana" value="martes" checked class="w-4 h-4 text-green-600 rounded">
+                                                        <span class="text-xs text-gray-700">Martes</span>
+                                                    </label>
+                                                    <label class="flex items-center gap-2 cursor-pointer">
+                                                        <input type="checkbox" class="dias-semana" value="miercoles" checked class="w-4 h-4 text-green-600 rounded">
+                                                        <span class="text-xs text-gray-700">Miércoles</span>
+                                                    </label>
+                                                    <label class="flex items-center gap-2 cursor-pointer">
+                                                        <input type="checkbox" class="dias-semana" value="jueves" checked class="w-4 h-4 text-green-600 rounded">
+                                                        <span class="text-xs text-gray-700">Jueves</span>
+                                                    </label>
+                                                    <label class="flex items-center gap-2 cursor-pointer">
+                                                        <input type="checkbox" class="dias-semana" value="viernes" checked class="w-4 h-4 text-green-600 rounded">
+                                                        <span class="text-xs text-gray-700">Viernes</span>
+                                                    </label>
+                                                    <label class="flex items-center gap-2 cursor-pointer">
+                                                        <input type="checkbox" class="dias-semana" value="sabado" class="w-4 h-4 text-green-600 rounded">
+                                                        <span class="text-xs text-gray-700">Sábado</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
                                         <h4 class="font-bold text-green-900 mb-3">Configuración Clínica</h4>
                                         <label class="flex items-center gap-3 mb-2 cursor-pointer">
                                             <input type="checkbox" id="conf-agenda" checked class="w-5 h-5 text-green-600 rounded">
@@ -4984,51 +5027,119 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
             actualizarRecordatorios();
         }
 
-        // Renderizar vista semanal
-        function renderizarAgendaSemanal(container) {
+        // Renderizar vista semanal (NUEVA: Con slots de 15 minutos)
+        async function renderizarAgendaSemanal(container) {
             const fechaInicio = new Date(agendaState.fechaActual);
             const dia = fechaInicio.getDay();
             fechaInicio.setDate(fechaInicio.getDate() - (dia === 0 ? 6 : dia - 1));
             
+            // Obtener horarios del doctor actual
+            let horarioInicio = '08:00';
+            let horarioFin = '17:00';
+            let diasLaborales = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes'];
+            
+            try {
+                const docSnap = await db.collection('doctors').doc(currentUser.uid).get();
+                if (docSnap.exists && docSnap.data().horarios) {
+                    horarioInicio = docSnap.data().horarios.inicio || '08:00';
+                    horarioFin = docSnap.data().horarios.fin || '17:00';
+                    diasLaborales = docSnap.data().horarios.diasLaborales || diasLaborales;
+                }
+            } catch (error) {
+                console.log('Usando horarios por defecto');
+            }
+            
+            // Obtener citas de la semana
+            const citasSnapshot = await db.collection('appointments')
+                .where('doctorId', '==', currentUser.uid)
+                .where('fechaHora', '>=', fechaInicio)
+                .where('fechaHora', '<', new Date(fechaInicio.getTime() + 7 * 24 * 60 * 60 * 1000))
+                .get();
+            
+            const citasMap = new Map();
+            citasSnapshot.forEach(doc => {
+                const cita = doc.data();
+                const key = cita.fecha + '_' + cita.hora;
+                citasMap.set(key, {id: doc.id, ...cita});
+            });
+            
+            // Convertir horarios a minutos
+            const [hiH, hiM] = horarioInicio.split(':').map(Number);
+            const [hfH, hfM] = horarioFin.split(':').map(Number);
+            const minutosInicio = hiH * 60 + hiM;
+            const minutosFin = hfH * 60 + hfM;
+            
             let html = '<div class="overflow-x-auto">';
             html += '<table style="width: 100%; border-collapse: collapse;">';
             
-            // Encabezado con horarios
+            // Encabezado con días
             html += '<thead>';
             html += '<tr>';
-            html += '<td style="width: 80px; padding: 10px; border: 1px solid #e5e7eb; background: #f9fafb; font-weight: bold; text-align: center; font-size: 12px;">Hora</td>';
+            html += '<td style="width: 60px; padding: 10px; border: 1px solid #e5e7eb; background: #f9fafb; font-weight: bold; text-align: center; font-size: 11px;">Hora</td>';
             
-            // Días de la semana
             const diasSemana = ['LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO', 'DOMINGO'];
+            const diasSemanaLowercase = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
+            
             for (let i = 0; i < 7; i++) {
                 const fecha = new Date(fechaInicio);
                 fecha.setDate(fecha.getDate() + i);
-                const dia = diasSemana[i];
                 const num = fecha.getDate();
                 const esHoy = fecha.toDateString() === new Date().toDateString();
+                const esLaborable = diasLaborales.includes(diasSemanaLowercase[i]);
                 
-                html += `<td style="width: 140px; padding: 10px; border: 1px solid #e5e7eb; background: ${esHoy ? '#dbeafe' : '#f9fafb'}; font-weight: bold; text-align: center; font-size: 13px;">
-                    ${dia} ${num}
+                html += `<td style="width: 140px; padding: 10px; border: 1px solid #e5e7eb; background: ${esHoy ? '#dbeafe' : (esLaborable ? '#f9fafb' : '#f3f4f6')}; font-weight: bold; text-align: center; font-size: 12px;">
+                    ${diasSemana[i]}<br><span style="font-size: 11px; color: #666;">${num}</span>
                 </td>`;
             }
             html += '</tr>';
             html += '</thead>';
             
-            // Cuerpo de horarios
+            // Cuerpo con slots de 15 minutos
             html += '<tbody>';
-            const horas = Array.from({length: 17}, (_, i) => 6 + i); // 6:00 AM a 10:00 PM
             
-            horas.forEach(hora => {
-                html += '<tr style="height: 60px;">';
-                html += `<td style="padding: 5px; border: 1px solid #e5e7eb; text-align: center; font-weight: bold; font-size: 12px; background: #f9fafb;">${hora}:00</td>`;
+            for (let minuto = minutosInicio; minuto < minutosFin; minuto += 15) {
+                const horas = Math.floor(minuto / 60);
+                const mins = minuto % 60;
+                const horaStr = `${String(horas).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+                
+                html += '<tr style="height: 40px;">';
+                html += `<td style="padding: 2px; border: 1px solid #e5e7eb; text-align: center; font-weight: bold; font-size: 10px; background: #f9fafb;">${horaStr}</td>`;
                 
                 for (let i = 0; i < 7; i++) {
-                    html += `<td style="padding: 5px; border: 1px solid #e5e7eb; background: white; cursor: pointer; vertical-align: top;" onclick="abrirModalNuevaCita()">
-                        <div style="font-size: 11px; color: #666;">Disponible</div>
+                    const fecha = new Date(fechaInicio);
+                    fecha.setDate(fecha.getDate() + i);
+                    const fechaStr = fecha.toISOString().split('T')[0];
+                    const esLaborable = diasLaborales.includes(diasSemanaLowercase[i]);
+                    const key = fechaStr + '_' + horaStr;
+                    const cita = citasMap.get(key);
+                    
+                    let bgColor = esLaborable ? 'white' : '#e5e7eb';
+                    let borderColor = '#e5e7eb';
+                    let contenido = '<span style="font-size: 9px; color: #999;">-</span>';
+                    let cursor = esLaborable ? 'pointer' : 'not-allowed';
+                    let onclick = esLaborable ? `onclick="abrirModalNuevaCita()"` : '';
+                    
+                    if (cita) {
+                        const colorMap = {
+                            'consulta-general': '#dbeafe',
+                            'seguimiento': '#dcfce7',
+                            'urgencia': '#fee2e2',
+                            'procedimiento': '#fef3c7',
+                            'default': '#f0f9ff'
+                        };
+                        bgColor = colorMap[cita.tipo] || colorMap.default;
+                        borderColor = '#3b82f6';
+                        contenido = `<span style="font-size: 8px; font-weight: bold; color: #1e40af;">${cita.tipo.replace('-', ' ').toUpperCase()}</span>`;
+                        onclick = '';
+                        cursor = 'default';
+                    }
+                    
+                    html += `<td style="padding: 2px; border: 1px solid ${borderColor}; background: ${bgColor}; cursor: ${cursor}; vertical-align: center; text-align: center;" ${onclick}>
+                        ${contenido}
                     </td>`;
                 }
                 html += '</tr>';
-            });
+            }
             
             html += '</tbody>';
             html += '</table>';
@@ -5951,6 +6062,11 @@ Notas: ${props.notas || 'Sin notas'}
             const cedulaEspecialista = document.getElementById('med-cedula-especialista').value.trim();
             const anosExperiencia = parseInt(document.getElementById('med-anos-experiencia').value) || 0;
             
+            // Obtener horarios
+            const horarioInicio = document.getElementById('horario-inicio').value;
+            const horarioFin = document.getElementById('horario-fin').value;
+            const diasSemana = Array.from(document.querySelectorAll('.dias-semana:checked')).map(el => el.value);
+            
             if (!nombre || !cedula || !rfc || !especialidadPrimaria) {
                 alert('Por favor completa los campos requeridos (*)');
                 return;
@@ -5958,6 +6074,16 @@ Notas: ${props.notas || 'Sin notas'}
             
             if (rfc.length !== 13) {
                 alert('El RFC debe tener 13 caracteres');
+                return;
+            }
+            
+            if (!horarioInicio || !horarioFin) {
+                alert('Por favor configura los horarios de atención');
+                return;
+            }
+            
+            if (diasSemana.length === 0) {
+                alert('Por favor selecciona al menos un día laboral');
                 return;
             }
             
@@ -5976,6 +6102,11 @@ Notas: ${props.notas || 'Sin notas'}
                     especialidadSecundaria: especialidadSecundaria,
                     cedulaEspecialista: cedulaEspecialista,
                     anosExperiencia: anosExperiencia,
+                    horarios: {
+                        inicio: horarioInicio,
+                        fin: horarioFin,
+                        diasLaborales: diasSemana
+                    },
                     permisos: {
                         consulta: true,
                         recetas: document.getElementById('perm-recetas').checked,
@@ -5988,7 +6119,7 @@ Notas: ${props.notas || 'Sin notas'}
                     updatedAt: new Date()
                 }, { merge: true });
                 
-                alert('✅ Perfil actualizado correctamente');
+                alert('✅ Perfil y horarios actualizados correctamente');
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-save mr-2"></i> Guardar Cambios';
             } catch (error) {
