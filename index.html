@@ -865,43 +865,51 @@
 
                 <!-- Agenda Operativa Profesional (Médico) -->
                 <div id="agenda-operativa" class="view hidden">
-                    <!-- Header Profesional -->
-                    <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
-                        <div class="flex justify-between items-center mb-4">
-                            <div class="flex items-center gap-4">
-                                <div class="relative">
-                                    <select id="medico-selector-agenda" class="appearance-none border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none font-bold pr-8 bg-white">
-                                        <option value="">Selecciona médico...</option>
-                                    </select>
+                    <!-- Header Profesional - STICKY -->
+                    <div class="sticky top-0 z-40 bg-white rounded-xl shadow-lg p-4 mb-6" style="border-bottom: 2px solid #1465ff;">
+                        <div class="flex justify-between items-center gap-6">
+                            <!-- Selector de Médicos (izquierda) -->
+                            <div class="flex-1">
+                                <label class="text-xs font-bold text-gray-600 uppercase mb-2 block">Médico</label>
+                                <div id="medicos-selector-grid" class="flex gap-2 flex-wrap">
+                                    <!-- Se rellena dinámicamente con doctores -->
                                 </div>
                             </div>
-                            <div class="flex gap-2">
-                                <button onclick="cambiarVistaAgenda('hoy')" class="px-4 py-2 rounded-lg font-bold transition" id="btn-hoy" style="background-color: #1465ff; color: white;">HOY</button>
-                                <button onclick="cambiarVistaAgenda('dia')" class="px-4 py-2 rounded-lg font-bold transition border border-gray-300" id="btn-dia">DÍA</button>
-                                <button onclick="cambiarVistaAgenda('semana')" class="px-4 py-2 rounded-lg font-bold transition border border-gray-300" id="btn-semana">SEMANA</button>
-                                <button onclick="cambiarVistaAgenda('mes')" class="px-4 py-2 rounded-lg font-bold transition border border-gray-300" id="btn-mes">MES</button>
+
+                            <!-- Controles de Vista (centro) -->
+                            <div class="flex gap-1 border border-gray-300 rounded-lg p-1 bg-gray-50">
+                                <button onclick="cambiarVistaAgenda('hoy')" class="px-3 py-1 rounded text-xs font-bold transition" id="btn-hoy" style="background-color: #1465ff; color: white;">HOY</button>
+                                <button onclick="cambiarVistaAgenda('dia')" class="px-3 py-1 rounded text-xs font-bold transition hover:bg-gray-100" id="btn-dia">DÍA</button>
+                                <button onclick="cambiarVistaAgenda('semana')" class="px-3 py-1 rounded text-xs font-bold transition hover:bg-gray-100" id="btn-semana">SEMANA</button>
+                                <button onclick="cambiarVistaAgenda('mes')" class="px-3 py-1 rounded text-xs font-bold transition hover:bg-gray-100" id="btn-mes">MES</button>
                             </div>
-                            <div class="flex items-center gap-4">
-                                <div class="text-center">
-                                    <p class="text-sm text-gray-600 font-bold">Período</p>
-                                    <p class="text-lg font-black text-gray-900" id="rango-fechas">9 FEB 2026 - 15 FEB 2026</p>
-                                </div>
-                                <button onclick="navegarAgenda(-1)" class="p-2 hover:bg-gray-100 rounded-lg transition">
-                                    <i class="fa-solid fa-chevron-left text-lg text-gray-700"></i>
+
+                            <!-- Período (centro-derecha) -->
+                            <div class="text-center">
+                                <p class="text-xs text-gray-600 font-bold uppercase">Período</p>
+                                <p class="text-sm font-black text-gray-900" id="rango-fechas">16 FEB - 22 FEB 2026</p>
+                            </div>
+
+                            <!-- Navegación (derecha) -->
+                            <div class="flex gap-2">
+                                <button onclick="navegarAgenda(-1)" class="p-2 hover:bg-gray-100 rounded transition border border-gray-300" title="Semana anterior">
+                                    <i class="fa-solid fa-chevron-left text-sm text-gray-700"></i>
                                 </button>
-                                <button onclick="navegarAgenda(1)" class="p-2 hover:bg-gray-100 rounded-lg transition">
-                                    <i class="fa-solid fa-chevron-right text-lg text-gray-700"></i>
+                                <button onclick="navegarAgenda(0)" class="p-2 hover:bg-gray-100 rounded transition border border-gray-300" title="Hoy">
+                                    <i class="fa-solid fa-calendar text-sm text-gray-700"></i>
                                 </button>
-                                <button onclick="navegarAgenda(0)" class="p-2 hover:bg-gray-100 rounded-lg transition" title="Hoy">
-                                    <i class="fa-solid fa-calendar text-lg text-gray-700"></i>
+                                <button onclick="navegarAgenda(1)" class="p-2 hover:bg-gray-100 rounded transition border border-gray-300" title="Semana siguiente">
+                                    <i class="fa-solid fa-chevron-right text-sm text-gray-700"></i>
                                 </button>
                             </div>
+
+                            <!-- Botones de acción (derecha) -->
                             <div class="flex gap-2">
-                                <button onclick="abrirModalNuevaCita()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-lg transition flex items-center gap-2">
+                                <button onclick="abrirModalNuevaCita()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded transition flex items-center gap-2 text-sm">
                                     <i class="fa-solid fa-plus"></i> NUEVA CITA
                                 </button>
-                                <button onclick="abrirConfiguracionAgenda()" class="p-2 hover:bg-gray-100 rounded-lg transition border border-gray-300">
-                                    <i class="fa-solid fa-cog text-lg text-gray-700"></i>
+                                <button onclick="abrirConfiguracionAgenda()" class="p-2 hover:bg-gray-100 rounded transition border border-gray-300">
+                                    <i class="fa-solid fa-cog text-sm text-gray-700"></i>
                                 </button>
                             </div>
                         </div>
@@ -928,20 +936,20 @@
 
                             <!-- Recordatorios Programados -->
                             <div class="bg-white rounded-xl shadow-lg p-4">
-                                <h3 class="font-black text-gray-900 mb-4 flex items-center gap-2">
+                                <h3 class="font-black text-gray-900 mb-4 flex items-center gap-2 text-sm">
                                     <i class="fa-solid fa-bell text-blue-600"></i> RECORDATORIOS PROGRAMADOS
                                 </h3>
                                 <div id="recordatorios-agenda" class="space-y-3 max-h-64 overflow-y-auto">
-                                    <p class="text-sm text-gray-500 italic">Sin recordatorios</p>
+                                    <p class="text-xs text-gray-500 italic">Sin recordatorios</p>
                                 </div>
                             </div>
 
                             <!-- Citas Pendientes -->
                             <div class="bg-white rounded-xl shadow-lg p-4">
-                                <h3 class="font-black text-gray-900 mb-4 flex items-center gap-2">
+                                <h3 class="font-black text-gray-900 mb-4 flex items-center gap-2 text-sm">
                                     <i class="fa-solid fa-hourglass-end text-orange-600"></i> CITAS PENDIENTES
                                 </h3>
-                                <div id="citas-pendientes-agenda" class="space-y-2 text-sm">
+                                <div id="citas-pendientes-agenda" class="space-y-2 text-xs">
                                     <p class="text-gray-500 italic">Sin citas pendientes</p>
                                 </div>
                             </div>
@@ -1916,6 +1924,18 @@
 
         // Cambiar color del icono cuando el botón está activo
         function switchView(viewName) {
+            // Ocultar todas las vistas
+            document.querySelectorAll('.view').forEach(view => {
+                view.classList.add('hidden');
+            });
+            
+            // Mostrar la vista seleccionada
+            const selectedView = document.getElementById(viewName);
+            if (selectedView) {
+                selectedView.classList.remove('hidden');
+            }
+            
+            // Actualizar estilos de botones del sidebar
             document.querySelectorAll('aside button').forEach(btn => {
                 btn.classList.remove('active');
                 const icon = btn.querySelector('i');
@@ -1925,6 +1945,14 @@
             event.target.closest('button').classList.add('active');
             const activeIcon = event.target.closest('button').querySelector('i');
             if (activeIcon) activeIcon.style.color = '#1465ff';
+            
+            // Cargar datos específicos de cada vista
+            if (viewName === 'agenda-operativa') {
+                cargarMedicosAgenda();
+                renderizarAgenda();
+            } else if (viewName === 'mis-pacientes') {
+                cargarPacientes();
+            }
         }
         // Firebase Configuration
         const firebaseConfig = {
@@ -4969,8 +4997,68 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
             vistaActual: 'semana',
             fechaActual: new Date(),
             citas: [],
-            recordatorios: []
+            recordatorios: [],
+            medicoSeleccionado: null
         };
+
+        // Cargar y mostrar médicos disponibles
+        async function cargarMedicosAgenda() {
+            try {
+                const medicosSnapshot = await db.collection('doctors').get();
+                const medicosSelectorDiv = document.getElementById('medicos-selector-grid');
+                
+                if (!medicosSelectorDiv) return;
+                
+                let html = '';
+                let firstMedico = true;
+                
+                medicosSnapshot.forEach(doc => {
+                    const medico = doc.data();
+                    const esSeleccionado = agendaState.medicoSeleccionado === doc.id || (firstMedico && !agendaState.medicoSeleccionado);
+                    
+                    if (firstMedico && !agendaState.medicoSeleccionado) {
+                        agendaState.medicoSeleccionado = doc.id;
+                        firstMedico = false;
+                    }
+                    
+                    const bgColor = esSeleccionado ? '#1465ff' : 'white';
+                    const textColor = esSeleccionado ? 'white' : '#374151';
+                    const borderColor = esSeleccionado ? '#1465ff' : '#d1d5db';
+                    
+                    html += `
+                        <button onclick="seleccionarMedicoAgenda('${doc.id}', this)" 
+                            style="padding: 6px 12px; border: 1px solid ${borderColor}; background: ${bgColor}; color: ${textColor}; border-radius: 6px; font-size: 10px; font-weight: bold; cursor: pointer; transition: all 0.2s; white-space: nowrap;">
+                            ${medico.nombre || 'Dr. ' + medico.apellido || 'Médico'}
+                        </button>
+                    `;
+                });
+                
+                medicosSelectorDiv.innerHTML = html;
+            } catch (error) {
+                console.error('Error cargando médicos:', error);
+            }
+        }
+        
+        // Seleccionar médico en agenda
+        function seleccionarMedicoAgenda(medicoId, btnElement) {
+            agendaState.medicoSeleccionado = medicoId;
+            
+            // Actualizar estilos de botones
+            const botones = document.getElementById('medicos-selector-grid').querySelectorAll('button');
+            botones.forEach(btn => {
+                btn.style.backgroundColor = 'white';
+                btn.style.color = '#374151';
+                btn.style.borderColor = '#d1d5db';
+            });
+            
+            // Marcar como seleccionado
+            btnElement.style.backgroundColor = '#1465ff';
+            btnElement.style.color = 'white';
+            btnElement.style.borderColor = '#1465ff';
+            
+            // Recargar agenda
+            renderizarAgenda();
+        }
 
         // Cambiar vista de agenda
         function cambiarVistaAgenda(vista) {
@@ -5034,8 +5122,10 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
             let horarioFin = '17:00';
             let diasLaborales = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes'];
             
+            const docSelectorId = agendaState.medicoSeleccionado || currentUser.uid;
+            
             try {
-                const docSnap = await db.collection('doctors').doc(currentUser.uid).get();
+                const docSnap = await db.collection('doctors').doc(docSelectorId).get();
                 if (docSnap.exists && docSnap.data().horarios) {
                     horarioInicio = docSnap.data().horarios.inicio || '08:00';
                     horarioFin = docSnap.data().horarios.fin || '17:00';
@@ -5045,30 +5135,28 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
                 console.log('Usando horarios por defecto');
             }
             
-            // Obtener citas de la semana - Simplificar consulta para evitar índice compuesto
+            // Obtener citas de la semana
             let citasMap = new Map();
-            let pacientesCache = {}; // Cache para nombres de pacientes
+            let pacientesCache = {};
             
             try {
                 const citasSnapshot = await db.collection('appointments')
-                    .where('doctorId', '==', currentUser.uid)
+                    .where('doctorId', '==', docSelectorId)
                     .get();
                 
-                // Filtrar en JavaScript por fecha
                 const fechaFin = new Date(fechaInicio.getTime() + 7 * 24 * 60 * 60 * 1000);
                 
                 citasSnapshot.forEach(doc => {
                     const cita = doc.data();
                     const citaFecha = cita.fechaHora?.toDate?.() || new Date(cita.fecha + 'T' + cita.hora);
                     
-                    // Solo agregar si está dentro de la semana
                     if (citaFecha >= fechaInicio && citaFecha < fechaFin) {
                         const key = cita.fecha + '_' + cita.hora;
                         citasMap.set(key, {id: doc.id, ...cita});
                     }
                 });
                 
-                // Pre-cargar datos de pacientes para evitar llamadas asincrónicas dentro del render
+                // Pre-cargar datos de pacientes
                 const pacientesIds = Array.from(citasMap.values()).map(c => c.pacienteId);
                 const uniquePacientesIds = [...new Set(pacientesIds)];
                 
@@ -5092,13 +5180,13 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
             const minutosInicio = hiH * 60 + hiM;
             const minutosFin = hfH * 60 + hfM;
             
-            let html = '<div class="overflow-x-auto">';
+            let html = '<div style="overflow-x: auto; max-height: 70vh;">';
             html += '<table style="width: 100%; border-collapse: collapse;">';
             
-            // Encabezado con días
-            html += '<thead>';
-            html += '<tr style="border-bottom: 2px solid #1465ff;">';
-            html += '<td style="width: 60px; padding: 12px; background: #f9fafb; font-weight: bold; text-align: center; font-size: 11px;">HORA</td>';
+            // Encabezado STICKY
+            html += '<thead style="position: sticky; top: 0; z-index: 20;">';
+            html += '<tr style="border-bottom: 2px solid #1465ff; background: white;">';
+            html += '<td style="width: 60px; padding: 8px 4px; background: white; font-weight: bold; text-align: center; font-size: 10px; border-right: 1px solid #e5e7eb; position: sticky; left: 0; z-index: 21;">HORA</td>';
             
             const diasSemana = ['LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO', 'DOMINGO'];
             const diasSemanaLowercase = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
@@ -5110,8 +5198,9 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
                 const esHoy = fecha.toDateString() === new Date().toDateString();
                 const esLaborable = diasLaborales.includes(diasSemanaLowercase[i]);
                 
-                html += `<td style="width: 140px; padding: 12px; background: ${esHoy ? '#dbeafe' : (esLaborable ? '#f9fafb' : '#f3f4f6')}; font-weight: bold; text-align: center; font-size: 12px; border-right: 1px solid #e5e7eb;">
-                    ${diasSemana[i]}<br><span style="font-size: 11px; color: #666;">${num}</span>
+                html += `<td style="width: 140px; padding: 8px 4px; background: ${esHoy ? '#dbeafe' : (esLaborable ? '#f9fafb' : '#f3f4f6')}; font-weight: bold; text-align: center; font-size: 10px; border-right: 1px solid #e5e7eb; color: #1f2937;">
+                    <div style="font-size: 10px; font-weight: bold;">${diasSemana[i]}</div>
+                    <div style="font-size: 9px; color: #666;">${num}</div>
                 </td>`;
             }
             html += '</tr>';
@@ -5126,20 +5215,19 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
                     const minutoSlot = (slot * 15);
                     const minutosTotal = horaActual * 60 + minutoSlot;
                     
-                    // Si está fuera de horario, saltar
+                    // Si está fuera de horario laboral, saltar
                     if (minutosTotal < minutosInicio || minutosTotal >= minutosFin) continue;
                     
                     const horas = Math.floor(minutosTotal / 60);
                     const mins = minutosTotal % 60;
                     const horaStr = `${String(horas).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
                     
-                    // Mostrar la hora solo en el primer slot de cada hora
                     const mostrarHora = slot === 0;
                     
-                    html += '<tr style="height: 35px; border-bottom: 1px solid #e5e7eb;">';
+                    html += '<tr style="height: 28px; border-bottom: 1px solid #e5e7eb;">';
                     
                     if (mostrarHora) {
-                        html += `<td style="padding: 5px; text-align: center; font-weight: bold; font-size: 11px; background: #f9fafb; border-right: 1px solid #e5e7eb; vertical-align: top;" rowspan="4">${String(horas).padStart(2, '0')}:00</td>`;
+                        html += `<td style="padding: 2px 4px; text-align: center; font-weight: bold; font-size: 9px; background: #f9fafb; border-right: 1px solid #e5e7eb; vertical-align: center; position: sticky; left: 0; z-index: 10; color: #374151;" rowspan="4">${String(horas).padStart(2, '0')}:00</td>`;
                     }
                     
                     for (let i = 0; i < 7; i++) {
@@ -5150,7 +5238,8 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
                         const key = fechaStr + '_' + horaStr;
                         const cita = citasMap.get(key);
                         
-                        let bgColor = esLaborable ? 'white' : '#e5e7eb';
+                        // Determinar color de fondo
+                        let bgColor = esLaborable ? 'white' : '#d1d5db'; // Gris para no laborable
                         let borderColor = '#e5e7eb';
                         let contenido = '';
                         let cursor = esLaborable ? 'pointer' : 'not-allowed';
@@ -5167,18 +5256,39 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
                             bgColor = colorMap[cita.tipo] || colorMap.default;
                             borderColor = '#3b82f6';
                             
-                            // Usar nombre cacheado del paciente
                             const nombrePaciente = pacientesCache[cita.pacienteId] || 'Paciente';
-                            contenido = `<span style="font-size: 8px; font-weight: bold; color: #1e40af;">${nombrePaciente}</span><br><span style="font-size: 7px; color: #666;">${cita.tipo.replace('-', ' ')}</span>`;
+                            contenido = `<span style="font-size: 7px; font-weight: bold; color: #1e40af;">${nombrePaciente}</span><br><span style="font-size: 6px; color: #666;">${cita.tipo.replace('-', ' ')}</span>`;
                             onclick = '';
                             cursor = 'default';
                         }
                         
-                        html += `<td style="padding: 4px; border: 1px solid ${borderColor}; background: ${bgColor}; cursor: ${cursor}; vertical-align: center; text-align: center; font-size: 9px; border-right: 1px solid #e5e7eb;" ${onclick}>
+                        html += `<td style="padding: 2px; border: 1px solid ${borderColor}; background: ${bgColor}; cursor: ${cursor}; vertical-align: center; text-align: center; font-size: 8px; transition: background-color 0.2s;" ${onclick}>
                             ${contenido}
                         </td>`;
                     }
                     html += '</tr>';
+                }
+            }
+            
+            // Bloquear horas cerradas (antes de inicio)
+            const [inicioH, inicioM] = horarioInicio.split(':').map(Number);
+            if (inicioH > 0) {
+                for (let h = 0; h < inicioH; h++) {
+                    for (let slot = 0; slot < 4; slot++) {
+                        const mins = (slot * 15);
+                        const mostrarHora = slot === 0;
+                        
+                        html = '<tr style="height: 28px; border-bottom: 1px solid #e5e7eb;">' + html;
+                        
+                        if (mostrarHora) {
+                            html = `<td style="padding: 2px 4px; text-align: center; font-weight: bold; font-size: 9px; background: #d1d5db; border-right: 1px solid #e5e7eb; vertical-align: center; position: sticky; left: 0; z-index: 10; color: #666;" rowspan="4">${String(h).padStart(2, '0')}:00</td>` + html;
+                        }
+                        
+                        for (let i = 0; i < 7; i++) {
+                            html += `<td style="padding: 2px; border: 1px solid #c4b5fd; background: #d1d5db; cursor: not-allowed;"></td>`;
+                        }
+                        html += '</tr>';
+                    }
                 }
             }
             
