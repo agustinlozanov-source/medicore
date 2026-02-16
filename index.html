@@ -1951,8 +1951,13 @@
                 cargarMedicosAgenda();
                 renderizarAgenda();
             } else if (viewName === 'mis-pacientes') {
-                cargarPacientes();
+                loadMedicoPatients();
             }
+        }
+        
+        // Alias para cargar pacientes
+        async function cargarPacientes() {
+            return loadMedicoPatients();
         }
         // Firebase Configuration
         const firebaseConfig = {
@@ -2342,6 +2347,13 @@
             document.getElementById('paciente-menu').classList.toggle('hidden', role !== 'paciente');
             document.getElementById('admin-menu').classList.toggle('hidden', role !== 'admin');
             document.getElementById('btn-mi-cuenta').style.display = role === 'medico' ? 'block' : 'none';
+            
+            // Inicializar agenda para médicos
+            if (role === 'medico') {
+                cargarMedicosAgenda();
+                agendaState.vistaActual = 'semana';
+                agendaState.fechaActual = new Date();
+            }
 
             if (role === 'medico') {
                 switchView('mis-pacientes');
