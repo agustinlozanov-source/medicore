@@ -5010,12 +5010,12 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
         }
 
         // Renderizar agenda según vista
-        function renderizarAgenda() {
+        async function renderizarAgenda() {
             const container = document.getElementById('agenda-calendario-container');
             const vista = agendaState.vistaActual;
             
             if (vista === 'semana') {
-                renderizarAgendaSemanal(container);
+                await renderizarAgendaSemanal(container);
             } else if (vista === 'dia') {
                 renderizarAgendaDiaria(container);
             } else if (vista === 'mes') {
@@ -6000,8 +6000,9 @@ Notas: ${props.notas || 'Sin notas'}
                 cargarPacientesConsulta();
                 cargarProductos(); // Cargar servicios para el buscador de cargos
             } else if (view === 'agenda-operativa') {
-                setTimeout(() => {
-                    renderizarAgenda();
+                agendaState.vistaActual = 'semana'; // Establecer vista semanal por defecto
+                setTimeout(async () => {
+                    await renderizarAgenda();
                     cargarPacientesAgendaLista();
                 }, 100);
             } else if (view === 'mi-cuenta') {
