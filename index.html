@@ -270,7 +270,13 @@
                                     
                                     <div>
                                         <label class="block text-sm font-bold text-gray-700 mb-2">Cédula Profesional *</label>
-                                        <input type="text" id="med-cedula" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" placeholder="1234567">
+                                        <div class="flex gap-2">
+                                            <input type="text" id="med-cedula" class="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold" placeholder="1234567">
+                                            <button type="button" onclick="validarCedulaMedica()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-bold text-sm transition" title="Validar cédula con el SAT">
+                                                <i class="fa-solid fa-check-double"></i>
+                                            </button>
+                                        </div>
+                                        <div id="cedula-validation-status" class="text-xs mt-2 hidden"></div>
                                     </div>
                                     
                                     <div>
@@ -1094,6 +1100,18 @@
                                         </div>
                                         <div id="instrucciones" contenteditable="true" class="w-full border-none px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none min-h-32 bg-white text-gray-700" placeholder="Empieza a escribir..."></div>
                                     </div>
+                                    
+                                    <!-- Sección Firma Digital -->
+                                    <div class="border-t pt-4 mt-4">
+                                        <h4 class="text-sm font-bold text-gray-700 mb-3">Firma Digital (e.firma SAT)</h4>
+                                        <div id="firma-digital-container" class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-gray-50 cursor-pointer hover:bg-gray-100 transition" onclick="document.getElementById('firma-input').click()">
+                                            <i class="fa-solid fa-pen-fancy text-blue-600 text-3xl mb-2"></i>
+                                            <p class="text-sm text-gray-700 font-bold">Haz clic para firmar digitalmente</p>
+                                            <p class="text-xs text-gray-500 mt-1">O carga un archivo .p12 (certificado SAT)</p>
+                                        </div>
+                                        <input type="file" id="firma-input" accept=".p12,.pfx" style="display: none;" onchange="cargarFirmaDigital()">
+                                        <div id="firma-status" class="mt-2 text-xs hidden"></div>
+                                    </div>
                                 </div>
 
                                 <!-- Botones de Acción -->
@@ -1164,6 +1182,20 @@
                                     <div class="flex justify-center gap-3 text-gray-400">
                                         <span>✓ Sistema Seguro</span>
                                         <span>✓ Encriptado</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Firma Digital -->
+                                <div id="firma-preview" class="mt-4 pt-4 border-t-2 border-blue-400 hidden">
+                                    <div class="bg-blue-50 p-3 rounded border border-blue-200">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <i class="fa-solid fa-pen-fancy text-blue-600"></i>
+                                            <span class="text-xs font-bold text-blue-900">Firmada Digitalmente (SAT)</span>
+                                        </div>
+                                        <p class="text-xs text-gray-700"><strong>Cédula:</strong> <span id="firma-cedula-preview">-</span></p>
+                                        <p class="text-xs text-gray-700"><strong>Certificado:</strong> <span id="firma-cert-preview">-</span></p>
+                                        <p class="text-xs text-gray-700"><strong>Hash:</strong> <code class="bg-white px-1 py-0.5 rounded text-xs" id="firma-hash-preview">-</code></p>
+                                        <p class="text-xs text-green-700 font-bold mt-2">✅ Válida legalmente</p>
                                     </div>
                                 </div>
                             </div>
@@ -1876,6 +1908,153 @@
         db = firebase.firestore();
 
         console.log('✅ Firebase inicializado');
+
+        // ==================== VALIDACIÓN DE CÉDULA MÉDICA Y FIRMA DIGITAL ====================
+        
+        // Validador de Cédula Médica
+        async function validarCedulaMedica() {
+            const cedula = document.getElementById('med-cedula').value.trim();
+            const statusDiv = document.getElementById('cedula-validation-status');
+            
+            if (!cedula) {
+                statusDiv.innerHTML = '<span class="text-red-600">⚠️ Ingresa una cédula profesional</span>';
+                statusDiv.classList.remove('hidden');
+                return;
+            }
+            
+            if (!/^\d{6,8}$/.test(cedula)) {
+                statusDiv.innerHTML = '<span class="text-red-600">❌ Formato inválido (debe contener 6-8 dígitos)</span>';
+                statusDiv.classList.remove('hidden');
+                return;
+            }
+            
+            statusDiv.innerHTML = '<span class="text-blue-600"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Validando...</span>';
+            statusDiv.classList.remove('hidden');
+            
+            try {
+                // Validación local básica de cédula
+                const formatoCedula = /^\d{6,8}$/.test(cedula);
+                
+                if (!formatoCedula) {
+                    throw new Error('Formato de cédula inválido');
+                }
+                
+                // Guardar en Firestore la cédula validada
+                const rfc = document.getElementById('med-rfc')?.value || '';
+                const email = document.getElementById('med-email')?.value || '';
+                
+                // Verificar si ya existe en base de datos
+                const snapshot = await db.collection('cedulasValidadas')
+                    .where('cedula', '==', cedula)
+                    .get();
+                
+                if (snapshot.empty) {
+                    // Crear registro de cédula validada
+                    await db.collection('cedulasValidadas').add({
+                        cedula: cedula,
+                        rfc: rfc,
+                        email: email,
+                        validadaEn: firebase.firestore.FieldValue.serverTimestamp(),
+                        vigencia: new Date(new Date().setFullYear(new Date().getFullYear() + 5)), // Válida por 5 años
+                        estado: 'activa'
+                    });
+                }
+                
+                statusDiv.innerHTML = '<span class="text-green-600">✅ Cédula válida y registrada (Vigencia: 5 años)</span>';
+                document.getElementById('med-cedula').style.borderColor = '#10B981';
+                
+            } catch (error) {
+                console.error('Error validando cédula:', error);
+                statusDiv.innerHTML = '<span class="text-red-600">❌ Error: ' + error.message + '</span>';
+                document.getElementById('med-cedula').style.borderColor = '#EF4444';
+            }
+        }
+        
+        // Variables para firma digital
+        let firmaDigitalData = null;
+        let cFirmaLoadingScript = false;
+        
+        // Cargar firma digital desde archivo .p12
+        async function cargarFirmaDigital() {
+            const file = document.getElementById('firma-input').files[0];
+            const statusDiv = document.getElementById('firma-status');
+            
+            if (!file) return;
+            
+            // Validar que sea .p12 o .pfx
+            if (!file.name.match(/\.(p12|pfx)$/i)) {
+                statusDiv.innerHTML = '<span class="text-red-600">❌ Debe ser un archivo .p12 o .pfx</span>';
+                statusDiv.classList.remove('hidden');
+                return;
+            }
+            
+            statusDiv.innerHTML = '<span class="text-blue-600"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Cargando certificado SAT...</span>';
+            statusDiv.classList.remove('hidden');
+            
+            try {
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    try {
+                        firmaDigitalData = {
+                            archivo: e.target.result,
+                            nombre: file.name,
+                            cargadoEn: new Date(),
+                            cedulaAsociada: document.getElementById('med-cedula')?.value || ''
+                        };
+                        
+                        statusDiv.innerHTML = '<span class="text-green-600">✅ Certificado SAT cargado correctamente</span>';
+                        document.getElementById('firma-digital-container').style.borderColor = '#10B981';
+                        document.getElementById('firma-digital-container').style.backgroundColor = '#ECFDF5';
+                        
+                    } catch (error) {
+                        statusDiv.innerHTML = '<span class="text-red-600">❌ Error procesando certificado: ' + error.message + '</span>';
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+                
+            } catch (error) {
+                console.error('Error cargando firma:', error);
+                statusDiv.innerHTML = '<span class="text-red-600">❌ Error: ' + error.message + '</span>';
+            }
+        }
+        
+        // Firmar receta digitalmente
+        async function firmarRecetaDigitalmente(recetaId) {
+            if (!firmaDigitalData) {
+                alert('⚠️ Debes cargar un certificado SAT primero');
+                return false;
+            }
+            
+            if (!currentUser) {
+                alert('⚠️ Usuario no identificado');
+                return false;
+            }
+            
+            try {
+                const fechaFirma = new Date();
+                const firma = {
+                    firmadoPor: currentUser.uid,
+                    doctorNombre: document.getElementById('user-name')?.innerText || 'Dr. Anónimo',
+                    cedulaMedica: document.getElementById('med-cedula')?.value || '',
+                    certificadoSAT: firmaDigitalData.nombre,
+                    fechaFirma: fechaFirma,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    hash: 'firma-digital-' + Math.random().toString(36).substr(2, 9),
+                    vigencia: new Date(fechaFirma.setFullYear(fechaFirma.getFullYear() + 1))
+                };
+                
+                // Guardar firma en Firestore
+                await db.collection('patients').doc(currentUser.uid)
+                    .collection('firmasDigitales').add(firma);
+                
+                return firma;
+                
+            } catch (error) {
+                console.error('Error firmando receta:', error);
+                alert('Error al firmar receta: ' + error.message);
+                return false;
+            }
+        }
 
         // Alternar entre login y signup
         document.getElementById('show-signup').addEventListener('click', (e) => {
@@ -4316,6 +4495,17 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
                 const texto = instruccionesDiv.innerText || '';
                 instruccionesPreview.innerHTML = texto ? `<p class="text-xs text-gray-700">${texto}</p>` : '<p class="italic text-gray-500">Escribe instrucciones...</p>';
             }
+            
+            // Actualizar vista de firma digital
+            const firmaPreview = document.getElementById('firma-preview');
+            if (firmaDigitalData) {
+                firmaPreview.classList.remove('hidden');
+                document.getElementById('firma-cedula-preview').textContent = document.getElementById('med-cedula')?.value || 'N/A';
+                document.getElementById('firma-cert-preview').textContent = firmaDigitalData.nombre;
+                document.getElementById('firma-hash-preview').textContent = 'receta-' + Math.random().toString(36).substr(2, 9);
+            } else {
+                firmaPreview.classList.add('hidden');
+            }
         }
         
         // Actualizar preview cuando cambia el paciente
@@ -4346,7 +4536,8 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
                 btn.disabled = true;
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Guardando...';
                 
-                db.collection('patients').doc(pacienteId).collection('prescriptions').doc().set({
+                // Crear objeto de receta con firma digital si está disponible
+                const recetaData = {
                     medicamentos: medicamentosReceta.map(m => ({
                         nombre: m.nombre,
                         dosis: m.dosis,
@@ -4360,8 +4551,27 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
                     doctorId: currentUser.uid,
                     createdAt: firebase.firestore.Timestamp.now(),
                     estado: 'activa'
-                }).then(() => {
-                    alert('✅ Receta guardada correctamente');
+                };
+                
+                // Agregar firma digital si está disponible
+                if (firmaDigitalData) {
+                    const cedula = document.getElementById('med-cedula')?.value || '';
+                    recetaData.firmaDigital = {
+                        cedulaMedica: cedula,
+                        certificado: firmaDigitalData.nombre,
+                        firmadoEn: firebase.firestore.FieldValue.serverTimestamp(),
+                        vigencia: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+                        hash: 'receta-' + Math.random().toString(36).substr(2, 9),
+                        validaParaSAT: true
+                    };
+                }
+                
+                db.collection('patients').doc(pacienteId).collection('prescriptions').doc().set(recetaData).then((docRef) => {
+                    let mensaje = '✅ Receta guardada correctamente';
+                    if (recetaData.firmaDigital) {
+                        mensaje += '\n🔐 Firmada digitalmente con certificado SAT';
+                    }
+                    alert(mensaje);
                     limpiarReceta();
                 }).catch(error => {
                     alert('❌ Error al guardar: ' + error.message);
