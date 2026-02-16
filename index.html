@@ -5049,19 +5049,29 @@ Roberto Pérez López,PELOR640815HDFPLB05,1964-08-15,M,roberto@hospital.mx,+52 3
                 console.log('Usando horarios por defecto');
             }
             
-            // Obtener citas de la semana
-            const citasSnapshot = await db.collection('appointments')
-                .where('doctorId', '==', currentUser.uid)
-                .where('fechaHora', '>=', fechaInicio)
-                .where('fechaHora', '<', new Date(fechaInicio.getTime() + 7 * 24 * 60 * 60 * 1000))
-                .get();
-            
-            const citasMap = new Map();
-            citasSnapshot.forEach(doc => {
-                const cita = doc.data();
-                const key = cita.fecha + '_' + cita.hora;
-                citasMap.set(key, {id: doc.id, ...cita});
-            });
+            // Obtener citas de la semana - Simplificar consulta para evitar índice compuesto
+            let citasMap = new Map();
+            try {
+                const citasSnapshot = await db.collection('appointments')
+                    .where('doctorId', '==', currentUser.uid)
+                    .get();
+                
+                // Filtrar en JavaScript por fecha
+                const fechaFin = new Date(fechaInicio.getTime() + 7 * 24 * 60 * 60 * 1000);
+                
+                citasSnapshot.forEach(doc => {
+                    const cita = doc.data();
+                    const citaFecha = cita.fechaHora?.toDate?.() || new Date(cita.fecha + 'T' + cita.hora);
+                    
+                    // Solo agregar si está dentro de la semana
+                    if (citaFecha >= fechaInicio && citaFecha < fechaFin) {
+                        const key = cita.fecha + '_' + cita.hora;
+                        citasMap.set(key, {id: doc.id, ...cita});
+                    }
+                });
+            } catch (error) {
+                console.error('Error cargando citas:', error);
+            }
             
             // Convertir horarios a minutos
             const [hiH, hiM] = horarioInicio.split(':').map(Number);
