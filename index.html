@@ -2518,6 +2518,10 @@
                     renderGraficaSignosVitales(p);
                 }, 500);
                 
+                // Cargar medicamentos activos y próximas citas
+                await cargarMedicamentosActivos(patientId);
+                await cargarProximasCitas(patientId);
+                
             } catch (error) {
                 console.error('Error cargando expediente:', error);
             }
@@ -2677,6 +2681,126 @@
                     }
                 }
             });
+        }
+        
+        // ==================== SINCRONIZACIÓN DE MEDICAMENTOS Y CITAS ====================
+        
+        // Cargar medicamentos activos desde recetas
+        async function cargarMedicamentosActivos(patientId) {
+            try {
+                const prescriptionsSnapshot = await db.collection('patients')
+                    .doc(patientId)
+                    .collection('prescriptions')
+                    .where('estado', '==', 'activa')
+                    .get();
+                
+                const medicamentosMap = new Map();
+                
+                // Iterar sobre todas las recetas activas
+                prescriptionsSnapshot.forEach(doc => {
+                    const receta = doc.data();
+                    if (receta.medicamentos && Array.isArray(receta.medicamentos)) {
+                        receta.medicamentos.forEach(med => {
+                            const key = med.nombre.toLowerCase();
+                            if (!medicamentosMap.has(key)) {
+                                medicamentosMap.set(key, {
+                                    nombre: med.nombre,
+                                    dosis: med.dosis,
+                                    frecuencia: med.frecuencia,
+                                    dias: med.dias,
+                                    desde: receta.createdAt,
+                                    recetaId: doc.id
+                                });
+                            }
+                        });
+                    }
+                });
+                
+                // Mostrar medicamentos en el expediente
+                const medicamentosDiv = document.getElementById('exp-medicamentos');
+                if (medicamentosDiv) {
+                    if (medicamentosMap.size === 0) {
+                        medicamentosDiv.innerHTML = '<p class="text-gray-500 text-sm italic">Sin medicamentos activos</p>';
+                    } else {
+                        medicamentosDiv.innerHTML = Array.from(medicamentosMap.values()).map(med => `
+                            <div class="flex justify-between items-start bg-green-50 p-3 rounded border border-green-200">
+                                <div class="flex-1">
+                                    <p class="font-bold text-gray-900 text-sm">${med.nombre}</p>
+                                    <p class="text-xs text-gray-600">${med.dosis || '-'}</p>
+                                    <p class="text-xs text-gray-500">${med.frecuencia || '-'} x ${med.dias || '-'} días</p>
+                                </div>
+                                <span class="text-green-600 text-xs font-bold bg-green-100 px-2 py-1 rounded">ACTIVO</span>
+                            </div>
+                        `).join('');
+                    }
+                }
+                
+                console.log('✅ Medicamentos cargados:', medicamentosMap.size);
+                
+            } catch (error) {
+                console.error('Error cargando medicamentos:', error);
+            }
+        }
+        
+        // Cargar próximas citas del paciente
+        async function cargarProximasCitas(patientId) {
+            try {
+                const ahora = new Date();
+                
+                const citasSnapshot = await db.collection('appointments')
+                    .where('pacienteId', '==', patientId)
+                    .where('estado', 'in', ['pendiente', 'confirmada'])
+                    .get();
+                
+                // Filtrar y ordenar citas futuras
+                const citasFuturas = citasSnapshot.docs
+                    .map(doc => ({
+                        id: doc.id,
+                        ...doc.data(),
+                        fechaObj: doc.data().fechaHora?.toDate?.() || new Date(doc.data().fecha + 'T' + doc.data().hora)
+                    }))
+                    .filter(cita => cita.fechaObj > ahora)
+                    .sort((a, b) => a.fechaObj - b.fechaObj)
+                    .slice(0, 5); // Mostrar solo las próximas 5
+                
+                // Mostrar citas en el expediente
+                const citasDiv = document.getElementById('exp-citas');
+                if (citasDiv) {
+                    if (citasFuturas.length === 0) {
+                        citasDiv.innerHTML = '<p class="text-gray-500 text-sm italic">Sin citas próximas</p>';
+                    } else {
+                        citasDiv.innerHTML = citasFuturas.map(cita => {
+                            const fechaFormato = cita.fechaObj.toLocaleDateString('es-MX', { 
+                                month: 'short', 
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            });
+                            
+                            const estadoColor = cita.estado === 'confirmada' ? 'green' : 'yellow';
+                            const estadoIcon = cita.estado === 'confirmada' ? '✓' : '?';
+                            
+                            return `
+                                <div class="border-l-4 border-blue-600 pl-3 py-2 bg-blue-50 rounded p-2">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <p class="font-bold text-gray-900 text-sm">${cita.tipo === 'consulta-general' ? 'Consulta General' : cita.tipo.replace('-', ' ').toUpperCase()}</p>
+                                            <p class="text-xs text-gray-600">${fechaFormato}</p>
+                                            <p class="text-xs text-gray-500">${cita.duracion || 30} minutos</p>
+                                        </div>
+                                        <span class="text-xs font-bold bg-${estadoColor}-100 text-${estadoColor}-700 px-2 py-1 rounded">${estadoIcon} ${cita.estado}</span>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    }
+                }
+                
+                console.log('✅ Citas cargadas:', citasFuturas.length);
+                
+            } catch (error) {
+                console.error('Error cargando citas:', error);
+            }
         }
         
         // Guardar signos vitales
