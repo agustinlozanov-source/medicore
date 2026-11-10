@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+/* Los tokens de Flow Hub: blanco y negro mandan, el degradado es un acento. */
+@theme {
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-display: var(--font-jakarta), var(--font-inter), sans-serif;
+  --color-tinta: #070708;
+  --color-g1: #f5f5f7;
+  --color-g2: #e8e8ed;
+  --color-g3: #c7c7cc;
+  --color-g4: #8e8e93;
+  --color-g5: #3a3a3c;
+  --color-verde: #1aab99;
+  --color-azul: #0066ff;
+  --color-indigo: #3533cd;
+  --color-alerta: #d32f2b;
+  --color-ok: #00914b;
+  --color-ambar: #b86a00;
+}
+
+body {
+  background: #fff;
+  color: var(--color-tinta);
+  -webkit-font-smoothing: antialiased;
+}
+
+.marca-texto {
+  background: linear-gradient(110deg, #1aab99, #0066ff, #3533cd);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+input, select, textarea { font: inherit; }
+
+.campo {
+  width: 100%;
+  border: 1px solid var(--color-g2);
+  border-radius: 10px;
+  padding: 7px 10px;
+  font-size: 14px;
+  background: #fff;
+  outline: none;
+}
+.campo:focus { border-color: var(--color-tinta); }
+
+@media print {
+  .no-imprimir { display: none !important; }
+  body { background: #fff; }
+}

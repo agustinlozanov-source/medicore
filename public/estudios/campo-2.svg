@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs>
+    <radialGradient id="g-fondo" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#f2a04a"/><stop offset=".6" stop-color="#d0582b"/><stop offset="1" stop-color="#6e1d10"/>
+    </radialGradient>
+    <radialGradient id="g-papila"><stop offset="0" stop-color="#fffbe6"/><stop offset=".55" stop-color="#ffe3a0"/><stop offset="1" stop-color="#f0b45c"/></radialGradient>
+    <radialGradient id="g-macula"><stop offset="0" stop-color="#7a2410" stop-opacity=".75"/><stop offset="1" stop-color="#7a2410" stop-opacity="0"/></radialGradient>
+  </defs>
+    <rect width="100" height="100" fill="#f4f4f5"/>
+    <g fill="#d4d4d8">
+      <circle cx="50" cy="50" r="44" fill="#e4e4e7"/>
+    </g>
+    <path d="M14 46 C18 26 34 14 50 14 C62 14 70 18 76 24 C66 22 58 22 50 24 C36 28 26 36 22 46 Z" fill="#27272a" opacity=".9"/>
+    <path d="M26 46 C30 38 38 32 50 30 C56 29 62 30 66 32 C58 33 50 36 44 40 C38 43 32 46 26 46 Z" fill="#71717a" opacity=".7"/>
+    <path d="M50 6 V94 M6 50 H94" stroke="#a1a1aa" stroke-width=".6"/>
+    <circle cx="66" cy="50" r="3.5" fill="#3f3f46"/>
+  </svg>
